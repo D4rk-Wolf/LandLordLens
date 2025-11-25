@@ -1,31 +1,39 @@
-import { prisma } from "./prisma"
+import { prisma } from "./prisma";
+import { getTenantPrismaClient } from "./tenant-prisma";
+
+async function getTenantPropertyCount(userId: string): Promise<number> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { tenantDatabaseUrl: true },
+  });
+
+  if (!user?.tenantDatabaseUrl) {
+    return 0;
+  }
+
+  const tenantClient = getTenantPrismaClient(user.tenantDatabaseUrl);
+  return tenantClient.property.count();
+}
 
 export async function checkPropertyLimit(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { currentPlan: true },
-  })
+  });
 
   if (!user) {
-    return false
+    return false;
   }
 
-  // Pro plan has unlimited properties
   if (user.currentPlan === "pro") {
-    return true
+    return true;
   }
 
-  // Free plan is limited to 1 property
-  const propertyCount = await prisma.property.count({
-    where: { userId },
-  })
-
-  return propertyCount < 1
+  const propertyCount = await getTenantPropertyCount(userId);
+  return propertyCount < 1;
 }
 
 export async function getPropertyCount(userId: string): Promise<number> {
-  return prisma.property.count({
-    where: { userId },
-  })
+  return getTenantPropertyCount(userId);
 }
 

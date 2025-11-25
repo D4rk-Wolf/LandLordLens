@@ -1,268 +1,258 @@
 # Testing Guide
 
-## Quick Test Flow (15 minutes)
+This guide will help you test the LandlordLens application locally.
 
-### 1. Initial Setup (2 min)
+## Prerequisites
+
+1. **PostgreSQL** must be installed and running
+2. **Node.js 18+** and npm installed
+3. Environment variables configured (see `.env.example`)
+
+## Initial Setup
+
+### 1. Database Setup
+
+```bash
+# Create the main database
+createdb landlordlens_main
+
+# Or using psql:
+psql -U postgres -c "CREATE DATABASE landlordlens_main;"
+```
+
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set:
+- `DATABASE_URL` - Your PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Generate with: `openssl rand -base64 32`
+- `NEXTAUTH_URL` - Usually `http://localhost:3000`
+
+### 3. Install Dependencies
+
 ```bash
 npm install
-cp .env.example .env
-# Edit .env with DATABASE_URL and NEXTAUTH_SECRET
-npm run db:generate && npm run db:push && npm run db:seed
+```
+
+### 4. Database Migration
+
+```bash
+# Generate Prisma clients
+npm run generate
+
+# Push main database schema
+npm run db:push
+
+# Seed compliance types (optional)
+npm run db:seed
+```
+
+### 5. Create Admin Account
+
+```bash
+# Set admin credentials in .env or export them:
+export ADMIN_EMAIL="Admin"
+export ADMIN_PASSWORD="Lkjhgfdsaw1234"
+export ADMIN_NAME="Admin"
+
+# Create admin user
+npm run create-admin
+```
+
+### 6. Start Development Server
+
+```bash
 npm run dev
 ```
 
-### 2. Create Account & Onboarding (3 min)
-1. Go to http://localhost:3000
-2. Click "Start Free Trial"
-3. Sign up with:
-   - Name: Test Landlord
-   - Email: landlord@test.com
-   - Password: test1234
-4. Complete onboarding:
-   - Property: 123 Test Street, SW1A 1AA
-   - Tenancy: John Doe, £1000/month
-   - Gas Safety: Last check 6 months ago
+The app should now be running at `http://localhost:3000`
 
-### 3. Test Core Features (5 min)
+## Testing Checklist
 
-#### Property Management
-- ✅ View dashboard with your property
-- ✅ Click property to see details
-- ✅ Try adding second property (should show upgrade prompt)
+### Authentication
 
-#### Tenancy Management
-- ✅ View tenancy on property page
-- ✅ Add another tenancy (end date in past to test history)
+- [ ] **Sign Up**
+  - Navigate to `/auth/signup`
+  - Create a new account
+  - Verify tenant database is created automatically
+  - Verify redirect to dashboard after signup
 
-#### Compliance
-- ✅ View compliance record
-- ✅ Add new compliance (EPC, EICR, etc.)
-- ✅ Check compliance page for alerts
+- [ ] **Sign In**
+  - Navigate to `/auth/signin`
+  - Sign in with created account
+  - Verify redirect to dashboard
 
-### 4. Test Advanced Features (5 min)
+- [ ] **Admin Sign In**
+  - Sign in with admin credentials
+  - Verify access to `/admin` dashboard
+  - Verify non-admin users cannot access `/admin`
 
-#### Maintenance Tickets
-- ✅ Go to `/dashboard/maintenance`
-- ✅ Create ticket: "Broken boiler", High priority
-- ✅ Update status to "In Progress"
+### Dashboard
 
-#### Financial Tracking
-- ✅ On property page, add transaction:
-  - Type: Income, Amount: £1000, Category: Rent
-- ✅ Add expense: Type: Expense, Amount: £50, Category: Repair
-- ✅ Check dashboard financial summary updated
+- [ ] **Landlord Dashboard** (`/dashboard`)
+  - View empty state (no properties)
+  - Verify all stat cards show 0
+  - Verify navigation works
 
-#### Document Generation
-- ✅ Go to `/dashboard/documents`
-- ✅ Select tenancy
-- ✅ Generate and download PDF
+- [ ] **Admin Dashboard** (`/admin`)
+  - View user statistics
+  - Verify totals are calculated correctly
+  - Check recent users list
 
-#### Analytics
-- ✅ Go to `/dashboard/analytics`
-- ✅ View cashflow chart (may be empty initially)
-- ✅ Add property value estimate to see yield
+### Property Management
 
-## Feature-Specific Tests
+- [ ] **Create Property**
+  - Navigate to `/properties/new`
+  - Fill out property form
+  - Submit and verify property is created
+  - Verify redirect to properties list
 
-### Maintenance System
+- [ ] **View Properties**
+  - Navigate to `/properties`
+  - Verify created property appears
+  - Check property details
 
-**Test Case 1: Create Ticket**
-1. Go to property detail page
-2. Click "Report Maintenance Issue"
-3. Fill form:
-   - Title: "Leaking tap"
-   - Description: "Kitchen tap leaking"
-   - Priority: Medium
-4. Submit
-5. Verify ticket appears in `/dashboard/maintenance`
+- [ ] **Property Details**
+  - Click on a property
+  - Verify property information displays
+  - Check tenancies section (empty initially)
 
-**Test Case 2: Filter Tickets**
-1. Create multiple tickets with different priorities
-2. Use filters on maintenance page
-3. Verify filtering works
+### Admin Features
 
-**Test Case 3: Update Status**
-1. Open a ticket
-2. Change status to "Resolved"
-3. Verify status updates
+- [ ] **User Management** (`/admin/users`)
+  - View all users
+  - Verify user statistics (properties, tenancies)
+  - Check user roles and plans
 
-### Financial Tracking
+- [ ] **Payment Management** (`/admin/payments`)
+  - View payment history
+  - Verify revenue calculations
+  - Check subscription counts
 
-**Test Case 1: Record Income**
-1. On property page, add transaction
-2. Type: Income, £1000, Category: Rent
-3. Verify appears in transaction list
-4. Check dashboard shows income
+### Multi-Tenant Database
 
-**Test Case 2: Record Expense**
-1. Add transaction: Expense, £200, Category: Repair
-2. Verify net calculation: £1000 - £200 = £800
+- [ ] **Database Isolation**
+  - Create two test accounts
+  - Add properties to each account
+  - Verify each account only sees their own properties
+  - Verify admin can see all properties across accounts
 
-**Test Case 3: Monthly Summary**
-1. Add transactions for current month
-2. Check dashboard financial summary
-3. Verify totals match
+- [ ] **Tenant Database Creation**
+  - Check PostgreSQL for tenant databases
+  - Verify naming: `tenant_<userid>`
+  - Verify compliance types are seeded
 
-### Tenant Portal (Requires Email Setup)
+## Common Issues
 
-**Test Case 1: Invite Tenant**
-1. On property page, find tenancy
-2. Click "Invite Tenant"
-3. Enter email: tenant@test.com
-4. Verify invitation sent (check email or console)
+### Database Connection Errors
 
-**Test Case 2: Tenant Signup**
-1. Click invitation link from email
-2. Set password
-3. Verify redirects to tenant dashboard
+**Problem**: Cannot connect to PostgreSQL
 
-**Test Case 3: Tenant Features**
-1. As tenant, view tenancy details
-2. Report maintenance issue
-3. View open maintenance tickets
+**Solution**:
+- Verify PostgreSQL is running: `pg_isready`
+- Check `DATABASE_URL` in `.env`
+- Ensure database exists: `psql -l | grep landlordlens_main`
 
-### Document Generation
+### Tenant Database Creation Fails
 
-**Test Case 1: Generate Agreement**
-1. Go to `/dashboard/documents`
-2. Select a tenancy
-3. Click "Generate & Download PDF"
-4. Verify PDF downloads with correct data
+**Problem**: Signup succeeds but tenant DB not created
 
-**Test Case 2: Verify Content**
-1. Open downloaded PDF
-2. Check all fields populated correctly
-3. Verify disclaimer present
+**Solution**:
+- Check PostgreSQL user has CREATE DATABASE permission
+- Verify `psql` command is available in PATH
+- Check application logs for detailed error messages
+- Ensure `DATABASE_URL` format is correct
 
-### Analytics
+### Prisma Client Errors
 
-**Test Case 1: View Charts**
-1. Go to `/dashboard/analytics`
-2. Verify chart displays (may be empty if no data)
-3. Add transactions to see data points
+**Problem**: `Module not found: Can't resolve '../generated/tenant-client'`
 
-**Test Case 2: Portfolio Yield**
-1. Edit property, add value estimate: £200,000
-2. Ensure property has active tenancy with rent
-3. Check analytics page shows yield percentage
+**Solution**:
+```bash
+npm run generate
+```
 
-## Edge Cases to Test
+### Authentication Issues
 
-### Property Limits
-- [ ] Free plan: Try adding 2nd property → Should show upgrade prompt
-- [ ] Free plan: Verify can't add 2nd property via API
+**Problem**: Cannot sign in or session not persisting
 
-### Compliance Alerts
-- [ ] Create compliance due tomorrow → Should appear in critical alerts
-- [ ] Create overdue compliance → Should show as overdue
+**Solution**:
+- Verify `NEXTAUTH_SECRET` is set in `.env`
+- Check `NEXTAUTH_URL` matches your app URL
+- Clear browser cookies and try again
+- Check server logs for authentication errors
 
-### Tenant Access
-- [ ] Tenant tries to access landlord routes → Should be denied
-- [ ] Tenant only sees their own tenancy
+### Build Errors
 
-### Data Validation
-- [ ] Try submitting forms with missing required fields
-- [ ] Try invalid email formats
-- [ ] Try negative amounts in transactions
+**Problem**: TypeScript or build errors
+
+**Solution**:
+```bash
+# Regenerate Prisma clients
+npm run generate
+
+# Check for linting errors
+npm run lint
+
+# Try rebuilding
+npm run build
+```
+
+## Testing Admin Account
+
+The admin account should be created with:
+- **Email/Username**: `Admin`
+- **Password**: `Lkjhgfdsaw1234`
+- **Role**: `ADMIN`
+
+To verify:
+1. Sign in at `/auth/signin`
+2. Navigate to `/admin`
+3. Should see admin dashboard with user statistics
+
+## Testing Multi-Tenancy
+
+1. Create two test accounts (User A and User B)
+2. Sign in as User A and add a property
+3. Sign out and sign in as User B
+4. Verify User B cannot see User A's property
+5. Sign in as admin
+6. Verify admin can see properties from both users
 
 ## Performance Testing
 
-### Database Queries
-- [ ] Load dashboard with 10+ properties
-- [ ] Load compliance page with many records
-- [ ] Check page load times
-
-### Large Datasets
-- [ ] Add 50+ transactions
-- [ ] Verify chart still renders smoothly
-- [ ] Check pagination if implemented
-
-## Browser Testing
-
-Test in:
-- [ ] Chrome/Edge (Chromium)
-- [ ] Firefox
-- [ ] Safari (if on Mac)
-- [ ] Mobile viewport (responsive design)
+- Test with multiple users (10+)
+- Verify tenant database creation doesn't block other signups
+- Check dashboard load times with many properties
+- Test admin dashboard with many users
 
 ## Security Testing
 
-- [ ] Try accessing `/dashboard` without login → Should redirect
-- [ ] Try accessing other user's data via API → Should be denied
-- [ ] Verify password hashing (check database)
-- [ ] Test session expiry
+- [ ] Verify non-authenticated users cannot access protected routes
+- [ ] Verify non-admin users cannot access `/admin` routes
+- [ ] Test SQL injection protection (Prisma handles this)
+- [ ] Verify password hashing (bcrypt)
+- [ ] Check session expiration
 
-## Integration Testing
+## Next Steps
 
-### Stripe (If Configured)
-- [ ] Click "Upgrade to Pro"
-- [ ] Complete Stripe checkout
-- [ ] Verify subscription status updates
-- [ ] Verify can add unlimited properties
+After basic testing passes:
+1. Test property creation and editing
+2. Test tenancy management
+3. Test compliance tracking
+4. Test maintenance tickets
+5. Test payment integration (when implemented)
 
-### Email (If Configured)
-- [ ] Invite tenant → Check email received
-- [ ] Trigger compliance reminder → Check email received
+## Getting Help
 
-### SMS (If Configured)
-- [ ] Add phone number to user
-- [ ] Trigger compliance reminder → Check SMS received
-
-## Common Test Data
-
-Use these for consistent testing:
-
-**Properties:**
-- Address: "123 Test Street"
-- Postcode: "SW1A 1AA"
-- Type: "House"
-
-**Tenancies:**
-- Tenant: "John Doe"
-- Rent: £1000/month
-- Deposit: £1500
-
-**Compliance:**
-- Gas Safety: Due annually
-- EPC: Due every 10 years
-- EICR: Due every 5 years
-
-**Transactions:**
-- Income: £1000 (Rent)
-- Expense: £50 (Repair)
-- Expense: £100 (Management Fee)
-
-## Automated Testing (Future)
-
-Consider adding:
-- Unit tests for utilities
-- Integration tests for API routes
-- E2E tests with Playwright/Cypress
-
-## Reporting Issues
-
-When reporting bugs, include:
-1. Steps to reproduce
-2. Expected behavior
-3. Actual behavior
-4. Browser/OS
-5. Console errors (if any)
-6. Database state (if relevant)
-
-## Quick Reset
-
-To start fresh:
-```bash
-# Reset database (WARNING: deletes all data)
-npx prisma migrate reset
-npm run db:seed
-
-# Or manually delete and recreate
-dropdb landlordlens
-createdb landlordlens
-npm run db:push
-npm run db:seed
-```
-
-Happy Testing! 🧪
-
+If you encounter issues:
+1. Check application logs in terminal
+2. Check browser console for errors
+3. Verify all environment variables are set
+4. Ensure PostgreSQL is running and accessible
+5. Review error messages carefully

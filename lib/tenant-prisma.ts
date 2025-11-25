@@ -6,8 +6,7 @@
  * Run: DATABASE_URL="..." npx prisma generate --schema=prisma/tenant-schema.prisma
  */
 
-// Using any for now since tenant schema Prisma client needs to be generated separately
-type TenantPrismaClient = any;
+import { PrismaClient as TenantPrismaClient } from "../generated/tenant-client";
 
 // Cache for tenant clients
 const tenantClients = new Map<string, TenantPrismaClient>();
@@ -21,18 +20,14 @@ export function getTenantPrismaClient(databaseUrl: string): TenantPrismaClient {
     return tenantClients.get(databaseUrl)!;
   }
 
-  // For now, we'll use a dynamic import approach
-  // In production, you'd generate the tenant Prisma client separately
-  // Create new client with dynamic Prisma import
-  const { PrismaClient } = require('@prisma/client');
-  
-  const client = new PrismaClient({
+  const client = new TenantPrismaClient({
     datasources: {
       db: {
         url: databaseUrl,
       },
     },
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    log:
+      process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
   // Cache it

@@ -1,8 +1,9 @@
 // Tenant-specific database schema
 // This schema is used for each user's dedicated database
 
-generator client {
+generator tenantClient {
   provider = "prisma-client-js"
+  output   = "../generated/tenant-client"
 }
 
 datasource db {

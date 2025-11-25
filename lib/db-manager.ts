@@ -3,9 +3,9 @@
  * Each user gets their own dedicated PostgreSQL database
  */
 
-import { PrismaClient } from '@prisma/client';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from "child_process";
+import { promisify } from "util";
+import { PrismaClient as TenantPrismaClient } from "../generated/tenant-client";
 
 const execAsync = promisify(exec);
 
@@ -43,7 +43,7 @@ function getDatabaseConfig(): DatabaseConfig {
  */
 export function generateTenantDatabaseName(userId: string): string {
   // Use a prefix and sanitize the user ID
-  const sanitized = userId.replace(/[^a-zA-Z0-9]/g, '_');
+  const sanitized = userId.replace(/[^a-zA-Z0-9]/g, "_");
   return `tenant_${sanitized}`;
 }
 
@@ -91,7 +91,7 @@ export async function createTenantDatabase(
     const databaseUrl = createTenantDatabaseUrl(tenantDbName, config);
 
     // Run Prisma migrations on the new database
-    const schemaPath = process.cwd() + '/prisma/tenant-schema.prisma';
+    const schemaPath = process.cwd() + "/prisma/tenant-schema.prisma";
     const migrateCommand = `DATABASE_URL="${databaseUrl}" npx prisma migrate deploy --schema=${schemaPath}`;
     
     try {
@@ -123,10 +123,6 @@ export async function createTenantDatabase(
  * Seed tenant database with initial data (compliance types)
  */
 async function seedTenantDatabase(databaseUrl: string): Promise<void> {
-  const { PrismaClient: TenantPrismaClient } = await import('@prisma/client');
-  
-  // We'll need to generate a client with the tenant schema
-  // For now, we'll use a direct SQL approach or create a separate client
   const complianceTypes = [
     {
       name: 'Gas Safety Certificate',
@@ -160,9 +156,23 @@ async function seedTenantDatabase(databaseUrl: string): Promise<void> {
     },
   ];
 
-  // Note: This would need to be implemented with a tenant-specific Prisma client
-  // For now, we'll handle this in the setup process
-  console.log('Compliance types to seed:', complianceTypes);
+  const tenantClient = new TenantPrismaClient({
+    datasources: {
+      db: { url: databaseUrl },
+    },
+  });
+
+  try {
+    const existing = await tenantClient.complianceType.count();
+    if (existing === 0) {
+      await tenantClient.complianceType.createMany({
+        data: complianceTypes,
+        skipDuplicates: true,
+      });
+    }
+  } finally {
+    await tenantClient.$disconnect();
+  }
 }
 
 /**
