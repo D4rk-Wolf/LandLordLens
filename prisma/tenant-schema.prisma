@@ -5,6 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator tenantClient {
+  provider = "prisma-client-js"
+  output   = "../generated/tenant-client"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("TENANT_DATABASE_URL")

@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "generate": "prisma generate && prisma generate --schema=prisma/tenant-schema.prisma",
+    "postinstall": "npm run generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
