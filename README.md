@@ -79,7 +79,9 @@ See [FEATURES_ADDED.md](./FEATURES_ADDED.md) for detailed information about all 
 │   └── index.js       # Server entry point
 ├── lib/                 # Utilities and helpers
 │   ├── mongodb.js      # MongoDB connection
-│   └── db.js          # Database models and helpers
+│   ├── logger.js       # Server-side logging utility
+│   ├── stripe.js       # Stripe payment integration
+│   └── subscription.js # Subscription tier management
 ├── models/              # Mongoose models
 │   ├── User.js        # User model
 │   ├── Payment.js     # Payment model

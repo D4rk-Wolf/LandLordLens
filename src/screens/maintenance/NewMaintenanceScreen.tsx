@@ -17,9 +17,10 @@ interface NewMaintenanceScreenProps {
   onNavigate: (screen: string) => void;
   onBack: () => void;
   propertyId?: string;
+  onSignOut: () => void;
 }
 
-const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate, onBack, propertyId }) => {
+const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate, onBack, propertyId, onSignOut }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -195,25 +196,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    flexDirection: 'row',
-    alignItems: 'center',
+  scrollView: {
+    flex: 1,
   },
   backButton: {
-    marginRight: 15,
+    padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f3f4f6',
   },
   backButtonText: {
-    color: '#3498db',
-    fontSize: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: '600',
   },
   form: {
     padding: 20,

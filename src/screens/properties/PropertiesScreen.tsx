@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../utils/constants';
 import { logger } from '../../utils/logger';
+import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface Property {
   _id: string;
@@ -20,9 +22,10 @@ interface Property {
 interface PropertiesScreenProps {
   onNavigate: (screen: string) => void;
   onSelectProperty: (id: string) => void;
+  onSignOut: () => void;
 }
 
-const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelectProperty }) => {
+const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelectProperty, onSignOut }) => {
   const { token } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,15 +253,12 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: '#6366f1',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    boxShadow: '0px 6px 12px 0px rgba(99, 102, 241, 0.35)',
-    elevation: 6,
-    gap: 10,
-    borderWidth: 0,
+    gap: 8,
   },
   addButtonIconContainer: {
     width: 24,

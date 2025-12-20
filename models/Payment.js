@@ -72,7 +72,7 @@ const paymentSchema = new mongoose.Schema({
 
 // Index for faster queries
 paymentSchema.index({ userId: 1, createdAt: -1 });
-paymentSchema.index({ stripePaymentIntentId: 1 });
-paymentSchema.index({ stripeSubscriptionId: 1 });
+// Note: stripePaymentIntentId and stripeSubscriptionId use sparse: true which creates sparse indexes automatically.
+// If you see duplicate index warnings, you can drop existing indexes in MongoDB and let Mongoose recreate them.
 
 module.exports = mongoose.model('Payment', paymentSchema);

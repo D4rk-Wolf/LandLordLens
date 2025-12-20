@@ -3,17 +3,20 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface PropertyDetailScreenProps {
   propertyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
 const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
   propertyId,
   onNavigate,
   onBack,
+  onSignOut,
 }) => {
   const { token } = useAuth();
   const [property, setProperty] = useState<any>(null);
@@ -64,13 +67,17 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Property Details</Text>
-      </View>
+    <View style={styles.container}>
+      <PageHeader 
+        title="Property Details" 
+        onSignOut={onSignOut}
+        leftAction={
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView}>
 
       <View style={styles.content}>
         <View style={styles.heroSection}>
@@ -283,14 +290,18 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
           )}
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -326,29 +337,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
   },
-  header: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-  },
   backButton: {
-    marginRight: 15,
-    padding: 5,
+    padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f3f4f6',
   },
   backButtonText: {
-    color: '#3498db',
-    fontSize: 16,
+    color: '#374151',
+    fontSize: 14,
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
   },
   content: {
     padding: 20,

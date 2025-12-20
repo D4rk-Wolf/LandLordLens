@@ -4,12 +4,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { COMPLIANCE_EXPIRY_DAYS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface DashboardScreenProps {
   onNavigate: (screen: string) => void;
+  onSignOut: () => void;
 }
 
-const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
+const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, onSignOut }) => {
   const { token } = useAuth();
   const [stats, setStats] = useState({
     totalProperties: 0,
@@ -177,25 +179,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
   }
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerTop}>
-            <View style={styles.greetingContainer}>
-              <Text style={styles.greeting}>Welcome back! 👋</Text>
-              <View style={styles.greetingLine} />
-            </View>
-          </View>
-          <Text style={styles.title}>Dashboard Overview</Text>
+    <View style={styles.container}>
+      <PageHeader title="Dashboard" onSignOut={onSignOut} />
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.welcomeSection}>
+          <Text style={styles.greeting}>Welcome back! 👋</Text>
           <Text style={styles.subtitle}>Here's what's happening with your properties today</Text>
         </View>
-      </View>
 
-      <View style={styles.contentWrapper}>
+        <View style={styles.contentWrapper}>
         <View style={styles.statsContainer}>
           {statCards.map((stat, index) => (
             <TouchableOpacity
@@ -351,7 +347,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -413,10 +410,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   contentWrapper: {
-    maxWidth: 1200,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   statsContainer: {
     flexDirection: 'row',

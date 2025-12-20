@@ -3,17 +3,20 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput 
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface InventoryScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
 const InventoryScreen: React.FC<InventoryScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
+  onSignOut,
 }) => {
   const { token } = useAuth();
   const [inventories, setInventories] = useState<any[]>([]);
@@ -75,16 +78,22 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Inventory</Text>
-        <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Add</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <PageHeader 
+        title="Inventory" 
+        onSignOut={onSignOut}
+        leftAction={
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        }
+        rightAction={
+          <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
+            <Text style={styles.addButtonText}>+ Add</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView}>
 
       {showForm ? (
         <View style={styles.content}>
@@ -256,37 +265,29 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
           )}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+  scrollView: {
+    flex: 1,
   },
   backButton: {
     padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f3f4f6',
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#6366f1',
+    fontSize: 14,
+    color: '#374151',
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    flex: 1,
   },
   addButton: {
     backgroundColor: '#6366f1',

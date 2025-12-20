@@ -3,6 +3,7 @@ const { authenticateToken } = require('./auth');
 const User = require('../../models/User');
 const Payment = require('../../models/Payment');
 const Property = require('../../models/tenant/Property');
+const logger = require('../../lib/logger');
 const {
   getSubscriptionTier,
   getMaxProperties,
@@ -70,7 +71,7 @@ router.post('/create-checkout', async (req, res) => {
       url: session.url,
     });
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    logger.error('Error creating checkout session', error);
     res.status(500).json({
       error: 'Failed to create checkout session',
       message: error.message,
@@ -103,7 +104,7 @@ router.post('/create-portal', async (req, res) => {
       url: session.url,
     });
   } catch (error) {
-    console.error('Error creating portal session:', error);
+    logger.error('Error creating portal session', error);
     res.status(500).json({
       error: 'Failed to create portal session',
       message: error.message,
@@ -190,7 +191,7 @@ router.get('/subscription-status', async (req, res) => {
       try {
         stripeSubscription = await getSubscription(user.stripeSubscriptionId);
       } catch (error) {
-        console.error('Error fetching Stripe subscription:', error);
+        logger.error('Error fetching Stripe subscription', error);
       }
     }
 

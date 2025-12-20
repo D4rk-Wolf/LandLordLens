@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface InspectionsScreenProps {
   onNavigate: (screen: string) => void;
   propertyId?: string;
+  onSignOut: () => void;
 }
 
-const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, propertyId }) => {
+const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, propertyId, onSignOut }) => {
   const { token } = useAuth();
   const [inspections, setInspections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,13 +88,17 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Property Inspections</Text>
-        <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Schedule</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <PageHeader 
+        title="Inspections" 
+        onSignOut={onSignOut}
+        rightAction={
+          <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
+            <Text style={styles.addButtonText}>+ Schedule</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView}>
 
       {showForm ? (
         <View style={styles.content}>
@@ -255,28 +260,18 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
           )}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+  scrollView: {
+    flex: 1,
   },
   addButton: {
     backgroundColor: '#6366f1',

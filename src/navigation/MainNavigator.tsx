@@ -139,6 +139,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -155,6 +156,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -171,6 +173,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -190,6 +193,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -209,6 +213,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -228,6 +233,7 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
@@ -247,41 +253,43 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
+          onSignOut={signOut}
         />
       );
     }
 
     switch (currentScreen) {
       case 'dashboard':
-        return <DashboardScreen onNavigate={navigate} />;
+        return <DashboardScreen onNavigate={navigate} onSignOut={signOut} />;
       case 'properties':
-        return <PropertiesScreen onNavigate={navigate} onSelectProperty={navigateToPropertyDetail} />;
+        return <PropertiesScreen onNavigate={navigate} onSelectProperty={navigateToPropertyDetail} onSignOut={signOut} />;
       case 'property-detail':
         return selectedPropertyId ? (
           <PropertyDetailScreen 
             propertyId={selectedPropertyId} 
             onNavigate={navigate}
             onBack={() => startTransition(() => setCurrentScreen('properties'))}
+            onSignOut={signOut}
           />
         ) : null;
       case 'new-property':
-        return <NewPropertyScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('properties'))} />;
+        return <NewPropertyScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('properties'))} onSignOut={signOut} />;
       case 'compliance':
-        return <ComplianceScreen onNavigate={navigate} />;
+        return <ComplianceScreen onNavigate={navigate} onSignOut={signOut} />;
       case 'maintenance':
-        return <MaintenanceScreen onNavigate={navigate} />;
+        return <MaintenanceScreen onNavigate={navigate} onSignOut={signOut} />;
       case 'new-maintenance':
-        return <NewMaintenanceScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('maintenance'))} />;
+        return <NewMaintenanceScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('maintenance'))} onSignOut={signOut} />;
       case 'inspections':
-        return <InspectionsScreen onNavigate={navigate} />;
+        return <InspectionsScreen onNavigate={navigate} onSignOut={signOut} />;
       case 'expenses':
-        return <ExpensesScreen onNavigate={navigate} />;
+        return <ExpensesScreen onNavigate={navigate} onSignOut={signOut} />;
       case 'admin':
-        return user?.role === 'admin' ? <AdminScreen onNavigate={navigate} /> : null;
+        return user?.role === 'admin' ? <AdminScreen onNavigate={navigate} onSignOut={signOut} /> : null;
       case 'settings':
-        return <SettingsScreen onNavigate={navigate} />;
+        return <SettingsScreen onNavigate={navigate} onSignOut={signOut} />;
       default:
-        return <DashboardScreen onNavigate={navigate} />;
+        return <DashboardScreen onNavigate={navigate} onSignOut={signOut} />;
     }
   };
 
@@ -404,32 +412,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
             </Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.sidebarFooter}>
-          <View style={styles.userInfo}>
-            <View style={styles.userAvatar}>
-              <Text style={styles.userAvatarText}>
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
-              </Text>
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.userName} numberOfLines={1}>
-                {user?.name || 'User'}
-              </Text>
-              <Text style={styles.userEmail} numberOfLines={1}>
-                {user?.email || ''}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity 
-            style={styles.signOutButton} 
-            onPress={signOut}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.signOutIcon}>🚪</Text>
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
       </View>
       <View style={styles.content}>
         <View style={styles.contentInner}>
@@ -450,21 +432,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   sidebar: {
-    width: 280,
+    width: 240,
     backgroundColor: '#ffffff',
     borderRightWidth: 1,
     borderRightColor: '#e5e7eb',
     flexDirection: 'column',
-    justifyContent: 'space-between',
     boxShadow: '4px 0px 16px 0px rgba(0, 0, 0, 0.08)',
     elevation: 5,
     zIndex: 1000,
   },
   sidebarHeader: {
-    padding: 24,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
-    paddingBottom: 28,
+    paddingBottom: 20,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -565,75 +546,6 @@ const styles = StyleSheet.create({
   navLabelActive: {
     color: '#ffffff',
     fontWeight: '700',
-  },
-  sidebarFooter: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-    backgroundColor: '#fafbfc',
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 12,
-    paddingBottom: 16,
-  },
-  userAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e0e7ff',
-    boxShadow: '0px 2px 4px 0px rgba(99, 102, 241, 0.2)',
-    elevation: 2,
-  },
-  userAvatarText: {
-    color: '#ffffff',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  userDetails: {
-    flex: 1,
-    minWidth: 0,
-  },
-  userName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 3,
-    letterSpacing: -0.2,
-  },
-  userEmail: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '400',
-  },
-  signOutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 13,
-    paddingHorizontal: 18,
-    backgroundColor: '#fee2e2',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#fecaca',
-    boxShadow: '0px 2px 4px 0px rgba(220, 38, 38, 0.1)',
-    elevation: 1,
-  },
-  signOutIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  signOutText: {
-    color: '#dc2626',
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 0.2,
   },
   content: {
     flex: 1,

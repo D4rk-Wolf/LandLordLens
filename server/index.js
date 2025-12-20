@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const logger = require('../lib/logger');
 const { connectToMongoDB } = require('../lib/mongodb');
 const authRoutes = require('./routes/auth');
 const propertiesRoutes = require('./routes/properties');
@@ -55,7 +56,7 @@ app.get('/api/health', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  logger.error('Request error', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal server error',
   });
@@ -65,11 +66,21 @@ app.use((err, req, res, next) => {
 async function startServer() {
   try {
     await connectToMongoDB();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`Server running on http://localhost:${PORT}`);
+    });
+    
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        logger.error(`Port ${PORT} is already in use. Please stop the process using this port or change the PORT environment variable.`);
+      } else {
+        logger.error('Server error', error);
+      }
+      process.exit(1);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', error);
     process.exit(1);
   }
 }

@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
+}
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -18,6 +22,10 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
+    // Ensure user object has required properties
+    if (!user || !user.userId) {
+      return res.status(403).json({ error: 'Invalid token payload' });
+    }
     req.user = user;
     next();
   });
@@ -30,6 +38,17 @@ router.post('/signup', async (req, res) => {
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Email, password, and name are required' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
     const existingUser = await User.findOne({ email });

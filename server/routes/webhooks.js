@@ -3,11 +3,16 @@ const User = require('../../models/User');
 const Payment = require('../../models/Payment');
 const { stripe } = require('../../lib/stripe');
 const { getSubscriptionTier } = require('../../lib/subscription');
+const logger = require('../../lib/logger');
 
 const router = express.Router();
 
 // Stripe webhook secret from environment
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!webhookSecret) {
+  logger.warn('STRIPE_WEBHOOK_SECRET not set. Webhook signature verification will fail.');
+}
 
 /**
  * POST /api/webhooks/stripe
@@ -22,7 +27,7 @@ router.post('/stripe', async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    logger.error('Webhook signature verification failed', err);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -67,12 +72,12 @@ router.post('/stripe', async (req, res) => {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.debug(`Unhandled event type: ${event.type}`);
     }
 
     res.json({ received: true });
   } catch (error) {
-    console.error('Error handling webhook:', error);
+    logger.error('Error handling webhook', error);
     res.status(500).json({ error: 'Webhook handler failed' });
   }
 });
@@ -84,13 +89,13 @@ async function handleCheckoutCompleted(session) {
   try {
     const userId = session.metadata?.userId;
     if (!userId) {
-      console.error('No userId in checkout session metadata');
+      logger.error('No userId in checkout session metadata');
       return;
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      console.error(`User not found: ${userId}`);
+      logger.error(`User not found: ${userId}`);
       return;
     }
 
@@ -101,7 +106,7 @@ async function handleCheckoutCompleted(session) {
       await updateUserSubscription(user, subscription, session.metadata);
     }
   } catch (error) {
-    console.error('Error handling checkout completed:', error);
+    logger.error('Error handling checkout completed', error);
   }
 }
 
@@ -113,13 +118,13 @@ async function handleSubscriptionUpdate(subscription) {
     const customerId = subscription.customer;
     const user = await User.findOne({ stripeCustomerId: customerId });
     if (!user) {
-      console.error(`User not found for customer: ${customerId}`);
+      logger.error(`User not found for customer: ${customerId}`);
       return;
     }
 
     await updateUserSubscription(user, subscription);
   } catch (error) {
-    console.error('Error handling subscription update:', error);
+    logger.error('Error handling subscription update', error);
   }
 }
 
@@ -158,7 +163,7 @@ async function handleInvoicePaid(invoice) {
     const customerId = invoice.customer;
     const user = await User.findOne({ stripeCustomerId: customerId });
     if (!user) {
-      console.error(`User not found for customer: ${customerId}`);
+      logger.error(`User not found for customer: ${customerId}`);
       return;
     }
 
@@ -185,9 +190,9 @@ async function handleInvoicePaid(invoice) {
     });
 
     await payment.save();
-    console.log(`Payment recorded for user: ${user.email}, amount: ${invoice.amount_paid / 100}`);
+    logger.info(`Payment recorded for user: ${user.email}, amount: ${invoice.amount_paid / 100}`);
   } catch (error) {
-    console.error('Error handling invoice paid:', error);
+    logger.error('Error handling invoice paid', error);
   }
 }
 
@@ -199,7 +204,7 @@ async function handleInvoicePaymentFailed(invoice) {
     const customerId = invoice.customer;
     const user = await User.findOne({ stripeCustomerId: customerId });
     if (!user) {
-      console.error(`User not found for customer: ${customerId}`);
+      logger.error(`User not found for customer: ${customerId}`);
       return;
     }
 
@@ -226,9 +231,9 @@ async function handleInvoicePaymentFailed(invoice) {
     });
 
     await payment.save();
-    console.log(`Payment failed for user: ${user.email}`);
+    logger.warn(`Payment failed for user: ${user.email}`);
   } catch (error) {
-    console.error('Error handling invoice payment failed:', error);
+    logger.error('Error handling invoice payment failed', error);
   }
 }
 
@@ -281,9 +286,9 @@ async function updateUserSubscription(user, subscription, metadata = {}) {
     user.updatedAt = new Date();
     await user.save();
 
-    console.log(`Subscription updated for user: ${user.email}, tier: ${tier}, status: ${subscription.status}`);
+    logger.info(`Subscription updated for user: ${user.email}, tier: ${tier}, status: ${subscription.status}`);
   } catch (error) {
-    console.error('Error updating user subscription:', error);
+    logger.error('Error updating user subscription', error);
     throw error;
   }
 }

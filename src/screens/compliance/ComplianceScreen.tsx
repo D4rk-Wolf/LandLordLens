@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIn
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface ComplianceRecord {
   _id: string;
@@ -15,9 +16,10 @@ interface ComplianceRecord {
 
 interface ComplianceScreenProps {
   onNavigate: (screen: string) => void;
+  onSignOut: () => void;
 }
 
-const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate }) => {
+const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignOut }) => {
   const { token } = useAuth();
   const [records, setRecords] = useState<ComplianceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,23 +103,27 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Compliance Tracking</Text>
+    <View style={styles.container}>
+      <PageHeader 
+        title="Compliance" 
+        onSignOut={onSignOut}
+        rightAction={
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => onNavigate('properties')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.addButtonIcon}>➕</Text>
+            <Text style={styles.addButtonText}>Add Record</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.subtitleContainer}>
           <Text style={styles.subtitle}>
             Monitor and manage compliance documents for your properties
           </Text>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => onNavigate('properties')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.addButtonIcon}>➕</Text>
-          <Text style={styles.addButtonText}>Add Record</Text>
-        </TouchableOpacity>
-      </View>
 
       {loading ? (
         <View style={styles.center}>
@@ -226,41 +232,38 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate }) => {
           })}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 24,
+  scrollView: {
+    flex: 1,
+  },
+  subtitleContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-    letterSpacing: -1,
   },
   subtitle: {
     fontSize: 14,
     color: '#6b7280',
-    fontWeight: '500',
+    fontWeight: '400',
   },
   addButton: {
     backgroundColor: '#6366f1',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     flexDirection: 'row',
     alignItems: 'center',
     boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',

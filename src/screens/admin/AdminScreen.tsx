@@ -28,7 +28,7 @@ const TIER_LABELS: Record<Tier, string> = {
   premium: 'Premium',
 };
 
-const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
+const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
   const { token } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -259,16 +259,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+  content: {
+    flex: 1,
   },
   center: {
     justifyContent: 'center',

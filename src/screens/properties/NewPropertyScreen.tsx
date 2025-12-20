@@ -169,13 +169,17 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>New Property</Text>
-      </View>
+    <View style={styles.container}>
+      <PageHeader 
+        title="New Property" 
+        onSignOut={onSignOut}
+        leftAction={
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
       <View style={styles.form}>
         <View style={styles.section}>
@@ -545,36 +549,29 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
           </Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    alignItems: 'center',
+  scrollView: {
+    flex: 1,
   },
   backButton: {
-    marginRight: 16,
+    padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f3f4f6',
   },
   backButtonText: {
-    color: '#6366f1',
-    fontSize: 16,
+    color: '#374151',
+    fontSize: 14,
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    letterSpacing: -0.5,
   },
   form: {
     padding: 20,

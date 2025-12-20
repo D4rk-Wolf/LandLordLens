@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run web\"",
     "web": "webpack serve --mode development --open",
-    "server": "nodemon server/index.js",
+    "server": "PORT=5000 nodemon server/index.js",
     "build": "webpack --mode production",
     "build:analyze": "webpack --mode production --analyze",
     "start": "node server/index.js",

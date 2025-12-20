@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-
 import { API_URL } from '../../utils/constants';
 import { logger } from '../../utils/logger';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface MaintenanceTicket {
   _id: string;
@@ -62,23 +62,27 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Maintenance Tickets</Text>
+    <View style={styles.container}>
+      <PageHeader 
+        title="Maintenance" 
+        onSignOut={onSignOut}
+        rightAction={
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => onNavigate('new-maintenance')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.addButtonIcon}>➕</Text>
+            <Text style={styles.addButtonText}>New Ticket</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.subtitleContainer}>
           <Text style={styles.subtitle}>
             Track and manage maintenance requests for your properties
           </Text>
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => onNavigate('new-maintenance')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.addButtonIcon}>➕</Text>
-          <Text style={styles.addButtonText}>New Ticket</Text>
-        </TouchableOpacity>
-      </View>
 
       {loading ? (
         <View style={styles.center}>
@@ -177,45 +181,37 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
           })}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 24,
+  scrollView: {
+    flex: 1,
+  },
+  subtitleContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-    letterSpacing: -1,
   },
   subtitle: {
     fontSize: 14,
     color: '#6b7280',
-    fontWeight: '500',
+    fontWeight: '400',
   },
   addButton: {
     backgroundColor: '#6366f1',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
-    elevation: 4,
     gap: 8,
   },
   addButtonIcon: {

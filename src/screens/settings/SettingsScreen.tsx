@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface SettingsScreenProps {
   onNavigate: (screen: string) => void;
+  onSignOut: () => void;
 }
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
-  const { user, signOut, token } = useAuth();
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }) => {
+  const { user, token } = useAuth();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -79,11 +80,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>Manage your account and preferences</Text>
-      </View>
+    <View style={styles.container}>
+      <PageHeader title="Settings" onSignOut={onSignOut} />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>Manage your account and preferences</Text>
+        </View>
 
       <View style={styles.content}>
         {settingsSections.map((section, sectionIndex) => (
@@ -203,7 +205,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
         <View style={styles.actionsSection}>
           <TouchableOpacity
             style={styles.signOutButton}
-            onPress={signOut}
+            onPress={onSignOut}
             activeOpacity={0.8}
           >
             <Text style={styles.signOutIcon}>🚪</Text>
@@ -216,32 +218,29 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
           <Text style={styles.footerSubtext}>Property Management System</Text>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 24,
+  scrollView: {
+    flex: 1,
+  },
+  subtitleContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-    letterSpacing: -1,
   },
   subtitle: {
     fontSize: 14,
     color: '#6b7280',
-    fontWeight: '500',
+    fontWeight: '400',
   },
   content: {
     padding: 20,

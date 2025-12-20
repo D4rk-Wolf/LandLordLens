@@ -1,17 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
+import { logger } from '../../utils/logger';
+import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface RightToRentScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
 const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
+  onSignOut,
 }) => {
   const { token } = useAuth();
   const [checks, setChecks] = useState<any[]>([]);
@@ -285,30 +290,21 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+  scrollView: {
+    flex: 1,
   },
   backButton: {
     padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f3f4f6',
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#6366f1',
+    fontSize: 14,
+    color: '#374151',
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    flex: 1,
   },
   addButton: {
     backgroundColor: '#6366f1',
