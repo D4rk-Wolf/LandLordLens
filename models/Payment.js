@@ -16,19 +16,49 @@ const paymentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'refunded'],
+    enum: ['pending', 'completed', 'failed', 'refunded', 'canceled'],
     default: 'pending',
   },
   paymentMethod: {
     type: String,
     enum: ['card', 'bank_transfer', 'paypal'],
+    default: 'card',
   },
   transactionId: {
     type: String,
     unique: true,
+    sparse: true,
+  },
+  stripePaymentIntentId: {
+    type: String,
+    sparse: true,
+  },
+  stripeChargeId: {
+    type: String,
+    sparse: true,
+  },
+  stripeSubscriptionId: {
+    type: String,
+    sparse: true,
   },
   description: {
     type: String,
+  },
+  type: {
+    type: String,
+    enum: ['subscription', 'one_time', 'refund'],
+    default: 'one_time',
+  },
+  subscriptionTier: {
+    type: String,
+    enum: ['free', 'basic', 'premium'],
+  },
+  subscriptionPeriod: {
+    type: String,
+    enum: ['monthly', 'yearly'],
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed,
   },
   createdAt: {
     type: Date,
@@ -39,5 +69,10 @@ const paymentSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// Index for faster queries
+paymentSchema.index({ userId: 1, createdAt: -1 });
+paymentSchema.index({ stripePaymentIntentId: 1 });
+paymentSchema.index({ stripeSubscriptionId: 1 });
 
 module.exports = mongoose.model('Payment', paymentSchema);

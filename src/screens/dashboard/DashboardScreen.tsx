@@ -294,7 +294,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
             <Text style={styles.sectionSubtitle}>Stay ahead with actionable advice</Text>
           </View>
           <View style={styles.insightsGrid}>
-            <View style={styles.insightCard}>
+            <TouchableOpacity 
+              style={styles.insightCard}
+              onPress={() => onNavigate('compliance')}
+              activeOpacity={0.8}
+            >
               <View style={styles.insightIconContainer}>
                 <Text style={styles.insightIcon}>💡</Text>
               </View>
@@ -304,8 +308,15 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
                   Regularly check your compliance records to ensure all certificates are up to date.
                 </Text>
               </View>
-            </View>
-            <View style={styles.insightCard}>
+              <View style={styles.insightArrow}>
+                <Text style={styles.insightArrowText}>→</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.insightCard}
+              onPress={() => onNavigate('expenses')}
+              activeOpacity={0.8}
+            >
               <View style={styles.insightIconContainer}>
                 <Text style={styles.insightIcon}>📊</Text>
               </View>
@@ -315,8 +326,15 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
                   Keep detailed records of all property expenses for tax reporting and financial planning.
                 </Text>
               </View>
-            </View>
-            <View style={styles.insightCard}>
+              <View style={styles.insightArrow}>
+                <Text style={styles.insightArrowText}>→</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.insightCard}
+              onPress={() => onNavigate('inspections')}
+              activeOpacity={0.8}
+            >
               <View style={styles.insightIconContainer}>
                 <Text style={styles.insightIcon}>🔍</Text>
               </View>
@@ -326,7 +344,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
                   Schedule regular property inspections to maintain property condition and tenant satisfaction.
                 </Text>
               </View>
-            </View>
+              <View style={styles.insightArrow}>
+                <Text style={styles.insightArrowText}>→</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -604,6 +625,16 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     lineHeight: 24,
     fontWeight: '400',
+  },
+  insightArrow: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingLeft: 12,
+  },
+  insightArrowText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#6366f1',
   },
   loadingContainer: {
     flex: 1,

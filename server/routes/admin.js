@@ -60,6 +60,78 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
+// Update user subscription tier (admin only)
+router.put('/users/:id/subscription', async (req, res) => {
+  try {
+    const { tier, subscriptionStatus, subscriptionPeriod } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Validate tier if provided
+    if (tier) {
+      const validTiers = ['free', 'basic', 'premium'];
+      if (!validTiers.includes(tier)) {
+        return res.status(400).json({
+          error: 'Invalid subscription tier',
+          validTiers: validTiers,
+        });
+      }
+      user.subscription = tier;
+    }
+
+    // Update subscription status if provided
+    if (subscriptionStatus) {
+      const validStatuses = ['active', 'canceled', 'past_due', 'trialing', 'incomplete'];
+      if (!validStatuses.includes(subscriptionStatus)) {
+        return res.status(400).json({
+          error: 'Invalid subscription status',
+          validStatuses: validStatuses,
+        });
+      }
+      user.subscriptionStatus = subscriptionStatus;
+
+      // Set canceled date if canceling
+      if (subscriptionStatus === 'canceled' && !user.subscriptionCanceledAt) {
+        user.subscriptionCanceledAt = new Date();
+      }
+    }
+
+    // Update subscription period if provided
+    if (subscriptionPeriod) {
+      const validPeriods = ['monthly', 'yearly'];
+      if (!validPeriods.includes(subscriptionPeriod)) {
+        return res.status(400).json({
+          error: 'Invalid subscription period',
+          validPeriods: validPeriods,
+        });
+      }
+      user.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    user.updatedAt = Date.now();
+    await user.save();
+
+    res.json({
+      message: 'User subscription updated successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        subscription: user.subscription,
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionPeriod: user.subscriptionPeriod,
+        subscriptionStartDate: user.subscriptionStartDate,
+        subscriptionEndDate: user.subscriptionEndDate,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all payments
 router.get('/payments', async (req, res) => {
   try {

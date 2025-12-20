@@ -4,6 +4,14 @@ const Property = require('../../models/tenant/Property');
 const Tenancy = require('../../models/tenant/Tenancy');
 const ComplianceRecord = require('../../models/tenant/ComplianceRecord');
 const MaintenanceTicket = require('../../models/tenant/MaintenanceTicket');
+const User = require('../../models/User');
+const { 
+  canAddProperty, 
+  validateSubscriptionForProperties, 
+  getRequiredTier, 
+  getFormattedPrice,
+  getMaxProperties,
+} = require('../../lib/subscription');
 
 const router = express.Router();
 
@@ -13,9 +21,29 @@ router.use(authenticateToken);
 // Get all properties for the user
 router.get('/', async (req, res) => {
   try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const properties = await Property.find({ userId: req.user.userId })
       .sort({ createdAt: -1 });
-    res.json({ properties });
+    
+    const propertyCount = properties.length;
+    const userSubscription = user.subscription || 'free';
+    
+    const subscriptionInfo = {
+      currentTier: userSubscription,
+      propertyCount: propertyCount,
+      maxProperties: getMaxProperties(userSubscription),
+      canAddMore: canAddProperty(userSubscription, propertyCount),
+      validation: validateSubscriptionForProperties(userSubscription, propertyCount),
+    };
+
+    res.json({ 
+      properties,
+      subscription: subscriptionInfo,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -54,6 +82,34 @@ router.get('/:id', async (req, res) => {
 // Create property
 router.post('/', async (req, res) => {
   try {
+    // Check subscription limits
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
+    const userSubscription = user.subscription || 'free';
+
+    // Check if user can add more properties
+    if (!canAddProperty(userSubscription, currentPropertyCount)) {
+      const requiredTier = getRequiredTier(currentPropertyCount + 1);
+      const validation = validateSubscriptionForProperties(userSubscription, currentPropertyCount + 1);
+      
+      return res.status(403).json({
+        error: 'Subscription limit reached',
+        message: validation.message,
+        currentTier: userSubscription,
+        currentPropertyCount: currentPropertyCount,
+        maxProperties: currentPropertyCount, // Already at limit
+        requiredTier: requiredTier,
+        requiredTierPrice: {
+          monthly: getFormattedPrice(requiredTier, 'monthly'),
+          yearly: getFormattedPrice(requiredTier, 'yearly'),
+        },
+      });
+    }
+
     const { complianceRecords, ...propertyData } = req.body;
     
     const property = new Property({
