@@ -39,7 +39,7 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
     try {
       const data = await apiClient.get<{ properties: Property[] }>(
         '/properties',
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setProperties(data.properties || []);
@@ -78,7 +78,7 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
           priority: formData.priority,
           reportedBy: formData.reportedBy || undefined,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Maintenance ticket created successfully', [
@@ -300,6 +300,20 @@ const styles = StyleSheet.create({
   propertyOptionTextActive: {
     color: '#3498db',
     fontWeight: '600',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginLeft: 15,
   },
 });
 

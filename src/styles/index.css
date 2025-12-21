@@ -1,54 +1,75 @@
 :root {
-  /* Modern Color Palette with Premium Gradients */
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --secondary: #8b5cf6;
-  --accent: #ec4899;
-  --accent-gradient: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
-  --success: #10b981;
-  --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --warning: #f59e0b;
-  --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --danger: #ef4444;
-  --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  --info: #3b82f6;
-  --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  
+  /* Premium HSL Color Palette */
+  --primary-h: 236;
+  --primary-s: 85%;
+  --primary-l: 66%;
+  --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+  --primary-dark: hsl(var(--primary-h), var(--primary-s), 55%);
+  --primary-light: hsl(var(--primary-h), var(--primary-s), 75%);
+  --primary-gradient: linear-gradient(135deg, hsla(236, 85%, 66%, 1) 0%, hsla(263, 90%, 65%, 1) 100%);
+
+  --secondary-h: 263;
+  --secondary-s: 90%;
+  --secondary-l: 65%;
+  --secondary: hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l));
+
+  --accent-h: 327;
+  --accent-s: 80%;
+  --accent-l: 60%;
+  --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-gradient: linear-gradient(135deg, hsla(327, 80%, 60%, 1) 0%, hsla(335, 80%, 70%, 1) 100%);
+
+  --success: hsl(155, 85%, 40%);
+  --success-gradient: linear-gradient(135deg, hsl(155, 85%, 40%) 0%, hsl(160, 90%, 30%) 100%);
+
+  --warning: hsl(38, 95%, 50%);
+  --warning-gradient: linear-gradient(135deg, hsl(38, 95%, 50%) 0%, hsl(30, 90%, 45%) 100%);
+
+  --danger: hsl(0, 85%, 60%);
+  --danger-gradient: linear-gradient(135deg, hsl(0, 85%, 60%) 0%, hsl(0, 80%, 50%) 100%);
+
+  --info: hsl(210, 90%, 60%);
+  --info-gradient: linear-gradient(135deg, hsl(210, 90%, 60%) 0%, hsl(220, 85%, 50%) 100%);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: 16px;
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
   /* Neutral Colors */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
-  
-  /* Background Colors */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  /* Backgrounds */
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --bg-gradient: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #e5e7eb 100%);
-  
-  /* Text Colors */
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --view-bg: #f8fafc;
+  --bg-gradient: radial-gradient(circle at top right, #f8fafc, #eff6ff, #f8fafc);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
   --text-inverse: #ffffff;
-  
-  /* Shadows - Enhanced */
+
+  /* Enhanced Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-colored: 0 10px 30px -5px rgba(99, 102, 241, 0.3);
-  
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 15px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.3);
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -56,33 +77,59 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  --spacing-3xl: 4rem;
-  
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
+
+  /* Radii */
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
   --radius-full: 9999px;
-  
-  /* Transitions - Enhanced */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Transitions */
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --transition-smooth: 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
+
   /* Typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  
-  /* Layout */
-  --max-width-container: 1440px;
-  --max-width-content: 1200px;
+  --font-sans: 'Outfit', 'Inter', -apple-system, system-ui, sans-serif;
   --sidebar-width: 280px;
+}
+
+[data-theme='dark'] {
+  /* Neutral Colors - Dark Mode */
+  --gray-50: #0f172a;
+  --gray-100: #1e293b;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-400: #64748b;
+  --gray-500: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-800: #f1f5f9;
+  --gray-900: #f8fafc;
+
+  /* Backgrounds - Dark Mode */
+  --bg-primary: #0f172a;
+  --bg-secondary: #020617;
+  --bg-tertiary: #1e293b;
+  --view-bg: #020617;
+  --bg-gradient: radial-gradient(circle at top right, #020617, #0f172a, #020617);
+
+  /* Text - Dark Mode */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #64748b;
+
+  /* Glassmorphism - Dark Mode */
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+  /* Shadows - Dark Mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
 }
 
 * {
@@ -97,7 +144,8 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -108,6 +156,7 @@ html, body {
 body {
   font-family: var(--font-sans);
   background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   position: relative;
@@ -120,9 +169,9 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
+  background:
+    radial-gradient(circle at 10% 10%, hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, hsla(var(--secondary-h), var(--secondary-s), var(--secondary-l), 0.05) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
@@ -136,8 +185,49 @@ body::before {
   z-index: 1;
 }
 
+/* Glassmorphism Utilities */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Lift Animation */
+.lift {
+  transition: all var(--transition-base);
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
 /* React Native Web compatibility */
-div, span, p, a, button, input, textarea, select {
+div,
+span,
+p,
+a,
+button,
+input,
+textarea,
+select {
   box-sizing: border-box;
 }
 
@@ -197,7 +287,11 @@ div, span, p, a, button, input, textarea, select {
 }
 
 /* Smooth animations for all interactive elements */
-button, a, [role="button"], input, textarea {
+button,
+a,
+[role="button"],
+input,
+textarea {
   transition: all var(--transition-base);
 }
 
@@ -228,6 +322,7 @@ button[style*="signOut"]:hover {
 
 /* Disable animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -236,7 +331,7 @@ button[style*="signOut"]:hover {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   [data-testid*="nav-item"]:hover,
   button[data-testid*="nav"]:hover {
     transform: none !important;

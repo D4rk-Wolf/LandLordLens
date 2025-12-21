@@ -36,7 +36,7 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
     try {
       const data = await apiClient.get<any>(
         `/tenancies/${tenancyId}`,
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setInventories(data.inventories || []);
@@ -59,7 +59,7 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
           ...formData,
           date: new Date(formData.date),
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Inventory record saved');
@@ -79,8 +79,8 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="Inventory" 
+      <PageHeader
+        title="Inventory"
         onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
@@ -95,176 +95,176 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
       />
       <ScrollView style={styles.scrollView}>
 
-      {showForm ? (
-        <View style={styles.content}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>New Inventory Record</Text>
+        {showForm ? (
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>New Inventory Record</Text>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Inventory Type</Text>
-              {inventoryTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.value}
-                  style={[
-                    styles.typeOption,
-                    formData.type === type.value && styles.typeOptionSelected,
-                  ]}
-                  onPress={() => setFormData({ ...formData, type: type.value })}
-                >
-                  <Text style={styles.typeIcon}>{type.icon}</Text>
-                  <Text
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Inventory Type</Text>
+                {inventoryTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type.value}
                     style={[
-                      styles.typeText,
-                      formData.type === type.value && styles.typeTextSelected,
+                      styles.typeOption,
+                      formData.type === type.value && styles.typeOptionSelected,
+                    ]}
+                    onPress={() => setFormData({ ...formData, type: type.value })}
+                  >
+                    <Text style={styles.typeIcon}>{type.icon}</Text>
+                    <Text
+                      style={[
+                        styles.typeText,
+                        formData.type === type.value && styles.typeTextSelected,
+                      ]}
+                    >
+                      {type.label}
+                    </Text>
+                    {formData.type === type.value && (
+                      <Text style={styles.checkmark}>✓</Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Date</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.date}
+                  onChangeText={(text) => setFormData({ ...formData, date: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Conducted By</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.conductedBy}
+                  onChangeText={(text) => setFormData({ ...formData, conductedBy: text })}
+                  placeholder="Your name"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() =>
+                    setFormData({ ...formData, tenantPresent: !formData.tenantPresent })
+                  }
+                >
+                  <View
+                    style={[
+                      styles.checkboxBox,
+                      formData.tenantPresent && styles.checkboxBoxChecked,
                     ]}
                   >
-                    {type.label}
-                  </Text>
-                  {formData.type === type.value && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
+                    {formData.tenantPresent && <Text style={styles.checkmark}>✓</Text>}
+                  </View>
+                  <Text style={styles.checkboxLabel}>Tenant Present</Text>
                 </TouchableOpacity>
-              ))}
-            </View>
+              </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Date</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.date}
-                onChangeText={(text) => setFormData({ ...formData, date: text })}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Notes</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={formData.notes}
+                  onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                  multiline
+                  numberOfLines={4}
+                  placeholder="Inventory notes and observations..."
+                />
+              </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Conducted By</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.conductedBy}
-                onChangeText={(text) => setFormData({ ...formData, conductedBy: text })}
-                placeholder="Your name"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() =>
-                  setFormData({ ...formData, tenantPresent: !formData.tenantPresent })
-                }
-              >
-                <View
-                  style={[
-                    styles.checkboxBox,
-                    formData.tenantPresent && styles.checkboxBoxChecked,
-                  ]}
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  onPress={() => setShowForm(false)}
+                  style={[styles.button, styles.cancelButton]}
                 >
-                  {formData.tenantPresent && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-                <Text style={styles.checkboxLabel}>Tenant Present</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Notes</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.notes}
-                onChangeText={(text) => setFormData({ ...formData, notes: text })}
-                multiline
-                numberOfLines={4}
-                placeholder="Inventory notes and observations..."
-              />
-            </View>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                onPress={() => setShowForm(false)}
-                style={[styles.button, styles.cancelButton]}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
-                <Text style={styles.saveButtonText}>Save</Text>
-              </TouchableOpacity>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {inventories.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>📋</Text>
-              <Text style={styles.emptyTitle}>No Inventory Records</Text>
-              <Text style={styles.emptyText}>
-                Create inventory records for check-in, check-out, and interim inspections.
-              </Text>
-            </View>
-          ) : (
-            inventories.map((inventory) => {
-              const typeInfo = inventoryTypes.find((t) => t.value === inventory.type);
-              return (
-                <View key={inventory._id} style={styles.card}>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderLeft}>
-                      <Text style={styles.typeIcon}>{typeInfo?.icon || '📋'}</Text>
-                      <View>
-                        <Text style={styles.cardTitle}>{typeInfo?.label || inventory.type}</Text>
-                        <Text style={styles.cardSubtitle}>
-                          {new Date(inventory.date).toLocaleDateString()}
-                        </Text>
+        ) : (
+          <View style={styles.content}>
+            {inventories.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>📋</Text>
+                <Text style={styles.emptyTitle}>No Inventory Records</Text>
+                <Text style={styles.emptyText}>
+                  Create inventory records for check-in, check-out, and interim inspections.
+                </Text>
+              </View>
+            ) : (
+              inventories.map((inventory) => {
+                const typeInfo = inventoryTypes.find((t) => t.value === inventory.type);
+                return (
+                  <View key={inventory._id} style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.cardHeaderLeft}>
+                        <Text style={styles.typeIcon}>{typeInfo?.icon || '📋'}</Text>
+                        <View>
+                          <Text style={styles.cardTitle}>{typeInfo?.label || inventory.type}</Text>
+                          <Text style={styles.cardSubtitle}>
+                            {new Date(inventory.date).toLocaleDateString()}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
 
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Conducted By</Text>
-                    <Text style={styles.value}>{inventory.conductedBy}</Text>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Tenant Present</Text>
-                    <Text style={styles.value}>
-                      {inventory.tenantPresent ? 'Yes' : 'No'}
-                    </Text>
-                  </View>
-
-                  {inventory.overallCondition && (
                     <View style={styles.detailRow}>
-                      <Text style={styles.label}>Overall Condition</Text>
-                      <Text style={styles.value}>{inventory.overallCondition}</Text>
+                      <Text style={styles.label}>Conducted By</Text>
+                      <Text style={styles.value}>{inventory.conductedBy}</Text>
                     </View>
-                  )}
 
-                  {inventory.items && inventory.items.length > 0 && (
-                    <View style={styles.itemsContainer}>
-                      <Text style={styles.itemsTitle}>Items ({inventory.items.length})</Text>
-                      {inventory.items.slice(0, 5).map((item: any, idx: number) => (
-                        <Text key={idx} style={styles.itemText}>
-                          • {item.name} ({item.room}) - {item.condition}
-                        </Text>
-                      ))}
-                      {inventory.items.length > 5 && (
-                        <Text style={styles.moreItems}>
-                          +{inventory.items.length - 5} more items
-                        </Text>
-                      )}
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>Tenant Present</Text>
+                      <Text style={styles.value}>
+                        {inventory.tenantPresent ? 'Yes' : 'No'}
+                      </Text>
                     </View>
-                  )}
 
-                  {inventory.notes && (
-                    <View style={styles.notesContainer}>
-                      <Text style={styles.label}>Notes</Text>
-                      <Text style={styles.notes}>{inventory.notes}</Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })
-          )}
-        </View>
-      )}
+                    {inventory.overallCondition && (
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>Overall Condition</Text>
+                        <Text style={styles.value}>{inventory.overallCondition}</Text>
+                      </View>
+                    )}
+
+                    {inventory.items && inventory.items.length > 0 && (
+                      <View style={styles.itemsContainer}>
+                        <Text style={styles.itemsTitle}>Items ({inventory.items.length})</Text>
+                        {inventory.items.slice(0, 5).map((item: any, idx: number) => (
+                          <Text key={idx} style={styles.itemText}>
+                            • {item.name} ({item.room}) - {item.condition}
+                          </Text>
+                        ))}
+                        {inventory.items.length > 5 && (
+                          <Text style={styles.moreItems}>
+                            +{inventory.items.length - 5} more items
+                          </Text>
+                        )}
+                      </View>
+                    )}
+
+                    {inventory.notes && (
+                      <View style={styles.notesContainer}>
+                        <Text style={styles.label}>Notes</Text>
+                        <Text style={styles.notes}>{inventory.notes}</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

@@ -36,7 +36,7 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
       const endpoint = propertyId ? `/expenses?propertyId=${propertyId}` : '/expenses';
       const data = await apiClient.get<{ expenses: any[] }>(
         endpoint,
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setExpenses(data.expenses || []);
@@ -53,7 +53,7 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
     try {
       const data = await apiClient.get<{ summary: any }>(
         '/expenses/summary',
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setSummary(data.summary);
@@ -77,7 +77,7 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
           date: new Date(formData.date),
           propertyId: formData.propertyId || undefined,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Expense saved');
@@ -129,8 +129,8 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="Expenses" 
+      <PageHeader
+        title="Expenses"
         onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
@@ -140,268 +140,268 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
       />
       <ScrollView style={styles.scrollView}>
 
-      {summary && (
-        <View style={styles.content}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Tax Year Summary</Text>
-            <View style={styles.summaryRow}>
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Total Expenses</Text>
-                <Text style={styles.summaryValue}>£{summary.total?.toFixed(2) || '0.00'}</Text>
-              </View>
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Tax Deductible</Text>
-                <Text style={styles.summaryValue}>£{summary.taxDeductible?.toFixed(2) || '0.00'}</Text>
+        {summary && (
+          <View style={styles.content}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>Tax Year Summary</Text>
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryItem}>
+                  <Text style={styles.summaryLabel}>Total Expenses</Text>
+                  <Text style={styles.summaryValue}>£{summary.total?.toFixed(2) || '0.00'}</Text>
+                </View>
+                <View style={styles.summaryItem}>
+                  <Text style={styles.summaryLabel}>Tax Deductible</Text>
+                  <Text style={styles.summaryValue}>£{summary.taxDeductible?.toFixed(2) || '0.00'}</Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {showForm ? (
-        <View style={styles.content}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>New Expense</Text>
+        {showForm ? (
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>New Expense</Text>
 
-            {!propertyId && (
+              {!propertyId && (
+                <View style={styles.formGroup}>
+                  <Text style={styles.label}>Property ID (optional)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={formData.propertyId}
+                    onChangeText={(text) => setFormData({ ...formData, propertyId: text })}
+                    placeholder="Enter property ID"
+                  />
+                </View>
+              )}
+
               <View style={styles.formGroup}>
-                <Text style={styles.label}>Property ID (optional)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.propertyId}
-                  onChangeText={(text) => setFormData({ ...formData, propertyId: text })}
-                  placeholder="Enter property ID"
-                />
-              </View>
-            )}
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Expense Type</Text>
-              {expenseTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.value}
-                  style={[
-                    styles.option,
-                    formData.type === type.value && styles.optionSelected,
-                  ]}
-                  onPress={() =>
-                    setFormData({
-                      ...formData,
-                      type: type.value,
-                      category: type.category,
-                    })
-                  }
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      formData.type === type.value && styles.optionTextSelected,
-                    ]}
-                  >
-                    {type.label}
-                  </Text>
-                  {formData.type === type.value && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Category</Text>
-              <View style={styles.categoryGrid}>
-                {categories.map((cat) => (
+                <Text style={styles.label}>Expense Type</Text>
+                {expenseTypes.map((type) => (
                   <TouchableOpacity
-                    key={cat.value}
+                    key={type.value}
                     style={[
-                      styles.categoryOption,
-                      formData.category === cat.value && styles.categoryOptionSelected,
+                      styles.option,
+                      formData.type === type.value && styles.optionSelected,
                     ]}
-                    onPress={() => setFormData({ ...formData, category: cat.value })}
+                    onPress={() =>
+                      setFormData({
+                        ...formData,
+                        type: type.value,
+                        category: type.category,
+                      })
+                    }
                   >
-                    <Text style={styles.categoryIcon}>{cat.icon}</Text>
                     <Text
                       style={[
-                        styles.categoryText,
-                        formData.category === cat.value && styles.categoryTextSelected,
+                        styles.optionText,
+                        formData.type === type.value && styles.optionTextSelected,
                       ]}
                     >
-                      {cat.label}
+                      {type.label}
                     </Text>
+                    {formData.type === type.value && (
+                      <Text style={styles.checkmark}>✓</Text>
+                    )}
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Amount (£)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.amount}
-                onChangeText={(text) => setFormData({ ...formData, amount: text })}
-                keyboardType="numeric"
-                placeholder="0.00"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Date</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.date}
-                onChangeText={(text) => setFormData({ ...formData, date: text })}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Description</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.description}
-                onChangeText={(text) => setFormData({ ...formData, description: text })}
-                multiline
-                numberOfLines={3}
-                placeholder="Describe the expense..."
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Supplier (optional)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.supplier}
-                onChangeText={(text) => setFormData({ ...formData, supplier: text })}
-                placeholder="Supplier name"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Invoice Number (optional)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.invoiceNumber}
-                onChangeText={(text) => setFormData({ ...formData, invoiceNumber: text })}
-                placeholder="Invoice number"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() =>
-                  setFormData({ ...formData, isTaxDeductible: !formData.isTaxDeductible })
-                }
-              >
-                <View
-                  style={[
-                    styles.checkboxBox,
-                    formData.isTaxDeductible && styles.checkboxBoxChecked,
-                  ]}
-                >
-                  {formData.isTaxDeductible && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-                <Text style={styles.checkboxLabel}>Tax Deductible</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                onPress={() => setShowForm(false)}
-                style={[styles.button, styles.cancelButton]}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
-                <Text style={styles.saveButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {expenses.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>💰</Text>
-              <Text style={styles.emptyTitle}>No Expenses</Text>
-              <Text style={styles.emptyText}>
-                Track your property expenses for tax reporting and financial management.
-              </Text>
-            </View>
-          ) : (
-            expenses.map((expense) => {
-              const typeInfo = expenseTypes.find((t) => t.value === expense.type);
-              const categoryInfo = categories.find((c) => c.value === expense.category);
-              return (
-                <View key={expense._id} style={styles.card}>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderLeft}>
-                      <Text style={styles.categoryIcon}>{categoryInfo?.icon || '📦'}</Text>
-                      <View>
-                        <Text style={styles.cardTitle}>{typeInfo?.label || expense.type}</Text>
-                        <Text style={styles.cardSubtitle}>
-                          {expense.propertyId?.address
-                            ? `${expense.propertyId.address.line1}, ${expense.propertyId.address.city}`
-                            : 'General Expense'}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={styles.amount}>£{expense.amount?.toFixed(2)}</Text>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Date</Text>
-                    <Text style={styles.value}>
-                      {new Date(expense.date).toLocaleDateString()}
-                    </Text>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Description</Text>
-                    <Text style={styles.value}>{expense.description}</Text>
-                  </View>
-
-                  {expense.supplier && (
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>Supplier</Text>
-                      <Text style={styles.value}>{expense.supplier}</Text>
-                    </View>
-                  )}
-
-                  <View style={styles.detailRow}>
-                    <View style={styles.badgeRow}>
-                      <View
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Category</Text>
+                <View style={styles.categoryGrid}>
+                  {categories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat.value}
+                      style={[
+                        styles.categoryOption,
+                        formData.category === cat.value && styles.categoryOptionSelected,
+                      ]}
+                      onPress={() => setFormData({ ...formData, category: cat.value })}
+                    >
+                      <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                      <Text
                         style={[
-                          styles.badge,
-                          expense.isTaxDeductible
-                            ? { backgroundColor: '#d1fae5' }
-                            : { backgroundColor: '#fee2e2' },
+                          styles.categoryText,
+                          formData.category === cat.value && styles.categoryTextSelected,
                         ]}
                       >
-                        <Text
-                          style={[
-                            styles.badgeText,
-                            expense.isTaxDeductible ? { color: '#059669' } : { color: '#dc2626' },
-                          ]}
-                        >
-                          {expense.isTaxDeductible ? 'Tax Deductible' : 'Not Deductible'}
-                        </Text>
-                      </View>
-                      {expense.taxYear && (
-                        <View style={[styles.badge, { backgroundColor: '#dbeafe' }]}>
-                          <Text style={[styles.badgeText, { color: '#2563eb' }]}>
-                            {expense.taxYear}
+                        {cat.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Amount (£)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.amount}
+                  onChangeText={(text) => setFormData({ ...formData, amount: text })}
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Date</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.date}
+                  onChangeText={(text) => setFormData({ ...formData, date: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Description</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={formData.description}
+                  onChangeText={(text) => setFormData({ ...formData, description: text })}
+                  multiline
+                  numberOfLines={3}
+                  placeholder="Describe the expense..."
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Supplier (optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.supplier}
+                  onChangeText={(text) => setFormData({ ...formData, supplier: text })}
+                  placeholder="Supplier name"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Invoice Number (optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.invoiceNumber}
+                  onChangeText={(text) => setFormData({ ...formData, invoiceNumber: text })}
+                  placeholder="Invoice number"
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() =>
+                    setFormData({ ...formData, isTaxDeductible: !formData.isTaxDeductible })
+                  }
+                >
+                  <View
+                    style={[
+                      styles.checkboxBox,
+                      formData.isTaxDeductible && styles.checkboxBoxChecked,
+                    ]}
+                  >
+                    {formData.isTaxDeductible && <Text style={styles.checkmark}>✓</Text>}
+                  </View>
+                  <Text style={styles.checkboxLabel}>Tax Deductible</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  onPress={() => setShowForm(false)}
+                  style={[styles.button, styles.cancelButton]}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            {expenses.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>💰</Text>
+                <Text style={styles.emptyTitle}>No Expenses</Text>
+                <Text style={styles.emptyText}>
+                  Track your property expenses for tax reporting and financial management.
+                </Text>
+              </View>
+            ) : (
+              expenses.map((expense) => {
+                const typeInfo = expenseTypes.find((t) => t.value === expense.type);
+                const categoryInfo = categories.find((c) => c.value === expense.category);
+                return (
+                  <View key={expense._id} style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.cardHeaderLeft}>
+                        <Text style={styles.categoryIcon}>{categoryInfo?.icon || '📦'}</Text>
+                        <View>
+                          <Text style={styles.cardTitle}>{typeInfo?.label || expense.type}</Text>
+                          <Text style={styles.cardSubtitle}>
+                            {expense.propertyId?.address
+                              ? `${expense.propertyId.address.line1}, ${expense.propertyId.address.city}`
+                              : 'General Expense'}
                           </Text>
                         </View>
-                      )}
+                      </View>
+                      <Text style={styles.amount}>£{expense.amount?.toFixed(2)}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>Date</Text>
+                      <Text style={styles.value}>
+                        {new Date(expense.date).toLocaleDateString()}
+                      </Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>Description</Text>
+                      <Text style={styles.value}>{expense.description}</Text>
+                    </View>
+
+                    {expense.supplier && (
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>Supplier</Text>
+                        <Text style={styles.value}>{expense.supplier}</Text>
+                      </View>
+                    )}
+
+                    <View style={styles.detailRow}>
+                      <View style={styles.badgeRow}>
+                        <View
+                          style={[
+                            styles.badge,
+                            expense.isTaxDeductible
+                              ? { backgroundColor: '#d1fae5' }
+                              : { backgroundColor: '#fee2e2' },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.badgeText,
+                              expense.isTaxDeductible ? { color: '#059669' } : { color: '#dc2626' },
+                            ]}
+                          >
+                            {expense.isTaxDeductible ? 'Tax Deductible' : 'Not Deductible'}
+                          </Text>
+                        </View>
+                        {expense.taxYear && (
+                          <View style={[styles.badge, { backgroundColor: '#dbeafe' }]}>
+                            <Text style={[styles.badgeText, { color: '#2563eb' }]}>
+                              {expense.taxYear}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })
-          )}
-        </View>
-      )}
+                );
+              })
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     borderColor: '#6366f1',
     backgroundColor: '#f0f4ff',
   },
-  categoryIcon: {
+  categoryOptionIcon: {
     fontSize: 20,
     marginBottom: 4,
   },

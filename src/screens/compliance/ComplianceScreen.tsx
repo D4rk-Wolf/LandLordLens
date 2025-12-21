@@ -12,6 +12,12 @@ interface ComplianceRecord {
   expiryDate: string;
   status: string;
   notes?: string;
+  propertyAddress?: {
+    line1: string;
+    city: string;
+  };
+  certificateNumber?: string;
+  issuer?: string;
 }
 
 interface ComplianceScreenProps {
@@ -30,11 +36,11 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
     try {
       const propertiesData = await apiClient.get<{ properties: any[] }>(
         '/properties',
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       const properties = propertiesData.properties || [];
-      
+
       if (properties.length === 0) {
         setRecords([]);
         setLoading(false);
@@ -43,7 +49,7 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
 
       // Fetch compliance records for all properties in parallel
       const propertyDetailRequests = properties.map((property) =>
-        () => apiClient.get<any>(`/properties/${property._id}`, token, {
+        () => apiClient.get<any>(`/properties/${property._id}`, token || undefined, {
           cache: true,
           cacheTTL: 2 * 60 * 1000,
         }).then((propertyDetail) => {
@@ -51,16 +57,18 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
           return complianceRecords.map((r: any) => ({
             ...r,
             propertyAddress: property.address,
+            certificateNumber: r.certificateNumber,
+            issuer: r.issuer,
           }));
         }).catch((error) => {
-          logger.debug(`Failed to fetch compliance for property ${property._id}`, error);
+          logger.debug(`Failed to fetch compliance for property ${property._id}: ${error}`);
           return [];
         })
       );
 
       const allRecordsArrays = await apiClient.parallel(propertyDetailRequests);
       const allRecords = allRecordsArrays.flat();
-      
+
       setRecords(allRecords);
     } catch (error) {
       logger.error('Error fetching compliance records', error);
@@ -104,8 +112,8 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="Compliance" 
+      <PageHeader
+        title="Compliance"
         onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity
@@ -125,113 +133,113 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
           </Text>
         </View>
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#6366f1" />
-          <Text style={styles.text}>Loading compliance records...</Text>
-        </View>
-      ) : records.length === 0 ? (
-        <View style={styles.content}>
-          <View style={styles.emptyState}>
-            <View style={styles.emptyIconContainer}>
-              <Text style={styles.emptyIcon}>📋</Text>
-            </View>
-            <Text style={styles.emptyTitle}>No Compliance Records</Text>
-            <Text style={styles.emptyText}>
-              Track important compliance documents like gas safety certificates, EPCs, and HMO licenses.
-            </Text>
-            <TouchableOpacity
-              style={styles.addButtonLarge}
-              onPress={() => onNavigate('properties')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.addButtonText}>Add Compliance Record</Text>
-            </TouchableOpacity>
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color="#6366f1" />
+            <Text style={styles.text}>Loading compliance records...</Text>
           </View>
-
-          <View style={styles.infoSection}>
-            <Text style={styles.sectionTitle}>Common Compliance Requirements</Text>
-            <View style={styles.complianceTypesList}>
-              {complianceTypes.map((type, index) => (
-                <View key={index} style={styles.complianceTypeItem}>
-                  <View style={styles.complianceTypeIcon}>
-                    <Text style={styles.complianceTypeIconText}>✓</Text>
-                  </View>
-                  <Text style={styles.complianceTypeText}>{type}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {records.map((record) => {
-            const statusConfig = getStatusConfig(record.expiryDate);
-            return (
+        ) : records.length === 0 ? (
+          <View style={styles.content}>
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconContainer}>
+                <Text style={styles.emptyIcon}>📋</Text>
+              </View>
+              <Text style={styles.emptyTitle}>No Compliance Records</Text>
+              <Text style={styles.emptyText}>
+                Track important compliance documents like gas safety certificates, EPCs, and HMO licenses.
+              </Text>
               <TouchableOpacity
-                key={record._id}
-                style={styles.recordCard}
-                activeOpacity={0.7}
-                onPress={() => {
-                  // Could navigate to property detail or compliance detail
-                  if (record.propertyId) {
-                    onNavigate(`property-detail`);
-                  }
-                }}
+                style={styles.addButtonLarge}
+                onPress={() => onNavigate('properties')}
+                activeOpacity={0.8}
               >
-                <View style={styles.recordHeader}>
-                  <View style={styles.recordTypeContainer}>
-                    <View style={styles.recordIconContainer}>
-                      <Text style={styles.recordIcon}>📄</Text>
+                <Text style={styles.addButtonText}>Add Compliance Record</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.infoSection}>
+              <Text style={styles.sectionTitle}>Common Compliance Requirements</Text>
+              <View style={styles.complianceTypesList}>
+                {complianceTypes.map((type, index) => (
+                  <View key={index} style={styles.complianceTypeItem}>
+                    <View style={styles.complianceTypeIcon}>
+                      <Text style={styles.complianceTypeIconText}>✓</Text>
                     </View>
-                    <View style={styles.recordTypeText}>
-                      <Text style={styles.recordType}>
-                        {record.complianceType.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </Text>
-                      {record.propertyAddress && (
-                        <Text style={styles.propertyAddress} numberOfLines={1}>
-                          {record.propertyAddress.line1}, {record.propertyAddress.city}
-                        </Text>
-                      )}
-                      <Text style={styles.expiryDate}>
-                        Expires: {new Date(record.expiryDate).toLocaleDateString()}
-                      </Text>
-                    </View>
+                    <Text style={styles.complianceTypeText}>{type}</Text>
                   </View>
-                  <View
-                    style={[
-                      styles.statusBadge,
-                      { backgroundColor: statusConfig.bgColor },
-                    ]}
-                  >
-                    <Text style={styles.statusIcon}>{statusConfig.icon}</Text>
-                    <Text
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            {records.map((record) => {
+              const statusConfig = getStatusConfig(record.expiryDate);
+              return (
+                <TouchableOpacity
+                  key={record._id}
+                  style={styles.recordCard}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    // Could navigate to property detail or compliance detail
+                    if (record.propertyId) {
+                      onNavigate(`property-detail`);
+                    }
+                  }}
+                >
+                  <View style={styles.recordHeader}>
+                    <View style={styles.recordTypeContainer}>
+                      <View style={styles.recordIconContainer}>
+                        <Text style={styles.recordIcon}>📄</Text>
+                      </View>
+                      <View style={styles.recordTypeText}>
+                        <Text style={styles.recordType}>
+                          {record.complianceType.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </Text>
+                        {record.propertyAddress && (
+                          <Text style={styles.propertyAddress} numberOfLines={1}>
+                            {record.propertyAddress.line1}, {record.propertyAddress.city}
+                          </Text>
+                        )}
+                        <Text style={styles.expiryDate}>
+                          Expires: {new Date(record.expiryDate).toLocaleDateString()}
+                        </Text>
+                      </View>
+                    </View>
+                    <View
                       style={[
-                        styles.statusText,
-                        { color: statusConfig.color },
+                        styles.statusBadge,
+                        { backgroundColor: statusConfig.bgColor },
                       ]}
                     >
-                      {statusConfig.label}
-                    </Text>
+                      <Text style={styles.statusIcon}>{statusConfig.icon}</Text>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          { color: statusConfig.color },
+                        ]}
+                      >
+                        {statusConfig.label}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                {record.certificateNumber && (
-                  <View style={styles.certificateContainer}>
-                    <Text style={styles.certificateLabel}>Certificate:</Text>
-                    <Text style={styles.certificateNumber}>{record.certificateNumber}</Text>
-                  </View>
-                )}
-                {record.notes && (
-                  <View style={styles.notesContainer}>
-                    <Text style={styles.notesLabel}>Notes:</Text>
-                    <Text style={styles.notes}>{record.notes}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
+                  {record.certificateNumber && (
+                    <View style={styles.certificateContainer}>
+                      <Text style={styles.certificateLabel}>Certificate:</Text>
+                      <Text style={styles.certificateNumber}>{record.certificateNumber}</Text>
+                    </View>
+                  )}
+                  {record.notes && (
+                    <View style={styles.notesContainer}>
+                      <Text style={styles.notesLabel}>Notes:</Text>
+                      <Text style={styles.notes}>{record.notes}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -263,9 +271,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
     boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
     elevation: 4,
     gap: 8,
@@ -280,13 +285,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    minHeight: 400,
   },
   text: {
     fontSize: 16,
@@ -460,6 +458,14 @@ const styles = StyleSheet.create({
   expiryDate: {
     fontSize: 13,
     color: '#6b7280',
+  },
+  navItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+    gap: 12,
   },
   statusBadge: {
     flexDirection: 'row',

@@ -77,9 +77,7 @@ module.exports = (env, argv) => {
         ? [
             new webpack.optimize.ModuleConcatenationPlugin(),
           ]
-        : [
-            new webpack.HotModuleReplacementPlugin(),
-          ]),
+        : []),
     ],
     optimization: {
       minimize: isProduction,

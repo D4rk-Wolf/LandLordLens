@@ -37,8 +37,8 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
         <View style={[styles.decorativeCircle, styles.circle3]} />
         <View style={[styles.decorativeCircle, styles.circle4]} />
       </View>
-      
-      <View style={styles.form}>
+
+      <View style={[styles.form, { shadowOpacity: 0 }]}>
         <View style={styles.logoContainer}>
           <View style={styles.logoIconContainer}>
             <Text style={styles.logoIcon}>🏠</Text>
@@ -46,7 +46,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
           <Text style={styles.title}>LandlordLens</Text>
           <Text style={styles.tagline}>Property Management Made Simple</Text>
         </View>
-        
+
         <View style={styles.welcomeSection}>
           <Text style={styles.subtitle}>Welcome back</Text>
           <Text style={styles.description}>Sign in to continue to your dashboard</Text>
@@ -59,7 +59,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
             <TextInput
               style={styles.input}
               placeholder="you@example.com"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -77,7 +77,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
             <TextInput
               style={styles.input}
               placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#94a3b8"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -86,6 +86,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
             <TouchableOpacity
               style={styles.eyeIcon}
               onPress={() => setShowPassword(!showPassword)}
+              activeOpacity={0.6}
             >
               <Text style={styles.eyeIconText}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
             </TouchableOpacity>
@@ -96,7 +97,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleSignIn}
           disabled={loading}
-          activeOpacity={0.85}
+          activeOpacity={0.9}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.buttonText}>
@@ -112,7 +113,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity onPress={onNavigateToSignUp} style={styles.linkButton}>
+        <TouchableOpacity onPress={onNavigateToSignUp} style={styles.linkButton} activeOpacity={0.7}>
           <Text style={styles.linkText}>
             Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
           </Text>
@@ -127,11 +128,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'var(--bg-gradient)',
     padding: 20,
     position: 'relative',
     overflow: 'hidden',
-    minHeight: '100vh',
+    minHeight: '100%',
   },
   backgroundDecoration: {
     position: 'absolute',
@@ -143,173 +144,170 @@ const styles = StyleSheet.create({
   decorativeCircle: {
     position: 'absolute',
     borderRadius: 9999,
-    opacity: 0.08,
   },
   circle1: {
-    width: 500,
-    height: 500,
-    backgroundColor: '#6366f1',
-    top: -200,
-    right: -200,
+    width: 600,
+    height: 600,
+    backgroundColor: 'hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.05)',
+    top: -250,
+    right: -250,
   },
   circle2: {
-    width: 400,
-    height: 400,
-    backgroundColor: '#8b5cf6',
-    bottom: -150,
-    left: -150,
+    width: 500,
+    height: 500,
+    backgroundColor: 'hsla(var(--secondary-h), var(--secondary-s), var(--secondary-l), 0.05)',
+    bottom: -200,
+    left: -200,
   },
   circle3: {
-    width: 300,
-    height: 300,
-    backgroundColor: '#ec4899',
-    top: '40%',
-    right: -100,
+    width: 400,
+    height: 400,
+    backgroundColor: 'hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.03)',
+    top: '30%',
+    right: -150,
   },
   circle4: {
-    width: 250,
-    height: 250,
-    backgroundColor: '#3b82f6',
-    top: '60%',
-    left: -80,
+    width: 300,
+    height: 300,
+    backgroundColor: 'hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.04)',
+    bottom: '20%',
+    left: -100,
   },
   form: {
     width: '100%',
     maxWidth: 480,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    //@ts-ignore - web only
+    backdropFilter: 'blur(20px)',
     padding: 48,
-    borderRadius: 28,
-    boxShadow: '0px 20px 30px 0px rgba(0, 0, 0, 0.12)',
-    elevation: 15,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     zIndex: 1,
-    borderWidth: 1.5,
-    borderColor: '#e5e7eb',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.06)',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 44,
   },
   logoIconContainer: {
-    width: 96,
-    height: 96,
+    width: 88,
+    height: 88,
     borderRadius: 24,
-    backgroundColor: '#f0f4ff',
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: '#e0e7ff',
-    boxShadow: '0px 8px 16px 0px rgba(99, 102, 241, 0.2)',
-    elevation: 4,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.04)',
   },
   logoIcon: {
-    fontSize: 48,
+    fontSize: 44,
   },
   title: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '800',
-    color: '#111827',
+    color: 'var(--text-primary)',
     textAlign: 'center',
-    marginBottom: 10,
-    letterSpacing: -1.5,
-    lineHeight: 44,
+    marginBottom: 8,
+    letterSpacing: -1,
   },
   tagline: {
     fontSize: 15,
-    color: '#6b7280',
+    color: 'var(--text-secondary)',
     textAlign: 'center',
     fontWeight: '500',
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
   welcomeSection: {
-    marginBottom: 36,
+    marginBottom: 40,
     alignItems: 'center',
   },
   subtitle: {
-    fontSize: 28,
-    color: '#111827',
+    fontSize: 26,
+    color: 'var(--text-primary)',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
     fontWeight: '700',
     letterSpacing: -0.5,
-    lineHeight: 36,
   },
   description: {
-    fontSize: 16,
-    color: '#6b7280',
+    fontSize: 15,
+    color: 'var(--text-secondary)',
     textAlign: 'center',
     fontWeight: '400',
-    lineHeight: 24,
+    lineHeight: 22,
   },
   inputContainer: {
     marginBottom: 24,
   },
   inputLabel: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: 10,
-    letterSpacing: 0.2,
+    color: 'var(--text-primary)',
+    marginBottom: 8,
+    marginLeft: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 14,
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 18,
+    borderWidth: 1.5,
+    borderColor: 'var(--gray-200)',
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    paddingHorizontal: 16,
     minHeight: 56,
     transition: 'all 0.2s ease',
   },
   inputIcon: {
-    fontSize: 20,
-    marginRight: 14,
+    fontSize: 18,
+    marginRight: 12,
+    opacity: 0.7,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#111827',
-    paddingVertical: 16,
+    color: 'var(--text-primary)',
+    paddingVertical: 14,
     fontWeight: '400',
   },
   eyeIcon: {
-    padding: 6,
-    borderRadius: 8,
+    padding: 8,
   },
   eyeIconText: {
-    fontSize: 20,
+    fontSize: 18,
+    opacity: 0.6,
   },
   button: {
-    backgroundColor: '#6366f1',
+    backgroundColor: 'var(--primary)',
+    backgroundImage: 'var(--primary-gradient)',
     paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderRadius: 14,
+    borderRadius: 16,
     alignItems: 'center',
     marginTop: 12,
-    boxShadow: '0px 8px 16px 0px rgba(99, 102, 241, 0.35)',
-    elevation: 6,
-    borderWidth: 0,
+    boxShadow: '0 10px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.25)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   buttonDisabled: {
-    backgroundColor: '#d1d5db',
-    shadowOpacity: 0,
+    opacity: 0.5,
+    boxShadow: 'none',
   },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 17,
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   buttonArrow: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
@@ -318,27 +316,25 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     flex: 1,
-    height: 1.5,
-    backgroundColor: '#e5e7eb',
+    height: 1,
+    backgroundColor: 'var(--gray-200)',
   },
   dividerText: {
-    marginHorizontal: 20,
+    marginHorizontal: 16,
     fontSize: 14,
-    color: '#9ca3af',
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    color: 'var(--text-tertiary)',
+    fontWeight: '500',
   },
   linkButton: {
     alignItems: 'center',
     paddingVertical: 8,
   },
   linkText: {
-    color: '#6b7280',
-    fontSize: 15,
-    fontWeight: '400',
+    color: 'var(--text-secondary)',
+    fontSize: 14,
   },
   linkTextBold: {
-    color: '#6366f1',
+    color: 'var(--primary)',
     fontWeight: '700',
   },
 });

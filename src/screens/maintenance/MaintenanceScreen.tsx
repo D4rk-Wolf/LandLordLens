@@ -18,9 +18,10 @@ interface MaintenanceTicket {
 
 interface MaintenanceScreenProps {
   onNavigate: (screen: string) => void;
+  onSignOut: () => void;
 }
 
-const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => {
+const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate, onSignOut }) => {
   const { token } = useAuth();
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,8 +64,8 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="Maintenance" 
+      <PageHeader
+        title="Maintenance"
         onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity
@@ -84,103 +85,103 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
           </Text>
         </View>
 
-      {loading ? (
-        <View style={styles.center}>
-          <Text style={styles.text}>Loading maintenance tickets...</Text>
-        </View>
-      ) : tickets.length === 0 ? (
-        <View style={styles.content}>
-          <View style={styles.emptyState}>
-            <View style={styles.emptyIconContainer}>
-              <Text style={styles.emptyIcon}>🔧</Text>
-            </View>
-            <Text style={styles.emptyTitle}>No Maintenance Tickets</Text>
-            <Text style={styles.emptyText}>
-              Track and manage maintenance requests for your properties. Create a new ticket to get started.
-            </Text>
-            <TouchableOpacity
-              style={styles.addButtonLarge}
-              onPress={() => onNavigate('new-maintenance')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.addButtonText}>Create Your First Ticket</Text>
-            </TouchableOpacity>
+        {loading ? (
+          <View style={styles.center}>
+            <Text style={styles.text}>Loading maintenance tickets...</Text>
           </View>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {tickets.map((ticket) => {
-            const priorityConfig = getPriorityConfig(ticket.priority);
-            const statusConfig = getStatusConfig(ticket.status);
-            return (
+        ) : tickets.length === 0 ? (
+          <View style={styles.content}>
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconContainer}>
+                <Text style={styles.emptyIcon}>🔧</Text>
+              </View>
+              <Text style={styles.emptyTitle}>No Maintenance Tickets</Text>
+              <Text style={styles.emptyText}>
+                Track and manage maintenance requests for your properties. Create a new ticket to get started.
+              </Text>
               <TouchableOpacity
-                key={ticket._id}
-                style={styles.ticketCard}
-                onPress={() => {
-                  // Could navigate to ticket detail screen
-                }}
-                activeOpacity={0.7}
+                style={styles.addButtonLarge}
+                onPress={() => onNavigate('new-maintenance')}
+                activeOpacity={0.8}
               >
-                <View style={styles.ticketHeader}>
-                  <View style={styles.ticketTitleContainer}>
-                    <Text style={styles.ticketTitle}>{ticket.title}</Text>
-                    <View style={styles.badgesContainer}>
-                      <View
-                        style={[
-                          styles.priorityBadge,
-                          { backgroundColor: priorityConfig.bgColor },
-                        ]}
-                      >
-                        <Text style={styles.priorityIcon}>{priorityConfig.icon}</Text>
-                        <Text
-                          style={[
-                            styles.badgeText,
-                            { color: priorityConfig.color },
-                          ]}
-                        >
-                          {ticket.priority}
-                        </Text>
-                      </View>
-                      <View
-                        style={[
-                          styles.statusBadge,
-                          { backgroundColor: statusConfig.bgColor },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.badgeText,
-                            { color: statusConfig.color },
-                          ]}
-                        >
-                          {ticket.status}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <Text style={styles.ticketDescription} numberOfLines={2}>
-                  {ticket.description}
-                </Text>
-                <View style={styles.ticketFooter}>
-                  {ticket.reportedBy && (
-                    <View style={styles.ticketMeta}>
-                      <Text style={styles.ticketMetaIcon}>👤</Text>
-                      <Text style={styles.ticketMetaText}>{ticket.reportedBy}</Text>
-                    </View>
-                  )}
-                  <View style={styles.ticketMeta}>
-                    <Text style={styles.ticketMetaIcon}>📅</Text>
-                    <Text style={styles.ticketMetaText}>
-                      {new Date(ticket.createdAt).toLocaleDateString()}
-                    </Text>
-                  </View>
-                </View>
+                <Text style={styles.addButtonText}>Create Your First Ticket</Text>
               </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
+            </View>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            {tickets.map((ticket) => {
+              const priorityConfig = getPriorityConfig(ticket.priority);
+              const statusConfig = getStatusConfig(ticket.status);
+              return (
+                <TouchableOpacity
+                  key={ticket._id}
+                  style={styles.ticketCard}
+                  onPress={() => {
+                    // Could navigate to ticket detail screen
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.ticketHeader}>
+                    <View style={styles.ticketTitleContainer}>
+                      <Text style={styles.ticketTitle}>{ticket.title}</Text>
+                      <View style={styles.badgesContainer}>
+                        <View
+                          style={[
+                            styles.priorityBadge,
+                            { backgroundColor: priorityConfig.bgColor },
+                          ]}
+                        >
+                          <Text style={styles.priorityIcon}>{priorityConfig.icon}</Text>
+                          <Text
+                            style={[
+                              styles.badgeText,
+                              { color: priorityConfig.color },
+                            ]}
+                          >
+                            {ticket.priority}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.statusBadge,
+                            { backgroundColor: statusConfig.bgColor },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.badgeText,
+                              { color: statusConfig.color },
+                            ]}
+                          >
+                            {ticket.status}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <Text style={styles.ticketDescription} numberOfLines={2}>
+                    {ticket.description}
+                  </Text>
+                  <View style={styles.ticketFooter}>
+                    {ticket.reportedBy && (
+                      <View style={styles.ticketMeta}>
+                        <Text style={styles.ticketMetaIcon}>👤</Text>
+                        <Text style={styles.ticketMetaText}>{ticket.reportedBy}</Text>
+                      </View>
+                    )}
+                    <View style={styles.ticketMeta}>
+                      <Text style={styles.ticketMetaIcon}>📅</Text>
+                      <Text style={styles.ticketMetaText}>
+                        {new Date(ticket.createdAt).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

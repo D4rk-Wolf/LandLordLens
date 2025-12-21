@@ -30,7 +30,7 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
       const endpoint = propertyId ? `/inspections?propertyId=${propertyId}` : '/inspections';
       const data = await apiClient.get<{ inspections: any[] }>(
         endpoint,
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setInspections(data.inspections || []);
@@ -53,7 +53,7 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
           ...formData,
           scheduledDate: new Date(formData.scheduledDate),
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Inspection scheduled');
@@ -89,8 +89,8 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="Inspections" 
+      <PageHeader
+        title="Inspections"
         onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
@@ -100,166 +100,166 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
       />
       <ScrollView style={styles.scrollView}>
 
-      {showForm ? (
-        <View style={styles.content}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Schedule New Inspection</Text>
+        {showForm ? (
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Schedule New Inspection</Text>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Inspection Type</Text>
-              {inspectionTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.value}
-                  style={[
-                    styles.typeOption,
-                    formData.inspectionType === type.value && styles.typeOptionSelected,
-                  ]}
-                  onPress={() => setFormData({ ...formData, inspectionType: type.value })}
-                >
-                  <Text style={styles.typeIcon}>{type.icon}</Text>
-                  <Text
-                    style={[
-                      styles.typeText,
-                      formData.inspectionType === type.value && styles.typeTextSelected,
-                    ]}
-                  >
-                    {type.label}
-                  </Text>
-                  {formData.inspectionType === type.value && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {!propertyId && (
               <View style={styles.formGroup}>
-                <Text style={styles.label}>Property ID</Text>
+                <Text style={styles.label}>Inspection Type</Text>
+                {inspectionTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type.value}
+                    style={[
+                      styles.typeOption,
+                      formData.inspectionType === type.value && styles.typeOptionSelected,
+                    ]}
+                    onPress={() => setFormData({ ...formData, inspectionType: type.value })}
+                  >
+                    <Text style={styles.typeIcon}>{type.icon}</Text>
+                    <Text
+                      style={[
+                        styles.typeText,
+                        formData.inspectionType === type.value && styles.typeTextSelected,
+                      ]}
+                    >
+                      {type.label}
+                    </Text>
+                    {formData.inspectionType === type.value && (
+                      <Text style={styles.checkmark}>✓</Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {!propertyId && (
+                <View style={styles.formGroup}>
+                  <Text style={styles.label}>Property ID</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={formData.propertyId}
+                    onChangeText={(text) => setFormData({ ...formData, propertyId: text })}
+                    placeholder="Enter property ID"
+                  />
+                </View>
+              )}
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Scheduled Date</Text>
                 <TextInput
                   style={styles.input}
-                  value={formData.propertyId}
-                  onChangeText={(text) => setFormData({ ...formData, propertyId: text })}
-                  placeholder="Enter property ID"
+                  value={formData.scheduledDate}
+                  onChangeText={(text) => setFormData({ ...formData, scheduledDate: text })}
+                  placeholder="YYYY-MM-DD"
                 />
               </View>
-            )}
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Scheduled Date</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.scheduledDate}
-                onChangeText={(text) => setFormData({ ...formData, scheduledDate: text })}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Notes</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={formData.notes}
+                  onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                  multiline
+                  numberOfLines={4}
+                  placeholder="Additional notes..."
+                />
+              </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Notes</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.notes}
-                onChangeText={(text) => setFormData({ ...formData, notes: text })}
-                multiline
-                numberOfLines={4}
-                placeholder="Additional notes..."
-              />
-            </View>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                onPress={() => setShowForm(false)}
-                style={[styles.button, styles.cancelButton]}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
-                <Text style={styles.saveButtonText}>Schedule</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  onPress={() => setShowForm(false)}
+                  style={[styles.button, styles.cancelButton]}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSave} style={[styles.button, styles.saveButton]}>
+                  <Text style={styles.saveButtonText}>Schedule</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {inspections.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🔍</Text>
-              <Text style={styles.emptyTitle}>No Inspections</Text>
-              <Text style={styles.emptyText}>
-                Schedule property inspections to track condition and compliance.
-              </Text>
-            </View>
-          ) : (
-            inspections.map((inspection) => {
-              const statusColors = getStatusColor(inspection.status);
-              const typeInfo = inspectionTypes.find((t) => t.value === inspection.inspectionType);
-              return (
-                <View key={inspection._id} style={styles.card}>
-                  <View style={styles.cardHeader}>
-                    <View style={styles.cardHeaderLeft}>
-                      <Text style={styles.typeIcon}>{typeInfo?.icon || '📋'}</Text>
-                      <View>
-                        <Text style={styles.cardTitle}>{typeInfo?.label || inspection.inspectionType}</Text>
-                        <Text style={styles.cardSubtitle}>
-                          {inspection.propertyId?.address
-                            ? `${inspection.propertyId.address.line1}, ${inspection.propertyId.address.city}`
-                            : 'Property'}
+        ) : (
+          <View style={styles.content}>
+            {inspections.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>🔍</Text>
+                <Text style={styles.emptyTitle}>No Inspections</Text>
+                <Text style={styles.emptyText}>
+                  Schedule property inspections to track condition and compliance.
+                </Text>
+              </View>
+            ) : (
+              inspections.map((inspection) => {
+                const statusColors = getStatusColor(inspection.status);
+                const typeInfo = inspectionTypes.find((t) => t.value === inspection.inspectionType);
+                return (
+                  <View key={inspection._id} style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.cardHeaderLeft}>
+                        <Text style={styles.typeIcon}>{typeInfo?.icon || '📋'}</Text>
+                        <View>
+                          <Text style={styles.cardTitle}>{typeInfo?.label || inspection.inspectionType}</Text>
+                          <Text style={styles.cardSubtitle}>
+                            {inspection.propertyId?.address
+                              ? `${inspection.propertyId.address.line1}, ${inspection.propertyId.address.city}`
+                              : 'Property'}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
+                        <Text style={[styles.statusText, { color: statusColors.text }]}>
+                          {inspection.status.toUpperCase()}
                         </Text>
                       </View>
                     </View>
-                    <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
-                      <Text style={[styles.statusText, { color: statusColors.text }]}>
-                        {inspection.status.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
 
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Scheduled Date</Text>
-                    <Text style={styles.value}>
-                      {new Date(inspection.scheduledDate).toLocaleDateString()}
-                    </Text>
-                  </View>
-
-                  {inspection.actualDate && (
                     <View style={styles.detailRow}>
-                      <Text style={styles.label}>Completed Date</Text>
+                      <Text style={styles.label}>Scheduled Date</Text>
                       <Text style={styles.value}>
-                        {new Date(inspection.actualDate).toLocaleDateString()}
+                        {new Date(inspection.scheduledDate).toLocaleDateString()}
                       </Text>
                     </View>
-                  )}
 
-                  {inspection.overallCondition && (
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>Overall Condition</Text>
-                      <Text style={styles.value}>{inspection.overallCondition}</Text>
-                    </View>
-                  )}
-
-                  {inspection.issuesFound && (
-                    <View style={styles.issuesContainer}>
-                      <Text style={styles.issuesLabel}>⚠️ Issues Found</Text>
-                      {inspection.issues?.map((issue: any, idx: number) => (
-                        <Text key={idx} style={styles.issueText}>
-                          • {issue.description}
+                    {inspection.actualDate && (
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>Completed Date</Text>
+                        <Text style={styles.value}>
+                          {new Date(inspection.actualDate).toLocaleDateString()}
                         </Text>
-                      ))}
-                    </View>
-                  )}
+                      </View>
+                    )}
 
-                  {inspection.notes && (
-                    <View style={styles.notesContainer}>
-                      <Text style={styles.label}>Notes</Text>
-                      <Text style={styles.notes}>{inspection.notes}</Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })
-          )}
-        </View>
-      )}
+                    {inspection.overallCondition && (
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>Overall Condition</Text>
+                        <Text style={styles.value}>{inspection.overallCondition}</Text>
+                      </View>
+                    )}
+
+                    {inspection.issuesFound && (
+                      <View style={styles.issuesContainer}>
+                        <Text style={styles.issuesLabel}>⚠️ Issues Found</Text>
+                        {inspection.issues?.map((issue: any, idx: number) => (
+                          <Text key={idx} style={styles.issueText}>
+                            • {issue.description}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+
+                    {inspection.notes && (
+                      <View style={styles.notesContainer}>
+                        <Text style={styles.label}>Notes</Text>
+                        <Text style={styles.notes}>{inspection.notes}</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

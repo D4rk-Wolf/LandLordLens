@@ -4,6 +4,10 @@ require('dotenv').config();
 
 const logger = require('../lib/logger');
 const { connectToMongoDB } = require('../lib/mongodb');
+const { sanitizeInput } = require('../lib/middleware/sanitize');
+const { generalLimiter, authLimiter } = require('../lib/middleware/rateLimiter');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('../lib/swagger');
 const authRoutes = require('./routes/auth');
 const propertiesRoutes = require('./routes/properties');
 const adminRoutes = require('./routes/admin');
@@ -19,8 +23,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+  origin: process.env.FRONTEND_URL || process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
     : 'http://localhost:3000',
   credentials: true,
   optionsSuccessStatus: 200,
@@ -35,6 +39,15 @@ app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Input sanitization - sanitize all inputs to prevent XSS
+app.use(sanitizeInput);
+
+// Rate limiting - apply general rate limiter to all routes
+app.use('/api', generalLimiter);
+
+// Strict rate limiting for authentication routes
+app.use('/api/auth', authLimiter);
+
 // Stripe webhook endpoint needs raw body, so it's handled in the route itself
 // Other routes use JSON parsing above
 
@@ -48,6 +61,12 @@ app.use('/api/expenses', expensesRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/webhooks', webhooksRoutes);
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'LandlordLens API Documentation',
+}));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -66,11 +85,11 @@ app.use((err, req, res, next) => {
 async function startServer() {
   try {
     await connectToMongoDB();
-    
+
     const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`Server running on http://localhost:${PORT}`);
     });
-    
+
     server.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
         logger.error(`Port ${PORT} is already in use. Please stop the process using this port or change the PORT environment variable.`);
@@ -85,6 +104,9 @@ async function startServer() {
   }
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
 
 module.exports = app;

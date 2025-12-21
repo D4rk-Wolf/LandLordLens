@@ -36,7 +36,7 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
     try {
       const data = await apiClient.get<any>(
         `/tenancies/${tenancyId}`,
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       if (data.depositProtection) {
@@ -71,7 +71,7 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
           depositAmount: parseFloat(formData.depositAmount),
           protectedDate: new Date(formData.protectedDate),
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Deposit protection record saved');
@@ -253,6 +253,17 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',

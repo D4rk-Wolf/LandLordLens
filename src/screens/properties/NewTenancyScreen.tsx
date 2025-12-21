@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../utils/api-client';
+import { logger } from '../../utils/logger';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface NewTenancyScreenProps {
   propertyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
-const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavigate, onBack }) => {
+const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavigate, onBack, onSignOut }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,7 +46,7 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
           deposit: formData.deposit ? parseFloat(formData.deposit) : undefined,
           notes: formData.notes || undefined,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Tenancy created successfully', [
@@ -58,8 +62,8 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="New Tenancy" 
+      <PageHeader
+        title="New Tenancy"
         onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
@@ -69,116 +73,116 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
       />
       <ScrollView style={styles.scrollView}>
 
-      <View style={styles.form}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👤 Tenant Information</Text>
+        <View style={styles.form}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>👤 Tenant Information</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Tenant Name *</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.tenantName}
-              onChangeText={(text) => setFormData({ ...formData, tenantName: text })}
-              placeholder="Full name"
-            />
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Tenant Name *</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.tenantName}
+                onChangeText={(text) => setFormData({ ...formData, tenantName: text })}
+                placeholder="Full name"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Email *</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.tenantEmail}
+                onChangeText={(text) => setFormData({ ...formData, tenantEmail: text })}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="email@example.com"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Phone</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.tenantPhone}
+                onChangeText={(text) => setFormData({ ...formData, tenantPhone: text })}
+                keyboardType="phone-pad"
+                placeholder="+44 7xxx xxxxxx"
+              />
+            </View>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email *</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.tenantEmail}
-              onChangeText={(text) => setFormData({ ...formData, tenantEmail: text })}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholder="email@example.com"
-            />
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📅 Tenancy Details</Text>
+
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Start Date *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.startDate}
+                  onChangeText={(text) => setFormData({ ...formData, startDate: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>End Date</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.endDate}
+                  onChangeText={(text) => setFormData({ ...formData, endDate: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Monthly Rent (£) *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.monthlyRent}
+                  onChangeText={(text) => setFormData({ ...formData, monthlyRent: text })}
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                />
+              </View>
+
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Deposit (£)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.deposit}
+                  onChangeText={(text) => setFormData({ ...formData, deposit: text })}
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Notes</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={formData.notes}
+                onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                placeholder="Additional notes about the tenancy"
+                multiline
+                numberOfLines={3}
+              />
+            </View>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Phone</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.tenantPhone}
-              onChangeText={(text) => setFormData({ ...formData, tenantPhone: text })}
-              keyboardType="phone-pad"
-              placeholder="+44 7xxx xxxxxx"
-            />
-          </View>
+          <TouchableOpacity
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Creating...' : 'Create Tenancy'}
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📅 Tenancy Details</Text>
-
-          <View style={styles.inputRow}>
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Start Date *</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.startDate}
-                onChangeText={(text) => setFormData({ ...formData, startDate: text })}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
-
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>End Date</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.endDate}
-                onChangeText={(text) => setFormData({ ...formData, endDate: text })}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Monthly Rent (£) *</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.monthlyRent}
-                onChangeText={(text) => setFormData({ ...formData, monthlyRent: text })}
-                keyboardType="numeric"
-                placeholder="0.00"
-              />
-            </View>
-
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Deposit (£)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.deposit}
-                onChangeText={(text) => setFormData({ ...formData, deposit: text })}
-                keyboardType="numeric"
-                placeholder="0.00"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Notes</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.notes}
-              onChangeText={(text) => setFormData({ ...formData, notes: text })}
-              placeholder="Additional notes about the tenancy"
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Creating...' : 'Create Tenancy'}
-          </Text>
-        </TouchableOpacity>
-      </View>
       </ScrollView>
     </View>
   );

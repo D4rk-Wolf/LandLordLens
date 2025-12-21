@@ -51,7 +51,7 @@ const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, o
           issuer: formData.issuer || undefined,
           notes: formData.notes || undefined,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Compliance record created successfully', [
@@ -67,8 +67,8 @@ const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, o
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="New Compliance Record" 
+      <PageHeader
+        title="New Compliance Record"
         onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
@@ -78,100 +78,100 @@ const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, o
       />
       <ScrollView style={styles.scrollView}>
 
-      <View style={styles.form}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 Compliance Information</Text>
+        <View style={styles.form}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📋 Compliance Information</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Compliance Type *</Text>
-            <View style={styles.typeSelector}>
-              {complianceTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.value}
-                  style={[
-                    styles.typeButton,
-                    formData.complianceType === type.value && styles.typeButtonActive,
-                  ]}
-                  onPress={() => setFormData({ ...formData, complianceType: type.value })}
-                >
-                  <Text
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Compliance Type *</Text>
+              <View style={styles.typeSelector}>
+                {complianceTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type.value}
                     style={[
-                      styles.typeButtonText,
-                      formData.complianceType === type.value && styles.typeButtonTextActive,
+                      styles.typeButton,
+                      formData.complianceType === type.value && styles.typeButtonActive,
                     ]}
+                    onPress={() => setFormData({ ...formData, complianceType: type.value })}
                   >
-                    {type.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.typeButtonText,
+                        formData.complianceType === type.value && styles.typeButtonTextActive,
+                      ]}
+                    >
+                      {type.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Certificate Number</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.certificateNumber}
-              onChangeText={(text) => setFormData({ ...formData, certificateNumber: text })}
-              placeholder="Certificate or license number"
-            />
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Issue Date *</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Certificate Number</Text>
               <TextInput
                 style={styles.input}
-                value={formData.issueDate}
-                onChangeText={(text) => setFormData({ ...formData, issueDate: text })}
-                placeholder="YYYY-MM-DD"
+                value={formData.certificateNumber}
+                onChangeText={(text) => setFormData({ ...formData, certificateNumber: text })}
+                placeholder="Certificate or license number"
               />
             </View>
 
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Expiry Date *</Text>
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Issue Date *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.issueDate}
+                  onChangeText={(text) => setFormData({ ...formData, issueDate: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Expiry Date *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.expiryDate}
+                  onChangeText={(text) => setFormData({ ...formData, expiryDate: text })}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Issuer</Text>
               <TextInput
                 style={styles.input}
-                value={formData.expiryDate}
-                onChangeText={(text) => setFormData({ ...formData, expiryDate: text })}
-                placeholder="YYYY-MM-DD"
+                value={formData.issuer}
+                onChangeText={(text) => setFormData({ ...formData, issuer: text })}
+                placeholder="Name of issuing authority or company"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Notes</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={formData.notes}
+                onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                placeholder="Additional notes about this compliance record"
+                multiline
+                numberOfLines={3}
               />
             </View>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Issuer</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.issuer}
-              onChangeText={(text) => setFormData({ ...formData, issuer: text })}
-              placeholder="Name of issuing authority or company"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Notes</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.notes}
-              onChangeText={(text) => setFormData({ ...formData, notes: text })}
-              placeholder="Additional notes about this compliance record"
-              multiline
-              numberOfLines={3}
-            />
-          </View>
+          <TouchableOpacity
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Creating...' : 'Create Compliance Record'}
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Creating...' : 'Create Compliance Record'}
-          </Text>
-        </TouchableOpacity>
-      </View>
       </ScrollView>
     </View>
   );
@@ -293,4 +293,3 @@ const styles = StyleSheet.create({
 });
 
 export default NewComplianceScreen;
-lianceScreen;

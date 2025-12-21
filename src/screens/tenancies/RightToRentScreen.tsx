@@ -37,7 +37,7 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
     try {
       const data = await apiClient.get<any>(
         `/tenancies/${tenancyId}`,
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setChecks(data.rightToRent || []);
@@ -61,7 +61,7 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
           tenantDateOfBirth: new Date(formData.tenantDateOfBirth),
           expiryDate: formData.expiryDate ? new Date(formData.expiryDate) : null,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Right to rent check saved');
@@ -288,6 +288,17 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',

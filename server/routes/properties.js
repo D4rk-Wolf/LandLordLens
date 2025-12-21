@@ -12,6 +12,8 @@ const {
   getFormattedPrice,
   getMaxProperties,
 } = require('../../lib/subscription');
+const { validateProperty, validateObjectId } = require('../../lib/middleware/validators');
+const { handleValidationErrors } = require('../../lib/middleware/sanitize');
 
 const router = express.Router();
 
@@ -50,7 +52,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get single property
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
   try {
     const property = await Property.findOne({
       _id: req.params.id,
@@ -80,7 +82,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create property
-router.post('/', async (req, res) => {
+router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
   try {
     // Check subscription limits
     const user = await User.findById(req.user.userId);
@@ -142,7 +144,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update property
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
   try {
     const property = await Property.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.userId },
@@ -161,7 +163,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete property
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
   try {
     const property = await Property.findOneAndDelete({
       _id: req.params.id,

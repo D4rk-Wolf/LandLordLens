@@ -43,76 +43,97 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onNavigateToSignIn }) => {
   return (
     <View style={styles.container}>
       <View style={styles.backgroundDecoration}>
-        <View style={styles.decorativeCircle1} />
-        <View style={styles.decorativeCircle2} />
+        <View style={[styles.decorativeCircle, styles.circle1]} />
+        <View style={[styles.decorativeCircle, styles.circle2]} />
+        <View style={[styles.decorativeCircle, styles.circle3]} />
+        <View style={[styles.decorativeCircle, styles.circle4]} />
       </View>
-      <View style={styles.form}>
+
+      <View style={[styles.form, { shadowOpacity: 0 }]}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logoIcon}>🏠</Text>
+          <View style={styles.logoIconContainer}>
+            <Text style={styles.logoIcon}>🏠</Text>
+          </View>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.tagline}>Join LandlordLens Today</Text>
         </View>
-        
+
         <Text style={styles.subtitle}>Start Managing Your Properties</Text>
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="John Doe"
-            placeholderTextColor="#95a5a6"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>👤</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="John Doe"
+              placeholderTextColor="#94a3b8"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+            />
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Email Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@example.com"
-            placeholderTextColor="#95a5a6"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-          />
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>✉️</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="you@example.com"
+              placeholderTextColor="#94a3b8"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+            />
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Minimum 6 characters"
-            placeholderTextColor="#95a5a6"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>🔒</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Minimum 6 characters"
+              placeholderTextColor="#94a3b8"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Confirm Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Re-enter your password"
-            placeholderTextColor="#95a5a6"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>🛡️</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Re-enter your password"
+              placeholderTextColor="#94a3b8"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
         </View>
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleSignUp}
           disabled={loading}
+          activeOpacity={0.9}
         >
-          <Text style={styles.buttonText}>{loading ? 'Creating Account...' : 'Create Account'}</Text>
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonText}>{loading ? 'Creating Account...' : 'Create Account'}</Text>
+            {!loading && <Text style={styles.buttonArrow}>→</Text>}
+          </View>
         </TouchableOpacity>
 
         <View style={styles.divider}>
@@ -121,7 +142,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onNavigateToSignIn }) => {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity onPress={onNavigateToSignIn} style={styles.linkButton}>
+        <TouchableOpacity onPress={onNavigateToSignIn} style={styles.linkButton} activeOpacity={0.7}>
           <Text style={styles.linkText}>Already have an account? <Text style={styles.linkTextBold}>Sign In</Text></Text>
         </TouchableOpacity>
       </View>
@@ -134,10 +155,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'var(--bg-gradient)',
     padding: 20,
     position: 'relative',
     overflow: 'hidden',
+    minHeight: '100%',
   },
   backgroundDecoration: {
     position: 'absolute',
@@ -146,64 +168,93 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
-  decorativeCircle1: {
+  decorativeCircle: {
     position: 'absolute',
+    borderRadius: 9999,
+  },
+  circle1: {
+    width: 600,
+    height: 600,
+    backgroundColor: 'hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.05)',
+    top: -250,
+    right: -250,
+  },
+  circle2: {
+    width: 500,
+    height: 500,
+    backgroundColor: 'hsla(var(--secondary-h), var(--secondary-s), var(--secondary-l), 0.05)',
+    bottom: -200,
+    left: -200,
+  },
+  circle3: {
+    width: 400,
+    height: 400,
+    backgroundColor: 'hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.03)',
+    top: '30%',
+    right: -150,
+  },
+  circle4: {
     width: 300,
     height: 300,
-    borderRadius: 150,
-    backgroundColor: '#3498db',
-    opacity: 0.05,
-    top: -100,
-    right: -100,
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: '#2ecc71',
-    opacity: 0.05,
-    bottom: -80,
-    left: -80,
+    backgroundColor: 'hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.04)',
+    bottom: '20%',
+    left: -100,
   },
   form: {
     width: '100%',
-    maxWidth: 450,
-    backgroundColor: '#fff',
-    padding: 40,
-    borderRadius: 16,
-    boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.12)',
-    elevation: 5,
+    maxWidth: 540,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    //@ts-ignore - web only
+    backdropFilter: 'blur(20px)',
+    padding: 48,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     zIndex: 1,
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.06)',
+    marginVertical: 40,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
+  },
+  logoIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.04)',
   },
   logoIcon: {
-    fontSize: 64,
-    marginBottom: 15,
+    fontSize: 40,
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontSize: 32,
+    fontWeight: '800',
+    color: 'var(--text-primary)',
     textAlign: 'center',
     marginBottom: 8,
-    letterSpacing: -0.5,
+    letterSpacing: -1,
   },
   tagline: {
-    fontSize: 14,
-    color: '#7f8c8d',
+    fontSize: 15,
+    color: 'var(--text-secondary)',
     textAlign: 'center',
     fontWeight: '500',
+    letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 18,
-    color: '#34495e',
+    color: 'var(--text-primary)',
     textAlign: 'center',
-    marginBottom: 30,
-    fontWeight: '500',
+    marginBottom: 36,
+    fontWeight: '600',
+    letterSpacing: -0.3,
   },
   inputContainer: {
     marginBottom: 20,
@@ -211,62 +262,90 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: 'var(--text-primary)',
     marginBottom: 8,
+    marginLeft: 4,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'var(--gray-200)',
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    paddingHorizontal: 16,
+    minHeight: 52,
+    transition: 'all 0.2s ease',
+  },
+  inputIcon: {
+    fontSize: 18,
+    marginRight: 12,
+    opacity: 0.7,
   },
   input: {
-    borderWidth: 2,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 14,
-    fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#2c3e50',
+    flex: 1,
+    fontSize: 15,
+    color: 'var(--text-primary)',
+    paddingVertical: 12,
+    fontWeight: '400',
   },
   button: {
-    backgroundColor: '#3498db',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: 'var(--primary)',
+    backgroundImage: 'var(--primary-gradient)',
+    paddingVertical: 18,
+    borderRadius: 16,
     alignItems: 'center',
-    marginTop: 10,
-    boxShadow: '0px 4px 8px 0px rgba(52, 152, 219, 0.3)',
-    elevation: 4,
+    marginTop: 16,
+    boxShadow: '0 10px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.25)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   buttonDisabled: {
-    backgroundColor: '#bdc3c7',
+    opacity: 0.5,
     boxShadow: 'none',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  buttonArrow: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 25,
+    marginVertical: 28,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: 'var(--gray-200)',
   },
   dividerText: {
-    marginHorizontal: 15,
+    marginHorizontal: 16,
     fontSize: 14,
-    color: '#95a5a6',
+    color: 'var(--text-tertiary)',
+    fontWeight: '500',
   },
   linkButton: {
     alignItems: 'center',
+    paddingVertical: 8,
   },
   linkText: {
-    color: '#7f8c8d',
+    color: 'var(--text-secondary)',
     fontSize: 14,
   },
   linkTextBold: {
-    color: '#3498db',
-    fontWeight: '600',
+    color: 'var(--primary)',
+    fontWeight: '700',
   },
 });
 

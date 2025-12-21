@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert 
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface ComplianceRecord {
   complianceType: string;
@@ -16,9 +17,10 @@ interface ComplianceRecord {
 interface NewPropertyScreenProps {
   onNavigate: (screen: string) => void;
   onBack: () => void;
+  onSignOut: () => void;
 }
 
-const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBack }) => {
+const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBack, onSignOut }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -155,7 +157,7 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
             };
           }) : undefined,
         },
-        token
+        token || undefined
       );
 
       Alert.alert('Success', 'Property created successfully', [
@@ -170,8 +172,8 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
 
   return (
     <View style={styles.container}>
-      <PageHeader 
-        title="New Property" 
+      <PageHeader
+        title="New Property"
         onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
@@ -181,374 +183,374 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
       />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
-      <View style={styles.form}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📍 Address Information</Text>
-          
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Address Line 1 *</Text>
-            <TextInput
-              style={[styles.input, errors.addressLine1 && styles.inputError]}
-              value={formData.address.line1}
-              onChangeText={(text) => {
-                setFormData({ ...formData, address: { ...formData.address, line1: text } });
-                if (errors.addressLine1) {
-                  setErrors({ ...errors, addressLine1: '' });
+        <View style={styles.form}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📍 Address Information</Text>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Address Line 1 *</Text>
+              <TextInput
+                style={[styles.input, errors.addressLine1 && styles.inputError]}
+                value={formData.address.line1}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, address: { ...formData.address, line1: text } });
+                  if (errors.addressLine1) {
+                    setErrors({ ...errors, addressLine1: '' });
+                  }
+                }}
+                placeholder="Street address"
+                placeholderTextColor="#9ca3af"
+              />
+              {errors.addressLine1 && (
+                <Text style={styles.errorText}>{errors.addressLine1}</Text>
+              )}
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Address Line 2</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.address.line2}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, address: { ...formData.address, line2: text } })
                 }
-              }}
-              placeholder="Street address"
-              placeholderTextColor="#9ca3af"
-            />
-            {errors.addressLine1 && (
-              <Text style={styles.errorText}>{errors.addressLine1}</Text>
-            )}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Address Line 2</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.address.line2}
-              onChangeText={(text) =>
-                setFormData({ ...formData, address: { ...formData.address, line2: text } })
-              }
-              placeholder="Apartment, suite, etc."
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>City *</Text>
-              <TextInput
-                style={[styles.input, errors.addressCity && styles.inputError]}
-                value={formData.address.city}
-                onChangeText={(text) => {
-                  setFormData({ ...formData, address: { ...formData.address, city: text } });
-                  if (errors.addressCity) {
-                    setErrors({ ...errors, addressCity: '' });
-                  }
-                }}
-                placeholder="City"
+                placeholder="Apartment, suite, etc."
                 placeholderTextColor="#9ca3af"
               />
-              {errors.addressCity && (
-                <Text style={styles.errorText}>{errors.addressCity}</Text>
-              )}
             </View>
 
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Postcode *</Text>
-              <TextInput
-                style={[styles.input, errors.addressPostcode && styles.inputError]}
-                value={formData.address.postcode}
-                onChangeText={(text) => {
-                  setFormData({ ...formData, address: { ...formData.address, postcode: text } });
-                  if (errors.addressPostcode) {
-                    setErrors({ ...errors, addressPostcode: '' });
-                  }
-                }}
-                placeholder="Postcode"
-                placeholderTextColor="#9ca3af"
-                autoCapitalize="characters"
-              />
-              {errors.addressPostcode && (
-                <Text style={styles.errorText}>{errors.addressPostcode}</Text>
-              )}
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>City *</Text>
+                <TextInput
+                  style={[styles.input, errors.addressCity && styles.inputError]}
+                  value={formData.address.city}
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, address: { ...formData.address, city: text } });
+                    if (errors.addressCity) {
+                      setErrors({ ...errors, addressCity: '' });
+                    }
+                  }}
+                  placeholder="City"
+                  placeholderTextColor="#9ca3af"
+                />
+                {errors.addressCity && (
+                  <Text style={styles.errorText}>{errors.addressCity}</Text>
+                )}
+              </View>
+
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Postcode *</Text>
+                <TextInput
+                  style={[styles.input, errors.addressPostcode && styles.inputError]}
+                  value={formData.address.postcode}
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, address: { ...formData.address, postcode: text } });
+                    if (errors.addressPostcode) {
+                      setErrors({ ...errors, addressPostcode: '' });
+                    }
+                  }}
+                  placeholder="Postcode"
+                  placeholderTextColor="#9ca3af"
+                  autoCapitalize="characters"
+                />
+                {errors.addressPostcode && (
+                  <Text style={styles.errorText}>{errors.addressPostcode}</Text>
+                )}
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🏠 Property Details</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🏠 Property Details</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Property Type</Text>
-            <View style={styles.row}>
-              {['house', 'flat', 'apartment', 'bungalow'].map((type) => (
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Property Type</Text>
+              <View style={styles.row}>
+                {['house', 'flat', 'apartment', 'bungalow'].map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.typeButton,
+                      formData.propertyType === type && styles.typeButtonActive,
+                    ]}
+                    onPress={() => setFormData({ ...formData, propertyType: type })}
+                  >
+                    <Text
+                      style={[
+                        styles.typeButtonText,
+                        formData.propertyType === type && styles.typeButtonTextActive,
+                      ]}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.inputRow}>
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Bedrooms *</Text>
+                <TextInput
+                  style={[styles.input, errors.bedrooms && styles.inputError]}
+                  value={formData.bedrooms}
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, bedrooms: text });
+                    if (errors.bedrooms) {
+                      setErrors({ ...errors, bedrooms: '' });
+                    }
+                  }}
+                  keyboardType="numeric"
+                  placeholder="0"
+                  placeholderTextColor="#9ca3af"
+                />
+                {errors.bedrooms && (
+                  <Text style={styles.errorText}>{errors.bedrooms}</Text>
+                )}
+              </View>
+
+              <View style={[styles.inputContainer, styles.inputHalf]}>
+                <Text style={styles.label}>Bathrooms</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.bathrooms}
+                  onChangeText={(text) => setFormData({ ...formData, bathrooms: text })}
+                  keyboardType="numeric"
+                  placeholder="1"
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Monthly Rent (£)</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.rentAmount}
+                onChangeText={(text) => setFormData({ ...formData, rentAmount: text })}
+                keyboardType="numeric"
+                placeholder="0.00"
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Purchase Price (£)</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.purchasePrice}
+                onChangeText={(text) => setFormData({ ...formData, purchasePrice: text })}
+                keyboardType="numeric"
+                placeholder="0.00"
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📊 Availability Status</Text>
+            <Text style={styles.sectionDescription}>
+              Mark the current availability status of this property
+            </Text>
+
+            <View style={styles.availabilityGrid}>
+              {availabilityStatuses.map((status) => (
                 <TouchableOpacity
-                  key={type}
+                  key={status.value}
                   style={[
-                    styles.typeButton,
-                    formData.propertyType === type && styles.typeButtonActive,
+                    styles.availabilityCard,
+                    formData.availabilityStatus === status.value && styles.availabilityCardActive,
                   ]}
-                  onPress={() => setFormData({ ...formData, propertyType: type })}
+                  onPress={() => setFormData({ ...formData, availabilityStatus: status.value })}
                 >
+                  <Text style={styles.availabilityIcon}>{status.icon}</Text>
                   <Text
                     style={[
-                      styles.typeButtonText,
-                      formData.propertyType === type && styles.typeButtonTextActive,
+                      styles.availabilityLabel,
+                      formData.availabilityStatus === status.value && styles.availabilityLabelActive,
                     ]}
                   >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    {status.label}
                   </Text>
+                  <Text style={styles.availabilityDescription}>{status.description}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
 
-          <View style={styles.inputRow}>
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Bedrooms *</Text>
-              <TextInput
-                style={[styles.input, errors.bedrooms && styles.inputError]}
-                value={formData.bedrooms}
-                onChangeText={(text) => {
-                  setFormData({ ...formData, bedrooms: text });
-                  if (errors.bedrooms) {
-                    setErrors({ ...errors, bedrooms: '' });
-                  }
-                }}
-                keyboardType="numeric"
-                placeholder="0"
-                placeholderTextColor="#9ca3af"
-              />
-              {errors.bedrooms && (
-                <Text style={styles.errorText}>{errors.bedrooms}</Text>
-              )}
-            </View>
-
-            <View style={[styles.inputContainer, styles.inputHalf]}>
-              <Text style={styles.label}>Bathrooms</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.bathrooms}
-                onChangeText={(text) => setFormData({ ...formData, bathrooms: text })}
-                keyboardType="numeric"
-                placeholder="1"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Monthly Rent (£)</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.rentAmount}
-              onChangeText={(text) => setFormData({ ...formData, rentAmount: text })}
-              keyboardType="numeric"
-              placeholder="0.00"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Purchase Price (£)</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.purchasePrice}
-              onChangeText={(text) => setFormData({ ...formData, purchasePrice: text })}
-              keyboardType="numeric"
-              placeholder="0.00"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📊 Availability Status</Text>
-          <Text style={styles.sectionDescription}>
-            Mark the current availability status of this property
-          </Text>
-          
-          <View style={styles.availabilityGrid}>
-            {availabilityStatuses.map((status) => (
-              <TouchableOpacity
-                key={status.value}
-                style={[
-                  styles.availabilityCard,
-                  formData.availabilityStatus === status.value && styles.availabilityCardActive,
-                ]}
-                onPress={() => setFormData({ ...formData, availabilityStatus: status.value })}
-              >
-                <Text style={styles.availabilityIcon}>{status.icon}</Text>
-                <Text
-                  style={[
-                    styles.availabilityLabel,
-                    formData.availabilityStatus === status.value && styles.availabilityLabelActive,
-                  ]}
-                >
-                  {status.label}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View>
+                <Text style={styles.sectionTitle}>📋 Compliance Records</Text>
+                <Text style={styles.sectionDescription}>
+                  Add compliance certificates and documents for this property
                 </Text>
-                <Text style={styles.availabilityDescription}>{status.description}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>📋 Compliance Records</Text>
-              <Text style={styles.sectionDescription}>
-                Add compliance certificates and documents for this property
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setShowComplianceForm(!showComplianceForm)}
-            >
-              <Text style={styles.addButtonText}>
-                {showComplianceForm ? '−' : '+'} {showComplianceForm ? 'Cancel' : 'Add Compliance'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {showComplianceForm && (
-            <View style={styles.complianceForm}>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Compliance Type *</Text>
-                <View style={styles.complianceTypeGrid}>
-                  {complianceTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type.value}
-                      style={[
-                        styles.complianceTypeButton,
-                        currentCompliance.complianceType === type.value &&
-                          styles.complianceTypeButtonActive,
-                      ]}
-                      onPress={() =>
-                        setCurrentCompliance({ ...currentCompliance, complianceType: type.value })
-                      }
-                    >
-                      <Text
-                        style={[
-                          styles.complianceTypeText,
-                          currentCompliance.complianceType === type.value &&
-                            styles.complianceTypeTextActive,
-                        ]}
-                      >
-                        {type.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
               </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Certificate Number</Text>
-                <TextInput
-                  style={styles.input}
-                  value={currentCompliance.certificateNumber}
-                  onChangeText={(text) =>
-                    setCurrentCompliance({ ...currentCompliance, certificateNumber: text })
-                  }
-                  placeholder="Enter certificate number"
-                  placeholderTextColor="#9ca3af"
-                />
-              </View>
-
-              <View style={styles.inputRow}>
-                <View style={[styles.inputContainer, styles.inputHalf]}>
-                  <Text style={styles.label}>Issue Date *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={currentCompliance.issueDate}
-                    onChangeText={(text) =>
-                      setCurrentCompliance({ ...currentCompliance, issueDate: text })
-                    }
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-
-                <View style={[styles.inputContainer, styles.inputHalf]}>
-                  <Text style={styles.label}>Expiry Date *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={currentCompliance.expiryDate}
-                    onChangeText={(text) =>
-                      setCurrentCompliance({ ...currentCompliance, expiryDate: text })
-                    }
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Issuer</Text>
-                <TextInput
-                  style={styles.input}
-                  value={currentCompliance.issuer}
-                  onChangeText={(text) =>
-                    setCurrentCompliance({ ...currentCompliance, issuer: text })
-                  }
-                  placeholder="Certificate issuer name"
-                  placeholderTextColor="#9ca3af"
-                />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Notes</Text>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  value={currentCompliance.notes}
-                  onChangeText={(text) =>
-                    setCurrentCompliance({ ...currentCompliance, notes: text })
-                  }
-                  placeholder="Additional notes"
-                  placeholderTextColor="#9ca3af"
-                  multiline
-                  numberOfLines={3}
-                />
-              </View>
-
               <TouchableOpacity
-                style={styles.addComplianceButton}
-                onPress={addComplianceRecord}
+                style={styles.addButton}
+                onPress={() => setShowComplianceForm(!showComplianceForm)}
               >
-                <Text style={styles.addComplianceButtonText}>Add Compliance Record</Text>
+                <Text style={styles.addButtonText}>
+                  {showComplianceForm ? '−' : '+'} {showComplianceForm ? 'Cancel' : 'Add Compliance'}
+                </Text>
               </TouchableOpacity>
             </View>
-          )}
 
-          {complianceRecords.length > 0 && (
-            <View style={styles.complianceList}>
-              <Text style={styles.complianceListTitle}>
-                Added Compliance Records ({complianceRecords.length})
-              </Text>
-              {complianceRecords.map((record, index) => {
-                const typeLabel = complianceTypes.find((t) => t.value === record.complianceType)?.label || record.complianceType;
-                return (
-                  <View key={index} style={styles.complianceListItem}>
-                    <View style={styles.complianceListItemContent}>
-                      <Text style={styles.complianceListItemType}>{typeLabel}</Text>
-                      {record.certificateNumber && (
-                        <Text style={styles.complianceListItemNumber}>
-                          Cert: {record.certificateNumber}
+            {showComplianceForm && (
+              <View style={styles.complianceForm}>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Compliance Type *</Text>
+                  <View style={styles.complianceTypeGrid}>
+                    {complianceTypes.map((type) => (
+                      <TouchableOpacity
+                        key={type.value}
+                        style={[
+                          styles.complianceTypeButton,
+                          currentCompliance.complianceType === type.value &&
+                          styles.complianceTypeButtonActive,
+                        ]}
+                        onPress={() =>
+                          setCurrentCompliance({ ...currentCompliance, complianceType: type.value })
+                        }
+                      >
+                        <Text
+                          style={[
+                            styles.complianceTypeText,
+                            currentCompliance.complianceType === type.value &&
+                            styles.complianceTypeTextActive,
+                          ]}
+                        >
+                          {type.label}
                         </Text>
-                      )}
-                      {record.expiryDate && (
-                        <Text style={styles.complianceListItemDate}>
-                          Expires: {record.expiryDate}
-                        </Text>
-                      )}
-                    </View>
-                    <TouchableOpacity
-                      style={styles.removeButton}
-                      onPress={() => removeComplianceRecord(index)}
-                    >
-                      <Text style={styles.removeButtonText}>✕</Text>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                );
-              })}
-            </View>
-          )}
-        </View>
+                </View>
 
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Creating...' : 'Create Property'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Certificate Number</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={currentCompliance.certificateNumber}
+                    onChangeText={(text) =>
+                      setCurrentCompliance({ ...currentCompliance, certificateNumber: text })
+                    }
+                    placeholder="Enter certificate number"
+                    placeholderTextColor="#9ca3af"
+                  />
+                </View>
+
+                <View style={styles.inputRow}>
+                  <View style={[styles.inputContainer, styles.inputHalf]}>
+                    <Text style={styles.label}>Issue Date *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={currentCompliance.issueDate}
+                      onChangeText={(text) =>
+                        setCurrentCompliance({ ...currentCompliance, issueDate: text })
+                      }
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor="#9ca3af"
+                    />
+                  </View>
+
+                  <View style={[styles.inputContainer, styles.inputHalf]}>
+                    <Text style={styles.label}>Expiry Date *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={currentCompliance.expiryDate}
+                      onChangeText={(text) =>
+                        setCurrentCompliance({ ...currentCompliance, expiryDate: text })
+                      }
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor="#9ca3af"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Issuer</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={currentCompliance.issuer}
+                    onChangeText={(text) =>
+                      setCurrentCompliance({ ...currentCompliance, issuer: text })
+                    }
+                    placeholder="Certificate issuer name"
+                    placeholderTextColor="#9ca3af"
+                  />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Notes</Text>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    value={currentCompliance.notes}
+                    onChangeText={(text) =>
+                      setCurrentCompliance({ ...currentCompliance, notes: text })
+                    }
+                    placeholder="Additional notes"
+                    placeholderTextColor="#9ca3af"
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  style={styles.addComplianceButton}
+                  onPress={addComplianceRecord}
+                >
+                  <Text style={styles.addComplianceButtonText}>Add Compliance Record</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {complianceRecords.length > 0 && (
+              <View style={styles.complianceList}>
+                <Text style={styles.complianceListTitle}>
+                  Added Compliance Records ({complianceRecords.length})
+                </Text>
+                {complianceRecords.map((record, index) => {
+                  const typeLabel = complianceTypes.find((t) => t.value === record.complianceType)?.label || record.complianceType;
+                  return (
+                    <View key={index} style={styles.complianceListItem}>
+                      <View style={styles.complianceListItemContent}>
+                        <Text style={styles.complianceListItemType}>{typeLabel}</Text>
+                        {record.certificateNumber && (
+                          <Text style={styles.complianceListItemNumber}>
+                            Cert: {record.certificateNumber}
+                          </Text>
+                        )}
+                        {record.expiryDate && (
+                          <Text style={styles.complianceListItemDate}>
+                            Expires: {record.expiryDate}
+                          </Text>
+                        )}
+                      </View>
+                      <TouchableOpacity
+                        style={styles.removeButton}
+                        onPress={() => removeComplianceRecord(index)}
+                      >
+                        <Text style={styles.removeButtonText}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Creating...' : 'Create Property'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );

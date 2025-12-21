@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, startTransition, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { useWindowDimensions, useIsMobile } from '../hooks/useWindowDimensions';
 
 // Lazy load screens for code splitting
 const DashboardScreen = lazy(() => import('../screens/dashboard/DashboardScreen'));
@@ -28,7 +29,7 @@ const LoadingFallback: React.FC = () => (
   </View>
 );
 
-type Screen = 
+type Screen =
   | 'dashboard'
   | 'properties'
   | 'property-detail'
@@ -65,6 +66,9 @@ const systemNavItems: NavItem[] = [
 const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboard' }) => {
   const [currentScreen, setCurrentScreen] = React.useState<Screen>(initialScreen);
   const [selectedPropertyId, setSelectedPropertyId] = React.useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  const isMobile = useIsMobile();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(!isMobile);
   const { user, signOut } = useAuth();
 
   // Wrap navigation in startTransition to prevent suspension during synchronous input
@@ -265,8 +269,8 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
         return <PropertiesScreen onNavigate={navigate} onSelectProperty={navigateToPropertyDetail} onSignOut={signOut} />;
       case 'property-detail':
         return selectedPropertyId ? (
-          <PropertyDetailScreen 
-            propertyId={selectedPropertyId} 
+          <PropertyDetailScreen
+            propertyId={selectedPropertyId}
             onNavigate={navigate}
             onBack={() => startTransition(() => setCurrentScreen('properties'))}
             onSignOut={signOut}
@@ -295,7 +299,33 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
 
   return (
     <View style={styles.container}>
-      <View style={styles.sidebar}>
+      {/* Mobile Menu Toggle */}
+      {isMobile && (
+        <View style={styles.menuButtonContainer}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => setIsSidebarOpen(!isSidebarOpen)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.menuIcon}>{isSidebarOpen ? '✕' : '☰'}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Sidebar Backdrop for Mobile */}
+      {isMobile && isSidebarOpen && (
+        <TouchableOpacity
+          style={styles.backdrop}
+          onPress={() => setIsSidebarOpen(false)}
+          activeOpacity={1}
+        />
+      )}
+
+      <View style={[
+        styles.sidebar,
+        isMobile && !isSidebarOpen && styles.sidebarClosed,
+        isMobile && isSidebarOpen && styles.sidebarMobile
+      ]}>
         <View style={styles.sidebarHeader}>
           <View style={styles.logoContainer}>
             <View style={styles.logoIconContainer}>
@@ -319,7 +349,11 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
                   styles.navItem,
                   isActive && styles.navItemActive,
                 ]}
-                onPress={() => navigate(item.id)}
+                onPress={() => {
+                  navigate(item.id);
+                  // Close sidebar on mobile after navigation
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
                 activeOpacity={0.8}
               >
                 <View style={[
@@ -348,17 +382,54 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
 
         <View style={styles.navSection}>
           <Text style={styles.navSectionLabel}>System</Text>
-          {systemNavItems.map(renderNavItem)}
+          {systemNavItems.map((item) => {
+            const isActive = isScreenActive(item.id);
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.navItem,
+                  isActive && styles.navItemActive,
+                ]}
+                onPress={() => {
+                  navigate(item.id);
+                  if (isMobile) setIsSidebarOpen(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <View style={[
+                  styles.navIconContainer,
+                  isActive && styles.navIconContainerActive,
+                ]}>
+                  <Text style={[
+                    styles.navIcon,
+                    isActive && styles.navIconActive,
+                  ]}>
+                    {item.icon}
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    styles.navLabel,
+                    isActive && styles.navLabelActive,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
           {user?.role === 'admin' && (
             <TouchableOpacity
               style={[
                 styles.navItem,
                 isScreenActive('admin') && styles.navItemActive,
               ]}
-              onPress={() => navigate('admin')}
+              onPress={() => {
+                navigate('admin');
+                if (isMobile) setIsSidebarOpen(false);
+              }}
               activeOpacity={0.8}
-              // @ts-ignore - for web hover effects
-              data-testid={`nav-item-admin${isScreenActive('admin') ? '-active' : ''}`}
             >
               <View style={[
                 styles.navIconContainer,
@@ -386,10 +457,11 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               styles.navItem,
               isScreenActive('settings') && styles.navItemActive,
             ]}
-            onPress={() => navigate('settings')}
+            onPress={() => {
+              navigate('settings');
+              if (isMobile) setIsSidebarOpen(false);
+            }}
             activeOpacity={0.8}
-            // @ts-ignore - for web hover effects
-            data-testid={`nav-item-settings${isScreenActive('settings') ? '-active' : ''}`}
           >
             <View style={[
               styles.navIconContainer,
@@ -430,91 +502,111 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     backgroundColor: 'transparent',
+    position: 'relative',
   },
   sidebar: {
-    width: 240,
-    backgroundColor: '#ffffff',
+    width: 280,
+    backgroundColor: 'var(--bg-primary)',
     borderRightWidth: 1,
-    borderRightColor: '#e5e7eb',
+    borderRightColor: 'var(--gray-200)',
     flexDirection: 'column',
-    boxShadow: '4px 0px 16px 0px rgba(0, 0, 0, 0.08)',
+    boxShadow: '4px 0px 16px 0px rgba(0, 0, 0, 0.04)',
     elevation: 5,
     zIndex: 1000,
+    //@ts-ignore
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease',
+  },
+  sidebarClosed: {
+    position: 'absolute',
+    height: '100%',
+    //@ts-ignore
+    transform: [{ translateX: -280 }],
+  },
+  sidebarMobile: {
+    position: 'absolute',
+    height: '100%',
+    // @ts-ignore
+    transform: [{ translateX: 0 }],
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    zIndex: 999,
+    //@ts-ignore
+    backdropFilter: 'blur(4px)',
+    transition: 'opacity 0.3s ease',
   },
   sidebarHeader: {
-    padding: 20,
+    padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-    paddingBottom: 20,
+    borderBottomColor: 'var(--gray-100)',
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
   },
   logoIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#f0f4ff',
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'var(--primary-light)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e0e7ff',
+    opacity: 0.9,
   },
   logoIcon: {
-    fontSize: 28,
+    fontSize: 24,
   },
   logoTextContainer: {
     flex: 1,
   },
   logoText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: 'var(--text-primary)',
     letterSpacing: -0.5,
-    lineHeight: 24,
   },
   logoSubtext: {
-    fontSize: 11,
-    color: '#9ca3af',
-    fontWeight: '500',
-    marginTop: 2,
-    letterSpacing: 0.3,
+    fontSize: 10,
+    color: 'var(--text-tertiary)',
+    fontWeight: '600',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   navSection: {
-    paddingVertical: 8,
+    paddingVertical: 12,
     flex: 1,
-    paddingTop: 20,
   },
   navSectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#9ca3af',
+    color: 'var(--text-tertiary)',
     textTransform: 'uppercase',
     letterSpacing: 1,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    paddingTop: 8,
+    paddingHorizontal: 24,
+    marginBottom: 8,
+    marginTop: 12,
   },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    marginHorizontal: 12,
-    marginVertical: 2,
-    borderRadius: 12,
-    position: 'relative',
+    marginHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 14,
     backgroundColor: 'transparent',
-    overflow: 'hidden',
+    //@ts-ignore
     transition: 'all 0.2s ease',
   },
   navItemActive: {
-    backgroundColor: '#6366f1',
-    boxShadow: '0px 2px 8px 0px rgba(99, 102, 241, 0.15)',
-    elevation: 2,
+    backgroundColor: 'var(--primary)',
+    boxShadow: '0 4px 12px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2)',
   },
   navIconContainer: {
     width: 32,
@@ -526,22 +618,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   navIconContainerActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   navIcon: {
     fontSize: 18,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  navIconActive: {
-    opacity: 1,
   },
   navLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6b7280',
+    color: 'var(--text-secondary)',
     flex: 1,
-    letterSpacing: 0.1,
   },
   navLabelActive: {
     color: '#ffffff',
@@ -552,19 +638,36 @@ const styles = StyleSheet.create({
     width: '100%',
     overflow: 'hidden',
     backgroundColor: 'transparent',
-    position: 'relative',
   },
   contentInner: {
     flex: 1,
     width: '100%',
-    maxWidth: '100%',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
     minHeight: 400,
+  },
+  menuButtonContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1001,
+  },
+  menuButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: 'var(--glass-bg)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'var(--glass-border)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  },
+  menuIcon: {
+    fontSize: 20,
   },
 });
 

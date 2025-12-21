@@ -1,6 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { ToastProvider } from './contexts/ToastContext';
+import ToastContainer from './components/ui/ToastContainer';
 import AuthNavigator from './navigation/AuthNavigator';
 import MainNavigator from './navigation/MainNavigator';
 
@@ -30,11 +34,16 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <View style={styles.container}>
-        <AppContent />
-      </View>
-    </AuthProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <AppContent />
+            <ToastContainer />
+          </AuthProvider>
+        </NotificationProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 };
 
@@ -42,7 +51,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    minHeight: '100vh',
+    minHeight: '100%',
   },
   loadingContainer: {
     flex: 1,

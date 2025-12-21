@@ -6,6 +6,7 @@ import { apiClient } from '../../utils/api-client';
 
 interface AdminScreenProps {
   onNavigate: (screen: string) => void;
+  onSignOut: () => void;
 }
 
 interface User {
@@ -44,7 +45,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
     try {
       const data = await apiClient.get<{ stats: any }>(
         '/admin/stats',
-        token,
+        token || undefined,
         { cache: true, cacheTTL: 5 * 60 * 1000 } // 5 minute cache for admin stats
       );
       setStats(data.stats);
@@ -63,7 +64,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
     try {
       const data = await apiClient.get<{ users: User[] }>(
         '/admin/users',
-        token,
+        token || undefined,
         { cache: false } // Don't cache users list to always get fresh data
       );
       setUsers(data.users);
@@ -77,7 +78,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
 
   const updateUserTier = useCallback(async (userId: string, tier: Tier) => {
     if (!token) return;
-    
+
     setUpdatingUsers((prev) => new Set(prev).add(userId));
     setError(null);
     setSuccess(null);
@@ -86,7 +87,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
       const response = await apiClient.put<{ user: User; message: string }>(
         `/admin/users/${userId}/subscription`,
         { tier },
-        token,
+        token || undefined,
         { cache: false }
       );
 
@@ -98,10 +99,10 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
       );
 
       setSuccess(`Successfully updated user tier to ${TIER_LABELS[tier]}`);
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-      
+
       // Clear cache to refresh stats
       apiClient.clearCache('/admin/stats');
       fetchStats();
@@ -161,6 +162,9 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Admin Dashboard</Text>
+        <TouchableOpacity onPress={onSignOut} style={styles.signOutButton}>
+          <Text style={styles.signOutButtonText}>Sign Out</Text>
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -442,6 +446,30 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     fontSize: 16,
     padding: 40,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  signOutButton: {
+    padding: 8,
+    borderRadius: 6,
+    backgroundColor: '#fee2e2',
+  },
+  signOutButtonText: {
+    color: '#dc2626',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 

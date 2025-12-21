@@ -59,37 +59,43 @@ const FormField: React.FC<FormFieldProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
+    color: 'var(--text-primary)',
+    marginBottom: 10,
+    marginLeft: 4,
   },
   required: {
-    color: '#dc2626',
+    color: 'var(--danger)',
   },
   input: {
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 14,
+    borderWidth: 1.5,
+    borderColor: 'var(--gray-200)',
+    borderRadius: 16,
+    padding: 16,
     fontSize: 16,
-    backgroundColor: '#ffffff',
-    color: '#111827',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    color: 'var(--text-primary)',
+    //@ts-ignore - web only
+    transition: 'all 0.2s ease',
   },
   inputError: {
-    borderColor: '#dc2626',
+    borderColor: 'var(--danger)',
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
   },
   inputMultiline: {
-    minHeight: 100,
+    minHeight: 120,
     textAlignVertical: 'top',
   },
   errorText: {
-    fontSize: 12,
-    color: '#dc2626',
-    marginTop: 4,
+    fontSize: 13,
+    color: 'var(--danger)',
+    marginTop: 6,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });
 

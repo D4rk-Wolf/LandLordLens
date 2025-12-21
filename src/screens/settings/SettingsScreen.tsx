@@ -4,14 +4,18 @@ import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useNotification } from '../../contexts/NotificationContext';
 
 interface SettingsScreenProps {
   onNavigate: (screen: string) => void;
   onSignOut: () => void;
 }
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
   const { user, token } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
+  const { showNotification } = useNotification();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -19,6 +23,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }
     confirmPassword: '',
   });
   const [changingPassword, setChangingPassword] = useState(false);
+
+  const handleUpdateProfile = () => {
+    showNotification('Profile updated successfully!', 'success');
+  };
 
   const handleChangePassword = async () => {
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
@@ -44,9 +52,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         },
-        token
+        token || undefined
       );
 
+      showNotification('Password changed successfully!', 'success');
       Alert.alert('Success', 'Password changed successfully', [
         {
           text: 'OK',
@@ -82,142 +91,191 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }
   return (
     <View style={styles.container}>
       <PageHeader title="Settings" onSignOut={onSignOut} />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.subtitleContainer}>
-          <Text style={styles.subtitle}>Manage your account and preferences</Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.welcomeSection}>
+          <Text style={styles.greeting}>Preference Center</Text>
+          <Text style={styles.subtitle}>Manage your account and platform settings</Text>
         </View>
 
-      <View style={styles.content}>
-        {settingsSections.map((section, sectionIndex) => (
-          <View key={sectionIndex} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionContent}>
-              {section.items.map((item, itemIndex) => (
-                <View
-                  key={itemIndex}
-                  style={[
-                    styles.infoRow,
-                    itemIndex === section.items.length - 1 && styles.infoRowLast,
-                  ]}
-                >
-                  <View style={styles.infoRowLeft}>
-                    <View style={styles.infoIconContainer}>
-                      <Text style={styles.infoIcon}>{item.icon}</Text>
-                    </View>
-                    <Text style={styles.infoLabel}>{item.label}</Text>
-                  </View>
-                  <Text style={styles.infoValue} numberOfLines={1}>
-                    {item.value}
-                  </Text>
-                </View>
-              ))}
+        <View style={styles.contentWrapper}>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Appearance</Text>
             </View>
-          </View>
-        ))}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Security</Text>
-          <View style={styles.sectionContent}>
-            {!showPasswordForm ? (
+            <View style={styles.sectionContent}>
               <TouchableOpacity
-                style={styles.changePasswordButton}
-                onPress={() => setShowPasswordForm(true)}
+                style={[styles.themeToggle, isDark && styles.themeToggleActive]}
+                onPress={() => {
+                  toggleTheme();
+                  showNotification(`Switched to ${isDark ? 'light' : 'dark'} mode`, 'info');
+                }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.changePasswordIcon}>🔒</Text>
-                <Text style={styles.changePasswordButtonText}>Change Password</Text>
+                <View style={styles.infoRowLeft}>
+                  <View style={styles.infoIconContainer}>
+                    <Text style={styles.infoIcon}>{isDark ? '🌙' : '☀️'}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.infoLabel}>Display Theme</Text>
+                    <Text style={styles.themeSubtitle}>Current: {isDark ? 'Dark Mode' : 'Light Mode'}</Text>
+                  </View>
+                </View>
+                <View style={[styles.toggleSwitch, isDark && styles.toggleSwitchActive]}>
+                  <View style={[styles.toggleThumb, isDark && styles.toggleThumbActive]} />
+                </View>
               </TouchableOpacity>
-            ) : (
-              <View style={styles.passwordForm}>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Current Password</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={passwordData.currentPassword}
-                    onChangeText={(text) =>
-                      setPasswordData({ ...passwordData, currentPassword: text })
-                    }
-                    secureTextEntry
-                    placeholder="Enter current password"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>New Password</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={passwordData.newPassword}
-                    onChangeText={(text) =>
-                      setPasswordData({ ...passwordData, newPassword: text })
-                    }
-                    secureTextEntry
-                    placeholder="Enter new password (min 6 characters)"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Confirm New Password</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={passwordData.confirmPassword}
-                    onChangeText={(text) =>
-                      setPasswordData({ ...passwordData, confirmPassword: text })
-                    }
-                    secureTextEntry
-                    placeholder="Confirm new password"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-
-                <View style={styles.passwordFormActions}>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => {
-                      setShowPasswordForm(false);
-                      setPasswordData({
-                        currentPassword: '',
-                        newPassword: '',
-                        confirmPassword: '',
-                      });
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.savePasswordButton, changingPassword && styles.savePasswordButtonDisabled]}
-                    onPress={handleChangePassword}
-                    disabled={changingPassword}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.savePasswordButtonText}>
-                      {changingPassword ? 'Changing...' : 'Change Password'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+            </View>
+          </View>
+          {settingsSections.map((section, sectionIndex) => (
+            <View key={sectionIndex} style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
               </View>
-            )}
+              <View style={styles.sectionContent}>
+                {section.items.map((item, itemIndex) => (
+                  <View
+                    key={itemIndex}
+                    style={[
+                      styles.infoRow,
+                      itemIndex === section.items.length - 1 && styles.infoRowLast,
+                    ]}
+                  >
+                    <View style={styles.infoRowLeft}>
+                      <View style={styles.infoIconContainer}>
+                        <Text style={styles.infoIcon}>{item.icon}</Text>
+                      </View>
+                      <Text style={styles.infoLabel}>{item.label}</Text>
+                    </View>
+                    <Text style={styles.infoValue} numberOfLines={1}>
+                      {item.value}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
+
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Security</Text>
+            </View>
+            <View style={styles.sectionContent}>
+              {!showPasswordForm ? (
+                <TouchableOpacity
+                  style={styles.changePasswordButton}
+                  onPress={() => setShowPasswordForm(true)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.changePasswordIconContainer}>
+                    <Text style={styles.changePasswordIcon}>🔒</Text>
+                  </View>
+                  <Text style={styles.changePasswordButtonText}>Change Account Password</Text>
+                  <Text style={styles.buttonArrow}>→</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.passwordForm}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Current Password</Text>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={styles.input}
+                        value={passwordData.currentPassword}
+                        onChangeText={(text) =>
+                          setPasswordData({ ...passwordData, currentPassword: text })
+                        }
+                        secureTextEntry
+                        placeholder="••••••••"
+                        placeholderTextColor="#94a3b8"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>New Password</Text>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={styles.input}
+                        value={passwordData.newPassword}
+                        onChangeText={(text) =>
+                          setPasswordData({ ...passwordData, newPassword: text })
+                        }
+                        secureTextEntry
+                        placeholder="At least 6 characters"
+                        placeholderTextColor="#94a3b8"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Confirm New Password</Text>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        style={styles.input}
+                        value={passwordData.confirmPassword}
+                        onChangeText={(text) =>
+                          setPasswordData({ ...passwordData, confirmPassword: text })
+                        }
+                        secureTextEntry
+                        placeholder="Repeat new password"
+                        placeholderTextColor="#94a3b8"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.passwordFormActions}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => {
+                        setShowPasswordForm(false);
+                        setPasswordData({
+                          currentPassword: '',
+                          newPassword: '',
+                          confirmPassword: '',
+                        });
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.cancelButtonText}>Discard Changes</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.savePasswordButton, changingPassword && styles.savePasswordButtonDisabled]}
+                      onPress={handleChangePassword}
+                      disabled={changingPassword}
+                      activeOpacity={0.9}
+                    >
+                      <Text style={styles.savePasswordButtonText}>
+                        {changingPassword ? 'Updating...' : 'Update Password'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.actionsSection}>
+            <TouchableOpacity
+              style={styles.signOutButton}
+              onPress={onSignOut}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.signOutIcon}>🚪</Text>
+              <Text style={styles.signOutButtonText}>Secure Logout</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
+            <View style={styles.logoBadge}>
+              <Text style={styles.logoBadgeIcon}>🏠</Text>
+            </View>
+            <Text style={styles.footerText}>LandlordLens PRO</Text>
+            <Text style={styles.footerSubtext}>Version 2.0.0 • Premium Experience</Text>
           </View>
         </View>
-
-        <View style={styles.actionsSection}>
-          <TouchableOpacity
-            style={styles.signOutButton}
-            onPress={onSignOut}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.signOutIcon}>🚪</Text>
-            <Text style={styles.signOutButtonText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>LandlordLens v1.0.0</Text>
-          <Text style={styles.footerSubtext}>Property Management System</Text>
-        </View>
-      </View>
       </ScrollView>
     </View>
   );
@@ -226,52 +284,71 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate, onSignOut }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'transparent',
   },
   scrollView: {
     flex: 1,
   },
-  subtitleContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+  scrollContent: {
+    paddingBottom: 60,
+    paddingHorizontal: 32,
+    maxWidth: 1000,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  welcomeSection: {
+    marginTop: 48,
+    marginBottom: 40,
+  },
+  greeting: {
+    fontSize: 16,
+    color: 'var(--primary)',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '400',
+    fontSize: 32,
+    fontWeight: '800',
+    color: 'var(--text-primary)',
+    letterSpacing: -1,
+    lineHeight: 40,
   },
-  content: {
-    padding: 20,
+  contentWrapper: {
+    gap: 40,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 8,
+  },
+  sectionHeader: {
+    marginBottom: 16,
+    paddingLeft: 4,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '800',
+    color: 'var(--text-primary)',
     letterSpacing: -0.5,
   },
   sectionContent: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    //@ts-ignore
+    backdropFilter: 'blur(16px)',
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
     overflow: 'hidden',
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: 'rgba(0, 0, 0, 0.03)',
   },
   infoRowLast: {
     borderBottomWidth: 0,
@@ -280,152 +357,231 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 16,
+    marginRight: 24,
   },
   infoIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#f9fafb',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.03)',
   },
   infoIcon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   infoLabel: {
-    fontSize: 15,
-    color: '#6b7280',
+    fontSize: 16,
+    color: 'var(--text-secondary)',
     fontWeight: '500',
   },
   infoValue: {
-    fontSize: 15,
-    color: '#111827',
+    fontSize: 16,
+    color: 'var(--text-primary)',
+    fontWeight: '700',
+  },
+  changePasswordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'transparent',
+    transition: 'all 0.2s ease',
+  },
+  changePasswordIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'var(--primary-light)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  changePasswordIcon: {
+    fontSize: 20,
+  },
+  changePasswordButtonText: {
+    color: 'var(--text-primary)',
+    fontSize: 16,
+    fontWeight: '700',
+    flex: 1,
+  },
+  buttonArrow: {
+    fontSize: 20,
+    color: 'var(--primary)',
     fontWeight: '600',
-    flexShrink: 0,
-    maxWidth: 200,
+  },
+  passwordForm: {
+    padding: 32,
+    gap: 24,
+  },
+  inputContainer: {
+    marginBottom: 0,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'var(--text-primary)',
+    marginBottom: 10,
+    marginLeft: 4,
+  },
+  inputWrapper: {
+    borderWidth: 1.5,
+    borderColor: 'var(--gray-200)',
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    paddingHorizontal: 16,
+    minHeight: 56,
+    justifyContent: 'center',
+    //@ts-ignore
+    transition: 'all 0.2s ease',
+  },
+  input: {
+    fontSize: 16,
+    color: 'var(--text-primary)',
+    paddingVertical: 14,
+    fontWeight: '500',
+  },
+  passwordFormActions: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'var(--gray-200)',
+    //@ts-ignore
+    transition: 'all 0.2s ease',
+  },
+  cancelButtonText: {
+    color: 'var(--text-secondary)',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  savePasswordButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: 'var(--primary)',
+    backgroundImage: 'var(--primary-gradient)',
+    alignItems: 'center',
+    boxShadow: '0 8px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2)',
+    //@ts-ignore
+    transition: 'all 0.2s ease',
+  },
+  savePasswordButtonDisabled: {
+    opacity: 0.5,
+    boxShadow: 'none',
+  },
+  savePasswordButtonText: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   actionsSection: {
     marginTop: 8,
-    marginBottom: 24,
   },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fee2e2',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    paddingVertical: 20,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#fecaca',
-    boxShadow: '0px 2px 4px 0px rgba(220, 38, 38, 0.1)',
-    elevation: 2,
-    gap: 10,
+    borderColor: 'rgba(239, 68, 68, 0.15)',
+    gap: 12,
+    //@ts-ignore
+    transition: 'all 0.2s ease',
   },
   signOutIcon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   signOutButtonText: {
-    color: '#dc2626',
+    color: 'var(--danger)',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 20,
+    paddingVertical: 48,
+  },
+  logoBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+  },
+  logoBadgeIcon: {
+    fontSize: 24,
   },
   footerText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '600',
+    fontSize: 15,
+    color: 'var(--text-primary)',
+    fontWeight: '800',
+    letterSpacing: 1,
     marginBottom: 4,
+    textTransform: 'uppercase',
   },
   footerSubtext: {
-    fontSize: 12,
-    color: '#9ca3af',
+    fontSize: 13,
+    color: 'var(--text-tertiary)',
+    fontWeight: '500',
   },
-  changePasswordButton: {
+  themeToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f0f4ff',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#c7d2fe',
-    gap: 10,
+    borderColor: 'transparent',
+    transition: 'all 0.2s ease',
   },
-  changePasswordIcon: {
-    fontSize: 18,
+  themeToggleActive: {
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    borderColor: 'rgba(99, 102, 241, 0.2)',
   },
-  changePasswordButtonText: {
-    color: '#6366f1',
-    fontSize: 16,
-    fontWeight: '600',
+  themeSubtitle: {
+    fontSize: 13,
+    color: 'var(--text-tertiary)',
+    marginTop: 2,
+    fontWeight: '500',
   },
-  passwordForm: {
-    padding: 20,
+  toggleSwitch: {
+    width: 60,
+    height: 32,
+    borderRadius: 20,
+    backgroundColor: 'var(--gray-200)',
+    padding: 4,
+    transition: 'all 0.3s ease',
   },
-  inputContainer: {
-    marginBottom: 20,
+  toggleSwitchActive: {
+    backgroundColor: 'var(--primary)',
   },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
+  toggleThumb: {
+    width: 24,
+    height: 24,
     borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    backgroundColor: '#ffffff',
-    color: '#111827',
+    backgroundColor: '#fff',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
   },
-  passwordFormActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  cancelButtonText: {
-    color: '#374151',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  savePasswordButton: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    backgroundColor: '#6366f1',
-    alignItems: 'center',
-    boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
-    elevation: 4,
-  },
-  savePasswordButtonDisabled: {
-    backgroundColor: '#d1d5db',
-    boxShadow: 'none',
-  },
-  savePasswordButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
+  toggleThumbActive: {
+    transform: 'translateX(28px)',
   },
 });
 
