@@ -42,3 +42,4 @@ services:
       # - STRIPE_PRICE_PREMIUM_MONTHLY
       # - STRIPE_PRICE_PREMIUM_YEARLY
       # - FRONTEND_URL (set after frontend deploys)
+
