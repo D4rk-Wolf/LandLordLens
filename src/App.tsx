@@ -7,6 +7,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import ToastContainer from './components/ui/ToastContainer';
 import AuthNavigator from './navigation/AuthNavigator';
 import MainNavigator from './navigation/MainNavigator';
+import { GlobalErrorBoundary } from './components/ui/GlobalErrorBoundary';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -34,16 +35,18 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <NotificationProvider>
-          <AuthProvider>
-            <AppContent />
-            <ToastContainer />
-          </AuthProvider>
-        </NotificationProvider>
-      </ToastProvider>
-    </ThemeProvider>
+    <GlobalErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <NotificationProvider>
+            <AuthProvider>
+              <AppContent />
+              <ToastContainer />
+            </AuthProvider>
+          </NotificationProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </GlobalErrorBoundary>
   );
 };
 

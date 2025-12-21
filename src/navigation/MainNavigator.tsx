@@ -638,6 +638,9 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '700',
   },
+  navIconActive: {
+    color: '#ffffff',
+  },
   content: {
     flex: 1,
     width: '100%',

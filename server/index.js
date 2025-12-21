@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+const helmet = require('helmet');
+const hpp = require('hpp');
 const logger = require('../lib/logger');
 const { connectToMongoDB } = require('../lib/mongodb');
 const { sanitizeInput } = require('../lib/middleware/sanitize');
@@ -21,7 +23,11 @@ const webhooksRoutes = require('./routes/webhooks');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Security Middleware
+app.use(helmet());
+app.use(hpp());
+
+// CORS Middleware
 const corsOptions = {
   origin: process.env.FRONTEND_URL || process.env.NODE_ENV === 'production'
     ? process.env.FRONTEND_URL

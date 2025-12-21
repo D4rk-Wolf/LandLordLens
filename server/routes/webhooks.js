@@ -136,7 +136,7 @@ async function handleSubscriptionDeleted(subscription) {
     const customerId = subscription.customer;
     const user = await User.findOne({ stripeCustomerId: customerId });
     if (!user) {
-      console.error(`User not found for customer: ${customerId}`);
+      logger.error(`User not found for customer: ${customerId}`);
       return;
     }
 
@@ -149,9 +149,9 @@ async function handleSubscriptionDeleted(subscription) {
     user.updatedAt = new Date();
     await user.save();
 
-    console.log(`Subscription canceled for user: ${user.email}`);
+    logger.info(`Subscription canceled for user: ${user.email}`);
   } catch (error) {
-    console.error('Error handling subscription deleted:', error);
+    logger.error('Error handling subscription deleted:', error);
   }
 }
 
@@ -244,9 +244,9 @@ async function handlePaymentIntentSucceeded(paymentIntent) {
   try {
     // This is typically for one-time payments
     // Subscription payments are handled via invoice.paid
-    console.log(`Payment intent succeeded: ${paymentIntent.id}`);
+    logger.info(`Payment intent succeeded: ${paymentIntent.id}`);
   } catch (error) {
-    console.error('Error handling payment intent succeeded:', error);
+    logger.error('Error handling payment intent succeeded:', error);
   }
 }
 
@@ -257,7 +257,7 @@ async function updateUserSubscription(user, subscription, metadata = {}) {
   try {
     // Determine tier from subscription metadata or price
     let tier = metadata.tier || user.subscription;
-    
+
     // If no tier in metadata, try to determine from price
     if (!metadata.tier && subscription.items?.data?.length > 0) {
       const priceId = subscription.items.data[0].price.id;
@@ -276,7 +276,7 @@ async function updateUserSubscription(user, subscription, metadata = {}) {
     user.stripeSubscriptionId = subscription.id;
     user.subscriptionStartDate = new Date(subscription.current_period_start * 1000);
     user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
-    
+
     if (subscription.cancel_at_period_end) {
       user.subscriptionCanceledAt = new Date(subscription.canceled_at * 1000);
     } else {

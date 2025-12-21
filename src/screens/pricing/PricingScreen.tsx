@@ -8,18 +8,7 @@ interface PricingScreenProps {
 }
 
 const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate, onSignOut }) => {
-    useEffect(() => {
-        // Load Stripe pricing table script
-        const script = document.createElement('script');
-        script.src = 'https://js.stripe.com/v3/pricing-table.js';
-        script.async = true;
-        document.body.appendChild(script);
 
-        return () => {
-            // Cleanup script on unmount
-            document.body.removeChild(script);
-        };
-    }, []);
 
     return (
         <View style={styles.container}>
@@ -41,11 +30,21 @@ const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate, onSignOut }) 
                 </View>
 
                 <View style={styles.pricingTableContainer}>
-                    {/* @ts-ignore - Stripe custom element */}
-                    <stripe-pricing-table
-                        pricing-table-id="prctbl_1SgqQs1kfPJSO6RCD3s1DodR"
-                        publishable-key="pk_live_51SUB6e1kfPJSO6RC94R7V5M4RksGEKn4OMpwfZZfK0GC8tTGnVmk9u5tuXUmve4QrVDNLB3Fmu2Bm9d8EjpO6dqZ00xTkdyiBp"
-                    />
+                    {(!process.env.STRIPE_PRICING_TABLE_ID || !process.env.STRIPE_PUBLISHABLE_KEY) ? (
+                        <View style={styles.configError}>
+                            <Text style={styles.configErrorTitle}>Configuration Required</Text>
+                            <Text style={styles.configErrorText}>
+                                Stripe pricing table ID or publishable key is missing.
+                                Please check your environment variables.
+                            </Text>
+                        </View>
+                    ) : (
+                        // @ts-ignore - Stripe custom element
+                        <stripe-pricing-table
+                            pricing-table-id={process.env.STRIPE_PRICING_TABLE_ID}
+                            publishable-key={process.env.STRIPE_PUBLISHABLE_KEY}
+                        />
+                    )}
                 </View>
 
                 <View style={styles.footer}>
@@ -101,6 +100,24 @@ const styles = StyleSheet.create({
     footerText: {
         fontSize: 14,
         color: 'var(--text-secondary)',
+        textAlign: 'center',
+    },
+    configError: {
+        padding: 40,
+        backgroundColor: '#fef2f2',
+        borderRadius: 12,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#fee2e2',
+    },
+    configErrorTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#991b1b',
+        marginBottom: 8,
+    },
+    configErrorText: {
+        color: '#b91c1c',
         textAlign: 'center',
     },
 });

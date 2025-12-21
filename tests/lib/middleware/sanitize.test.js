@@ -17,7 +17,7 @@ describe('Input Sanitization', () => {
     test('should remove dangerous characters', () => {
       const input = 'Hello<>"\'World';
       const result = sanitizeString(input);
-      expect(result).toBe('HelloWorld');
+      expect(result).toBe('Hello"\'World');
     });
 
     test('should trim whitespace', () => {

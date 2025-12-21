@@ -1,6 +1,6 @@
 // Form validation utilities
 
-export type ValidationRule<T = any> = (value: T) => string | undefined;
+export type ValidationRule<T = any> = (value: T, allValues?: any) => string | undefined;
 
 export interface ValidationRules<T> {
     [K: string]: ValidationRule;

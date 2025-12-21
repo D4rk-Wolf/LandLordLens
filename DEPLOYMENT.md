@@ -4,6 +4,9 @@
 
 ### 1. Environment Variables
 
+> [!IMPORTANT]
+> **Stripe Configuration**: Please refer to the [Stripe Deployment Checklist](Stripe_Deployment_Checklist.md) for detailed verification of Stripe keys and Price IDs.
+
 Create a `.env` file in the root directory with the following variables:
 
 ```env

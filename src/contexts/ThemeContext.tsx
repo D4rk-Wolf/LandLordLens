@@ -9,9 +9,10 @@ interface ThemeContextType {
     userRole: UserRole;
     setUserRole: (role: UserRole) => void;
     accentColor: string;
+    isDark: boolean;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // Role-specific color mappings
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -95,6 +96,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 userRole,
                 setUserRole: handleSetUserRole,
                 accentColor: ROLE_COLORS[userRole],
+                isDark: theme === 'dark',
             }}
         >
             {children}

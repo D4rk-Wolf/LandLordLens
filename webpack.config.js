@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+require('dotenv').config();
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -54,17 +55,17 @@ module.exports = (env, argv) => {
         filename: 'index.html',
         minify: isProduction
           ? {
-              removeComments: true,
-              collapseWhitespace: true,
-              removeRedundantAttributes: true,
-              useShortDoctype: true,
-              removeEmptyAttributes: true,
-              removeStyleLinkTypeAttributes: true,
-              keepClosingSlash: true,
-              minifyJS: true,
-              minifyCSS: true,
-              minifyURLs: true,
-            }
+            removeComments: true,
+            collapseWhitespace: true,
+            removeRedundantAttributes: true,
+            useShortDoctype: true,
+            removeEmptyAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            keepClosingSlash: true,
+            minifyJS: true,
+            minifyCSS: true,
+            minifyURLs: true,
+          }
           : false,
       }),
       new webpack.DefinePlugin({
@@ -72,11 +73,13 @@ module.exports = (env, argv) => {
         'process.env.REACT_APP_API_URL': JSON.stringify(
           process.env.REACT_APP_API_URL || 'http://localhost:5000/api'
         ),
+        'process.env.STRIPE_PRICING_TABLE_ID': JSON.stringify(process.env.STRIPE_PRICING_TABLE_ID),
+        'process.env.STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
       }),
       ...(isProduction
         ? [
-            new webpack.optimize.ModuleConcatenationPlugin(),
-          ]
+          new webpack.optimize.ModuleConcatenationPlugin(),
+        ]
         : []),
     ],
     optimization: {

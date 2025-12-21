@@ -151,7 +151,7 @@ router.post('/cancel-subscription', async (req, res) => {
         : 'Subscription will be canceled at the end of the billing period',
     });
   } catch (error) {
-    console.error('Error canceling subscription:', error);
+    logger.error('Error canceling subscription:', error);
     res.status(500).json({
       error: 'Failed to cancel subscription',
       message: error.message,
@@ -211,12 +211,12 @@ router.get('/subscription-status', async (req, res) => {
       },
       stripeSubscription: stripeSubscription
         ? {
-            id: stripeSubscription.id,
-            status: stripeSubscription.status,
-            currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-            currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-            cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-          }
+          id: stripeSubscription.id,
+          status: stripeSubscription.status,
+          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+          cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+        }
         : null,
       usage: {
         propertyCount: currentPropertyCount,

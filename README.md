@@ -111,6 +111,20 @@ npm run server
 npm run build
 ```
 
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run backend tests
+npm test tests/server
+
+# Run frontend tests
+npm test tests/screens
+```
+
 ## 📚 Documentation
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and database design

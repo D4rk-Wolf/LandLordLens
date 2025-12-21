@@ -33,7 +33,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setToasts(prev => [...prev, newToast]);
 
         // Auto-dismiss after duration
-        if (newToast.duration > 0) {
+        if ((newToast.duration || 0) > 0) {
             setTimeout(() => {
                 hideToast(id);
             }, newToast.duration);
