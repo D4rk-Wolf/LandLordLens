@@ -23,10 +23,12 @@ STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
 # Stripe Price IDs (from Stripe Dashboard)
-STRIPE_PRICE_BASIC_MONTHLY=price_your_basic_monthly_price_id
-STRIPE_PRICE_BASIC_YEARLY=price_your_basic_yearly_price_id
-STRIPE_PRICE_PREMIUM_MONTHLY=price_your_premium_monthly_price_id
-STRIPE_PRICE_PREMIUM_YEARLY=price_your_premium_yearly_price_id
+STRIPE_PRICE_PROFESSIONAL_MONTHLY=price_your_professional_monthly_price_id
+STRIPE_PRICE_PROFESSIONAL_ANNUAL=price_your_professional_annual_price_id
+STRIPE_PRICE_BUSINESS_MONTHLY=price_your_business_monthly_price_id
+STRIPE_PRICE_BUSINESS_ANNUAL=price_your_business_annual_price_id
+STRIPE_PRICE_ENTERPRISE_MONTHLY=price_your_enterprise_monthly_price_id
+STRIPE_PRICE_ENTERPRISE_ANNUAL=price_your_enterprise_annual_price_id
 ```
 
 ### 2. Stripe Setup
@@ -39,10 +41,12 @@ STRIPE_PRICE_PREMIUM_YEARLY=price_your_premium_yearly_price_id
 #### Create Products and Prices
 1. Go to Stripe Dashboard > Products
 2. Create products for each tier:
-   - **Basic Monthly**: £9.99/month
-   - **Basic Yearly**: £99.00/year
-   - **Premium Monthly**: £19.99/month
-   - **Premium Yearly**: £199.00/year
+   - **Professional Monthly**: £12.00/month
+   - **Professional Annual**: £120.00/year
+   - **Business Monthly**: £29.00/month
+   - **Business Annual**: £290.00/year
+   - **Enterprise Monthly**: £99.00/month
+   - **Enterprise Annual**: £990.00/year
 3. Copy the Price IDs and add them to your `.env` file
 
 #### Setup Webhooks

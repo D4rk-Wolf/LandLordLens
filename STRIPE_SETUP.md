@@ -1,150 +1,155 @@
 # Stripe Setup Guide
 
-## Quick Setup Steps
+## Prerequisites
+- Stripe account (sign up at https://stripe.com)
+- LandLordLens application running locally
 
-### 1. Create Stripe Account
-1. Go to https://stripe.com and sign up
-2. Complete business verification (required for live mode)
-3. Navigate to Dashboard > Developers > API keys
+## Step 1: Create Stripe Products
 
-### 2. Create Products and Prices
+### Professional Tier
 
-#### In Stripe Dashboard:
-1. Go to **Products** in the sidebar
-2. Click **+ Add product**
+#### Create Professional Monthly Subscription:
+- **Name**: LandLordLens Professional Monthly
+- **Description**: Professional tier - Up to 10 properties
+- **Price**: £12.00
+- **Billing Period**: Monthly
+- **Currency**: GBP
 
-#### Create Basic Monthly Subscription:
-- **Name**: Basic Monthly
-- **Description**: Basic tier - 2-5 properties
-- **Pricing**: 
-  - **Recurring**: Monthly
-  - **Price**: £9.99
-  - **Currency**: GBP
-- Click **Save product**
-- Copy the **Price ID** (starts with `price_...`)
-- Add to `.env` as `STRIPE_PRICE_BASIC_MONTHLY`
+After creating, copy the **Price ID** (starts with `price_`)
+- Add to `.env` as `STRIPE_PRICE_PROFESSIONAL_MONTHLY`
 
-#### Create Basic Yearly Subscription:
-- **Name**: Basic Yearly
-- **Description**: Basic tier - 2-5 properties (Yearly)
-- **Pricing**: 
-  - **Recurring**: Yearly
-  - **Price**: £99.00
-  - **Currency**: GBP
-- Click **Save product**
-- Copy the **Price ID**
-- Add to `.env` as `STRIPE_PRICE_BASIC_YEARLY`
+#### Create Professional Annual Subscription:
+- **Name**: LandLordLens Professional Annual
+- **Description**: Professional tier - Up to 10 properties (Annual)
+- **Price**: £120.00
+- **Billing Period**: Yearly
+- **Currency**: GBP
 
-#### Create Premium Monthly Subscription:
-- **Name**: Premium Monthly
-- **Description**: Premium tier - 5+ properties
-- **Pricing**: 
-  - **Recurring**: Monthly
-  - **Price**: £19.99
-  - **Currency**: GBP
-- Click **Save product**
-- Copy the **Price ID**
-- Add to `.env` as `STRIPE_PRICE_PREMIUM_MONTHLY`
+After creating, copy the **Price ID**
+- Add to `.env` as `STRIPE_PRICE_PROFESSIONAL_ANNUAL`
 
-#### Create Premium Yearly Subscription:
-- **Name**: Premium Yearly
-- **Description**: Premium tier - 5+ properties (Yearly)
-- **Pricing**: 
-  - **Recurring**: Yearly
-  - **Price**: £199.00
-  - **Currency**: GBP
-- Click **Save product**
-- Copy the **Price ID**
-- Add to `.env` as `STRIPE_PRICE_PREMIUM_YEARLY`
+### Business Tier
 
-### 3. Setup Webhooks
+#### Create Business Monthly Subscription:
+- **Name**: LandLordLens Business Monthly
+- **Description**: Business tier - Up to 50 properties, 5 users
+- **Price**: £29.00
+- **Billing Period**: Monthly
+- **Currency**: GBP
 
-#### For Development (using Stripe CLI):
-1. Install Stripe CLI: https://stripe.com/docs/stripe-cli
-2. Login: `stripe login`
-3. Forward webhooks: `stripe listen --forward-to localhost:5000/api/webhooks/stripe`
-4. Copy the webhook signing secret (starts with `whsec_...`)
-5. Add to `.env` as `STRIPE_WEBHOOK_SECRET`
+After creating, copy the **Price ID**
+- Add to `.env` as `STRIPE_PRICE_BUSINESS_MONTHLY`
 
-#### For Production:
-1. Go to Dashboard > Developers > Webhooks
-2. Click **+ Add endpoint**
-3. **Endpoint URL**: `https://yourdomain.com/api/webhooks/stripe`
-4. **Description**: LandLordLens Subscription Webhooks
-5. **Events to send**:
+#### Create Business Annual Subscription:
+- **Name**: LandLordLens Business Annual
+- **Description**: Business tier - Up to 50 properties, 5 users (Annual)
+- **Price**: £290.00
+- **Billing Period**: Yearly
+- **Currency**: GBP
+
+After creating, copy the **Price ID**
+- Add to `.env` as `STRIPE_PRICE_BUSINESS_ANNUAL`
+
+### Enterprise Tier
+
+#### Create Enterprise Monthly Subscription:
+- **Name**: LandLordLens Enterprise Monthly
+- **Description**: Enterprise tier - Unlimited properties and users
+- **Price**: £99.00
+- **Billing Period**: Monthly
+- **Currency**: GBP
+
+After creating, copy the **Price ID**
+- Add to `.env` as `STRIPE_PRICE_ENTERPRISE_MONTHLY`
+
+#### Create Enterprise Annual Subscription:
+- **Name**: LandLordLens Enterprise Annual
+- **Description**: Enterprise tier - Unlimited properties and users (Annual)
+- **Price**: £990.00
+- **Billing Period**: Yearly
+- **Currency**: GBP
+
+After creating, copy the **Price ID**
+- Add to `.env` as `STRIPE_PRICE_ENTERPRISE_ANNUAL`
+
+## Step 2: Configure Webhooks
+
+1. Go to Stripe Dashboard > Developers > Webhooks
+2. Click "Add endpoint"
+3. Enter your webhook URL: `https://yourdomain.com/api/webhooks/stripe`
+4. Select events to listen for:
    - `checkout.session.completed`
    - `customer.subscription.created`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
    - `invoice.paid`
    - `invoice.payment_failed`
-   - `payment_intent.succeeded`
-6. Click **Add endpoint**
-7. Copy the **Signing secret** (starts with `whsec_...`)
-8. Add to `.env` as `STRIPE_WEBHOOK_SECRET`
+5. Copy the **Webhook Signing Secret**
+6. Add to `.env` as `STRIPE_WEBHOOK_SECRET`
 
-### 4. Environment Variables
+## Step 3: Update Environment Variables
 
-Add these to your `.env` file:
+Add all Stripe configuration to your `.env` file:
 
-```env
-# Stripe API Keys
-STRIPE_SECRET_KEY=sk_live_your_live_secret_key  # or sk_test_... for testing
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+```bash
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
 
-# Stripe Price IDs
-STRIPE_PRICE_BASIC_MONTHLY=price_xxxxxxxxxxxxx
-STRIPE_PRICE_BASIC_YEARLY=price_xxxxxxxxxxxxx
-STRIPE_PRICE_PREMIUM_MONTHLY=price_xxxxxxxxxxxxx
-STRIPE_PRICE_PREMIUM_YEARLY=price_xxxxxxxxxxxxx
+STRIPE_PRICE_PROFESSIONAL_MONTHLY=price_xxxxxxxxxxxxx
+STRIPE_PRICE_PROFESSIONAL_ANNUAL=price_xxxxxxxxxxxxx
+STRIPE_PRICE_BUSINESS_MONTHLY=price_xxxxxxxxxxxxx
+STRIPE_PRICE_BUSINESS_ANNUAL=price_xxxxxxxxxxxxx
+STRIPE_PRICE_ENTERPRISE_MONTHLY=price_xxxxxxxxxxxxx
+STRIPE_PRICE_ENTERPRISE_ANNUAL=price_xxxxxxxxxxxxx
 ```
 
-### 5. Test Mode vs Live Mode
+## Step 4: Test the Integration
 
-#### Test Mode:
-- Use `sk_test_...` keys
-- Use test price IDs
-- Test cards: https://stripe.com/docs/testing
-- No real charges
+### Local Testing with Stripe CLI
 
-#### Live Mode:
-- Use `sk_live_...` keys
-- Use live price IDs
-- Real charges
-- Requires business verification
+1. Install Stripe CLI: https://stripe.com/docs/stripe-cli
+2. Login: `stripe login`
+3. Forward webhooks to local server:
+   ```bash
+   stripe listen --forward-to localhost:5000/api/webhooks/stripe
+   ```
+4. Use test card: `4242 4242 4242 4242`
 
-### 6. Testing Checklist
+### Test Flow
+1. Navigate to pricing page
+2. Select a subscription tier
+3. Complete checkout with test card
+4. Verify webhook received in terminal
+5. Check user subscription updated in database
 
-- [ ] Create checkout session
-- [ ] Complete test payment
-- [ ] Verify webhook received
-- [ ] Check user subscription updated
-- [ ] Verify payment record created
-- [ ] Test subscription cancellation
-- [ ] Test failed payment handling
-- [ ] Test subscription renewal
+## Step 5: Go Live
 
-### 7. Common Issues
+1. Switch to live mode in Stripe Dashboard
+2. Create live products and prices (same as test mode)
+3. Update `.env` with live API keys and price IDs
+4. Configure live webhook endpoint
+5. Test with real card (small amount)
+6. Monitor Stripe Dashboard for activity
 
-**Webhook not receiving events:**
-- Verify webhook URL is accessible
-- Check webhook secret matches
-- Ensure endpoint accepts raw body (not JSON parsed)
-- Check Stripe Dashboard > Webhooks for delivery logs
+## Troubleshooting
 
-**Price ID not found:**
-- Verify price IDs are correct in `.env`
-- Check you're using test/live keys matching test/live prices
-- Ensure prices are active in Stripe Dashboard
+### Webhook Not Receiving Events
+- Check webhook URL is correct
+- Verify webhook secret matches
+- Check server logs for errors
+- Test with Stripe CLI first
 
-**Payment succeeds but subscription not updated:**
-- Check webhook handler logs
-- Verify webhook events are being received
-- Check database connection
-- Review webhook event payload in Stripe Dashboard
+### Payment Fails
+- Verify price IDs are correct
+- Check Stripe Dashboard for error details
+- Ensure test mode matches (test keys with test prices)
+
+### Subscription Not Updating
+- Check webhook events in Stripe Dashboard
+- Verify database connection
+- Check application logs
+- Ensure user ID is passed in metadata
 
 ## Support
-
 - Stripe Documentation: https://stripe.com/docs
 - Stripe Support: https://support.stripe.com
-- API Reference: https://stripe.com/docs/api

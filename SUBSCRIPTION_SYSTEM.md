@@ -2,24 +2,35 @@
 
 ## Overview
 
-LandLordLens now includes a complete subscription and payment system integrated with Stripe. The system supports three tiers with automatic property limit enforcement.
+LandLordLens includes a complete subscription and payment system integrated with Stripe. The system supports four tiers with automatic property limit enforcement.
 
 ## Subscription Tiers
 
-### Free Tier
+### Starter (Free)
 - **Max Properties**: 2
+- **Max Storage**: 100MB
 - **Price**: £0/month
-- **Features**: Basic property management
+- **Features**: Basic property management, tenancy tracking, compliance storage
 
-### Basic Tier
-- **Max Properties**: 5
-- **Price**: £9.99/month or £99/year (save ~17%)
-- **Features**: Enhanced property management for small portfolios
+### Professional
+- **Max Properties**: 10
+- **Max Storage**: 5GB
+- **Price**: £12/month or £120/year (save 17%)
+- **Features**: Advanced filtering, financial dashboard, automated reminders, bulk operations, document management
 
-### Premium Tier
+### Business
+- **Max Properties**: 50
+- **Max Users**: 5
+- **Max Storage**: 50GB
+- **Price**: £29/month or £290/year (save 17%)
+- **Features**: Multi-user access, advanced analytics, calendar integration, tenant portal, priority support
+
+### Enterprise
 - **Max Properties**: Unlimited
-- **Price**: £19.99/month or £199/year (save ~17%)
-- **Features**: Full access for large portfolios
+- **Max Users**: Unlimited
+- **Max Storage**: Unlimited
+- **Price**: £99/month or £990/year (save 17%)
+- **Features**: API access, white-label, custom integrations, dedicated account manager, 24/7 support, SLA guarantee
 
 ## API Endpoints
 
@@ -31,24 +42,24 @@ Get current user's subscription information.
 **Response:**
 ```json
 {
-  "currentTier": "basic",
+  "currentTier": "professional",
   "tierDetails": {
-    "name": "Basic",
-    "maxProperties": 5,
+    "name": "Professional",
+    "maxProperties": 10,
     "price": {
-      "monthly": 9.99,
-      "yearly": 99.00,
+      "monthly": 12.00,
+      "yearly": 120.00,
       "formatted": {
-        "monthly": "£9.99",
-        "yearly": "£99.00"
+        "monthly": "£12.00",
+        "yearly": "£120.00"
       }
     }
   },
   "usage": {
-    "propertyCount": 3,
-    "maxProperties": 5,
+    "propertyCount": 5,
+    "maxProperties": 10,
     "canAddMore": true,
-    "remainingProperties": 2
+    "remainingProperties": 5
   }
 }
 ```
@@ -70,7 +81,7 @@ Create Stripe checkout session for subscription.
 **Request:**
 ```json
 {
-  "tier": "basic",
+  "tier": "professional",
   "period": "monthly"
 }
 ```
@@ -117,7 +128,7 @@ Admin endpoint to update user subscription.
 **Request:**
 ```json
 {
-  "tier": "premium",
+  "tier": "enterprise",
   "subscriptionStatus": "active",
   "subscriptionPeriod": "yearly"
 }
@@ -126,7 +137,7 @@ Admin endpoint to update user subscription.
 ## Database Models
 
 ### User Model Updates
-- `subscription`: Tier (free, basic, premium)
+- `subscription`: Tier (starter, professional, business, enterprise)
 - `subscriptionStatus`: Status (active, canceled, past_due, trialing, incomplete)
 - `subscriptionPeriod`: Period (monthly, yearly)
 - `subscriptionStartDate`: Start date
@@ -157,9 +168,10 @@ The system handles the following Stripe webhook events:
 
 Property creation automatically checks subscription limits:
 
-- **Free tier**: Max 2 properties
-- **Basic tier**: Max 5 properties
-- **Premium tier**: Unlimited properties
+- **Starter**: Max 2 properties
+- **Professional**: Max 10 properties
+- **Business**: Max 50 properties
+- **Enterprise**: Unlimited properties
 
 If limit is reached, API returns:
 - HTTP 403 status
@@ -174,7 +186,7 @@ If limit is reached, API returns:
 3. **Webhooks**: Configure webhook endpoint
 4. **Environment Variables**: Set all required Stripe variables
 
-See `STRIPE_SETUP.md` for detailed setup instructions.
+See `stripe_product_setup.md` for detailed setup instructions.
 
 ## Testing
 

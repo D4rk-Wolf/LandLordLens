@@ -21,6 +21,7 @@ const TenantBackgroundCheckScreen = lazy(() => import('../screens/tenancies/Tena
 const InventoryScreen = lazy(() => import('../screens/tenancies/InventoryScreen'));
 const AdminScreen = lazy(() => import('../screens/admin/AdminScreen'));
 const SettingsScreen = lazy(() => import('../screens/settings/SettingsScreen'));
+const PricingScreen = lazy(() => import('../screens/pricing/PricingScreen'));
 
 // Loading fallback component
 const LoadingFallback: React.FC = () => (
@@ -39,6 +40,7 @@ type Screen =
   | 'new-maintenance'
   | 'admin'
   | 'settings'
+  | 'pricing'
   | string; // Allow dynamic screens like 'new-tenancy-{id}'
 
 interface MainNavigatorProps {
@@ -61,6 +63,7 @@ const mainNavItems: NavItem[] = [
 const systemNavItems: NavItem[] = [
   { id: 'inspections', label: 'Inspections', icon: '🔍' },
   { id: 'expenses', label: 'Expenses', icon: '💰' },
+  { id: 'pricing', label: 'Pricing', icon: '💳' },
 ];
 
 const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboard' }) => {
@@ -292,6 +295,8 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
         return user?.role === 'admin' ? <AdminScreen onNavigate={navigate} onSignOut={signOut} /> : null;
       case 'settings':
         return <SettingsScreen onNavigate={navigate} onSignOut={signOut} />;
+      case 'pricing':
+        return <PricingScreen onNavigate={navigate} onSignOut={signOut} />;
       default:
         return <DashboardScreen onNavigate={navigate} onSignOut={signOut} />;
     }
