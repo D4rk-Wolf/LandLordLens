@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
@@ -44,24 +45,73 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
     fetchProperty();
   }, [fetchProperty]);
 
+  const breadcrumbs = [
+    { label: 'Dashboard', onPress: () => onNavigate('dashboard') },
+    { label: 'Properties', onPress: onBack },
+    { label: property?.property?.address?.line1 || 'Details', onPress: undefined },
+  ];
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
-        <Text style={styles.loadingText}>Loading property details...</Text>
+      <View style={styles.container}>
+        <PageHeader
+          title="Loading..."
+          onSignOut={onSignOut}
+          leftAction={
+            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+              <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+          }
+        />
+        <View style={{ padding: 24, gap: 24 }}>
+          {/* Hero Skeleton */}
+          <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+            <Skeleton width={64} height={64} borderRadius={16} />
+            <View style={{ gap: 8 }}>
+              <Skeleton width={200} height={28} />
+              <Skeleton width={150} height={20} />
+            </View>
+          </View>
+
+          {/* Section 1 Skeleton */}
+          <View style={{ padding: 24, backgroundColor: 'white', borderRadius: 16, gap: 16 }}>
+            <Skeleton width={180} height={24} />
+            <View style={{ flexDirection: 'row', gap: 24, flexWrap: 'wrap' }}>
+              <Skeleton width={100} height={40} />
+              <Skeleton width={100} height={40} />
+              <Skeleton width={100} height={40} />
+            </View>
+          </View>
+
+          {/* Section 2 Skeleton */}
+          <View style={{ padding: 24, backgroundColor: 'white', borderRadius: 16 }}>
+            <Skeleton width="100%" height={100} />
+          </View>
+        </View>
       </View>
     );
   }
 
   if (!property) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorIcon}>🏠</Text>
-        <Text style={styles.errorTitle}>Property Not Found</Text>
-        <Text style={styles.errorText}>The property you're looking for doesn't exist or has been removed.</Text>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Go Back</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <PageHeader
+          title="Not Found"
+          onSignOut={onSignOut}
+          leftAction={
+            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+              <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+          }
+        />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorIcon}>🏠</Text>
+          <Text style={styles.errorTitle}>Property Not Found</Text>
+          <Text style={styles.errorText}>The property you're looking for doesn't exist or has been removed.</Text>
+          <TouchableOpacity onPress={onBack} style={styles.addButtonLarge}>
+            <Text style={styles.addButtonLargeText}>← Return to Properties</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -71,6 +121,7 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
       <PageHeader
         title="Property Details"
         onSignOut={onSignOut}
+        breadcrumbs={breadcrumbs}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
@@ -703,6 +754,23 @@ const styles = StyleSheet.create({
   addButtonIcon: {
     fontSize: 16,
     marginRight: 4,
+  },
+  addButtonLarge: {
+    backgroundColor: '#6366f1',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    boxShadow: '0px 4px 6px -1px rgba(99, 102, 241, 0.4)',
+    elevation: 3,
+  },
+  addButtonLargeText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

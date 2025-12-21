@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 require('dotenv').config();
 
+const CompressionPlugin = require('compression-webpack-plugin');
+
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
 
@@ -78,7 +80,13 @@ module.exports = (env, argv) => {
       }),
       ...(isProduction
         ? [
-          new webpack.optimize.ModuleConcatenationPlugin(),
+          // new webpack.optimize.ModuleConcatenationPlugin(),
+          new CompressionPlugin({
+            algorithm: 'gzip',
+            test: /\.(js|css|html|svg)$/,
+            threshold: 10240,
+            minRatio: 0.8,
+          }),
         ]
         : []),
     ],
@@ -86,17 +94,36 @@ module.exports = (env, argv) => {
       minimize: isProduction,
       splitChunks: {
         chunks: 'all',
+        maxInitialRequests: 25,
+        minSize: 20000,
         cacheGroups: {
           default: false,
           vendors: false,
-          // Vendor chunk for node_modules
-          vendor: {
-            name: 'vendor',
+          // Extract React and Core libs to a separate chunk (cached longer)
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom|react-native-web|scheduler)[\\/]/,
+            name: 'react-core',
+            priority: 40,
             chunks: 'all',
-            test: /node_modules/,
-            priority: 20,
+            enforce: true,
           },
-          // Common chunk for shared code
+          // Extract Navigation libs
+          navigation: {
+            test: /[\\/]node_modules[\\/](@react-navigation)[\\/]/,
+            name: 'navigation',
+            priority: 30,
+            chunks: 'all',
+            enforce: true,
+          },
+          // Rest of node_modules
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor',
+            priority: 20,
+            chunks: 'all',
+            reuseExistingChunk: true,
+          },
+          // Common code shared between chunks (components, utils)
           common: {
             name: 'common',
             minChunks: 2,
@@ -107,11 +134,11 @@ module.exports = (env, argv) => {
           },
         },
       },
-      runtimeChunk: {
-        name: 'runtime',
-      },
+      // runtimeChunk: {
+      //   name: 'runtime',
+      // },
       usedExports: true,
-      sideEffects: false,
+      sideEffects: true, // Allow tree shaking
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map',
     devServer: {

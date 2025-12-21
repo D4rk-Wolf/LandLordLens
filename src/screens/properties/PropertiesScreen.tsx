@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { Skeleton } from '../../components/ui/Skeleton';
+import Toast from '../../components/ui/Toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../utils/constants';
 import { logger } from '../../utils/logger';
@@ -28,21 +30,36 @@ interface PropertiesScreenProps {
 const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelectProperty, onSignOut }) => {
   const { token } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('date-desc');
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' }>({
+    visible: false,
+    message: '',
+    type: 'info',
+  });
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setToast({ visible: true, message, type });
+  };
 
   const fetchProperties = useCallback(async () => {
     if (!token) return;
 
     try {
+      setLoading(true);
       const data = await apiClient.get<{ properties: Property[] }>(
         '/properties',
         token,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setProperties(data.properties || []);
+      setFilteredProperties(data.properties || []);
     } catch (error) {
       logger.error('Error fetching properties', error);
-      Alert.alert('Error', 'Failed to load properties');
+      showToast('Failed to load properties', 'error');
     } finally {
       setLoading(false);
     }
@@ -51,6 +68,44 @@ const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelec
   useEffect(() => {
     fetchProperties();
   }, [fetchProperties]);
+
+  useEffect(() => {
+    let result = [...properties];
+
+    // Search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.address.line1.toLowerCase().includes(query) ||
+          p.address.city.toLowerCase().includes(query) ||
+          p.address.postcode.toLowerCase().includes(query) ||
+          p.propertyType.toLowerCase().includes(query)
+      );
+    }
+
+    // Filter
+    if (statusFilter !== 'all') {
+      result = result.filter((p) => p.status === statusFilter);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return new Date(b._id).getTime() - new Date(a._id).getTime(); // Using ID as proxy for creation date if timestamp missing
+        case 'date-asc':
+          return new Date(a._id).getTime() - new Date(b._id).getTime();
+        case 'price-asc':
+          // Placeholder for price sort if price existed
+          return 0;
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredProperties(result);
+  }, [properties, searchQuery, statusFilter, sortBy]);
 
   const getStatusConfig = useCallback((status: string) => {
     const configs: Record<string, { color: string; bgColor: string; label: string }> = {
@@ -73,140 +128,172 @@ const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelec
   }, []);
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.title}>Properties</Text>
-              <Text style={styles.subtitle}>
-                {properties.length} {properties.length === 1 ? 'property' : 'properties'} registered
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => onNavigate('new-property')}
-              activeOpacity={0.85}
-            >
-              <View style={styles.addButtonIconContainer}>
-                <Text style={styles.addButtonIcon}>➕</Text>
-              </View>
-              <Text style={styles.addButtonText}>Add Property</Text>
-            </TouchableOpacity>
-          </View>
+    <View style={styles.container}>
+      <PageHeader
+        title="Properties"
+        subtitle={`${filteredProperties.length} ${filteredProperties.length === 1 ? 'property' : 'properties'} found`}
+        onSignOut={onSignOut}
+        rightAction={
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => onNavigate('new-property')}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.addButtonIcon}>➕</Text>
+            <Text style={styles.addButtonText}>Add Property</Text>
+          </TouchableOpacity>
+        }
+      />
+
+      {/* Search and Filter Bar */}
+      <View style={styles.filterBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search properties..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="#9ca3af"
+        />
+        <View style={styles.filterGroup}>
+          {/* Simple filter dropdown substitute for now */}
+          <TouchableOpacity onPress={() => setStatusFilter(statusFilter === 'all' ? 'vacant' : statusFilter === 'vacant' ? 'occupied' : 'all')} style={styles.filterButton}>
+            <Text>Status: {statusFilter === 'all' ? 'All' : statusFilter}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#6366f1" />
-          <Text style={styles.loadingText}>Loading properties...</Text>
-        </View>
-      ) : properties.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <View style={styles.emptyIconContainer}>
-            <Text style={styles.emptyIcon}>🏠</Text>
-          </View>
-          <Text style={styles.emptyTitle}>No Properties Yet</Text>
-          <Text style={styles.emptyText}>
-            Start managing your properties by adding your first property to the system.
-          </Text>
-          <TouchableOpacity
-            style={styles.addButtonLarge}
-            onPress={() => onNavigate('new-property')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.addButtonLargeText}>➕ Add Your First Property</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.listContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {loading ? (
           <View style={styles.list}>
-            {properties.map((property) => {
-              const statusConfig = getStatusConfig(property.status);
-              const availabilityConfig = getAvailabilityConfig(property.availabilityStatus);
-              return (
-                <TouchableOpacity
-                  key={property._id}
-                  style={styles.propertyCard}
-                  onPress={() => onSelectProperty(property._id)}
-                  activeOpacity={0.75}
-                >
-                  <View style={styles.propertyCardHeader}>
-                    <View style={styles.propertyAddressContainer}>
-                      <View style={styles.propertyIconContainer}>
-                        <Text style={styles.propertyIcon}>🏠</Text>
-                      </View>
-                      <View style={styles.propertyAddressText}>
-                        <Text style={styles.propertyAddress} numberOfLines={1}>
-                          {property.address.line1}
-                        </Text>
-                        <Text style={styles.propertyCity} numberOfLines={1}>
-                          {property.address.city}, {property.address.postcode}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.badgesContainer}>
-                      <View style={[
-                        styles.availabilityBadge, 
-                        { 
-                          backgroundColor: availabilityConfig.bgColor,
-                          borderColor: `${availabilityConfig.color}30`,
-                        }
-                      ]}>
-                        <Text style={styles.availabilityIcon}>{availabilityConfig.icon}</Text>
-                        <Text style={[styles.availabilityText, { color: availabilityConfig.color }]}>
-                          {availabilityConfig.label}
-                        </Text>
-                      </View>
-                      <View style={[
-                        styles.statusBadge, 
-                        { 
-                          backgroundColor: statusConfig.bgColor,
-                          borderColor: `${statusConfig.color}30`,
-                        }
-                      ]}>
-                        <Text style={[styles.statusText, { color: statusConfig.color }]}>
-                          {statusConfig.label}
-                        </Text>
-                      </View>
-                    </View>
+            {[1, 2, 3].map((i) => (
+              <View key={i} style={styles.propertyCard}>
+                <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
+                  <Skeleton width={56} height={56} borderRadius={16} />
+                  <View>
+                    <Skeleton width={200} height={24} style={{ marginBottom: 8 }} />
+                    <Skeleton width={150} height={16} />
                   </View>
-                  <View style={styles.propertyDetails}>
-                    <View style={styles.propertyDetailItem}>
-                      <View style={styles.propertyDetailIconContainer}>
-                        <Text style={styles.propertyDetailIcon}>🏘️</Text>
-                      </View>
-                      <Text style={styles.propertyDetailText}>
-                        {property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)}
-                      </Text>
-                    </View>
-                    <View style={styles.propertyDetailItem}>
-                      <View style={styles.propertyDetailIconContainer}>
-                        <Text style={styles.propertyDetailIcon}>🛏️</Text>
-                      </View>
-                      <Text style={styles.propertyDetailText}>
-                        {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.propertyCardFooter}>
-                    <View style={styles.viewDetailsContainer}>
-                      <Text style={styles.viewDetailsText}>View Details</Text>
-                      <Text style={styles.viewDetailsArrow}>→</Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+                </View>
+                <Skeleton width="100%" height={20} />
+              </View>
+            ))}
           </View>
+        ) : filteredProperties.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconContainer}>
+              <Text style={styles.emptyIcon}>🏠</Text>
+            </View>
+            <Text style={styles.emptyTitle}>No Properties Found</Text>
+            <Text style={styles.emptyText}>
+              Try adjusting your search or filters, or add a new property.
+            </Text>
+            {properties.length === 0 && (
+              <TouchableOpacity
+                style={styles.addButtonLarge}
+                onPress={() => onNavigate('new-property')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.addButtonLargeText}>➕ Add Your First Property</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <View style={styles.listContainer}>
+            <View style={styles.list}>
+              {filteredProperties.map((property) => {
+                const statusConfig = getStatusConfig(property.status);
+                const availabilityConfig = getAvailabilityConfig(property.availabilityStatus);
+                return (
+                  <TouchableOpacity
+                    key={property._id}
+                    style={styles.propertyCard}
+                    onPress={() => onSelectProperty(property._id)}
+                    activeOpacity={0.75}
+                  >
+                    <View style={styles.propertyCardHeader}>
+                      <View style={styles.propertyAddressContainer}>
+                        <View style={styles.propertyIconContainer}>
+                          <Text style={styles.propertyIcon}>🏠</Text>
+                        </View>
+                        <View style={styles.propertyAddressText}>
+                          <Text style={styles.propertyAddress} numberOfLines={1}>
+                            {property.address.line1}
+                          </Text>
+                          <Text style={styles.propertyCity} numberOfLines={1}>
+                            {property.address.city}, {property.address.postcode}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.badgesContainer}>
+                        <View style={[
+                          styles.availabilityBadge,
+                          {
+                            backgroundColor: availabilityConfig.bgColor,
+                            borderColor: `${availabilityConfig.color}30`,
+                          }
+                        ]}>
+                          <Text style={styles.availabilityIcon}>{availabilityConfig.icon}</Text>
+                          <Text style={[styles.availabilityText, { color: availabilityConfig.color }]}>
+                            {availabilityConfig.label}
+                          </Text>
+                        </View>
+                        <View style={[
+                          styles.statusBadge,
+                          {
+                            backgroundColor: statusConfig.bgColor,
+                            borderColor: `${statusConfig.color}30`,
+                          }
+                        ]}>
+                          <Text style={[styles.statusText, { color: statusConfig.color }]}>
+                            {statusConfig.label}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View style={styles.propertyDetails}>
+                      <View style={styles.propertyDetailItem}>
+                        <View style={styles.propertyDetailIconContainer}>
+                          <Text style={styles.propertyDetailIcon}>🏘️</Text>
+                        </View>
+                        <Text style={styles.propertyDetailText}>
+                          {property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)}
+                        </Text>
+                      </View>
+                      <View style={styles.propertyDetailItem}>
+                        <View style={styles.propertyDetailIconContainer}>
+                          <Text style={styles.propertyDetailIcon}>🛏️</Text>
+                        </View>
+                        <Text style={styles.propertyDetailText}>
+                          {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.propertyCardFooter}>
+                      <View style={styles.viewDetailsContainer}>
+                        <Text style={styles.viewDetailsText}>View Details</Text>
+                        <Text style={styles.viewDetailsArrow}>→</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+      </ScrollView>
+      {toast.visible && (
+        <View style={{ position: 'absolute', bottom: 20, right: 20 }}>
+          <Toast
+            toast={{ id: '1', message: toast.message, type: toast.type }}
+            onDismiss={() => setToast({ ...toast, visible: false })}
+          />
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
@@ -232,10 +319,43 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 32,
   },
-  headerTop: {
+  filterBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    paddingHorizontal: 32,
+    paddingTop: 16,
+    gap: 16,
+    alignItems: 'center',
+    maxWidth: 1200,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    height: 48,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#000',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  filterGroup: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  filterButton: {
+    height: 48,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  scrollView: {
+    flex: 1,
   },
   title: {
     fontSize: 48,

@@ -8,9 +8,10 @@ interface PageHeaderProps {
   rightAction?: React.ReactNode;
   leftAction?: React.ReactNode;
   breadcrumbs?: BreadcrumbItem[];
+  subtitle?: string;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, onSignOut, rightAction, leftAction, breadcrumbs }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, onSignOut, rightAction, leftAction, breadcrumbs }) => {
   return (
     <View style={styles.header}>
       <View style={styles.leftSection}>
@@ -20,6 +21,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, onSignOut, rightAction, 
             <Breadcrumbs items={breadcrumbs} />
           )}
           <Text style={styles.title}>{title}</Text>
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
       </View>
       <View style={styles.rightSection}>
@@ -65,6 +67,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: 'var(--text-primary)',
     letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 4,
   },
   titleSection: {
     flex: 1,
