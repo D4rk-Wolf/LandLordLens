@@ -10,6 +10,7 @@ if (!container) {
 }
 
 // Create root and render the app
+console.log('Mounting React application...');
 const root = createRoot(container);
 
 // Error boundary for initial render
