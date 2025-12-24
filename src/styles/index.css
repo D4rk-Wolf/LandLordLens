@@ -5,6 +5,10 @@
   /* 1. Color Palette: Slate & Indigo */
   /* -------------------------------------------------------------------------- */
 
+  /* -------------------------------------------------------------------------- */
+  /* 1. Color Palette: Slate & Soft Indigo */
+  /* -------------------------------------------------------------------------- */
+
   /* Neutral Scale (Slate) - Cool, professional grays */
   --slate-50: #F8FAFC;
   --slate-100: #F1F5F9;
@@ -18,35 +22,36 @@
   --slate-900: #0F172A;
   --slate-950: #020617;
 
-  /* Primary Brand (Indigo) - Trustworthy & Digital */
+  /* Primary Brand (Soft Indigo) - Sophisticated & Calming */
   --primary-50: #EEF2FF;
   --primary-100: #E0E7FF;
   --primary-200: #C7D2FE;
   --primary-300: #A5B4FC;
   --primary-400: #818CF8;
   --primary-500: #6366F1;
-  /* Core Brand Color */
+  /* Core Brand Color - Slightly desaturated vs pure Blurple */
   --primary-600: #4F46E5;
   --primary-700: #4338CA;
   --primary-800: #3730A3;
   --primary-900: #312E81;
   --primary-950: #1E1B4B;
 
-  /* Functional Colors */
-  --success-bg: #ECFDF5;
-  --success-text: #059669;
-  --success-border: #A7F3D0;
+  /* Functional Colors - Softer Tones */
+  --success-bg: #F0FDF4;
+  --success-text: #15803D;
+  /* darker for readability */
+  --success-border: #BBF7D0;
 
   --warning-bg: #FFFBEB;
-  --warning-text: #D97706;
+  --warning-text: #B45309;
   --warning-border: #FDE68A;
 
   --danger-bg: #FEF2F2;
-  --danger-text: #DC2626;
+  --danger-text: #B91C1C;
   --danger-border: #FECACA;
 
   --info-bg: #EFF6FF;
-  --info-text: #2563EB;
+  --info-text: #1D4ED8;
   --info-border: #BFDBFE;
 
   /* -------------------------------------------------------------------------- */
@@ -54,29 +59,30 @@
   /* -------------------------------------------------------------------------- */
 
   /* Backgrounds */
-  --bg-app: var(--slate-50);
-  /* Main app background */
+  --bg-app: #F8FAFC;
+  /* slate-50 - never pure white */
   --bg-surface: #FFFFFF;
-  /* Panels, cards, modal */
-  --bg-surface-hover: var(--slate-50);
-  --bg-sidebar: var(--slate-900);
-  /* Dark sidebar for contrast */
+  --bg-surface-hover: #F1F5F9;
+  /* slate-100 */
+  --bg-sidebar: #0F172A;
+  /* slate-900 */
   --bg-header: #FFFFFF;
 
   /* Text */
-  --text-main: var(--slate-800);
-  /* Headings, primary content */
-  --text-body: var(--slate-600);
-  /* Paragraphs */
-  --text-muted: var(--slate-400);
-  /* Meta data, hints */
-  --text-on-dark: #F8FAFC;
-  /* Text on sidebar/dark areas */
+  --text-main: #334155;
+  /* slate-700 - softer than black */
+  --text-body: #64748B;
+  /* slate-500 */
+  --text-muted: #94A3B8;
+  /* slate-400 */
+  --text-on-dark: #F1F5F9;
   --text-on-dark-muted: #94A3B8;
 
-  /* Borders */
-  --border-subtle: var(--slate-200);
-  --border-medium: var(--slate-300);
+  /* Borders - Very Subtle */
+  --border-subtle: #E2E8F0;
+  /* slate-200 */
+  --border-medium: #CBD5E1;
+  /* slate-300 */
   --border-focus: var(--primary-500);
 
   /* Primary Action */
@@ -95,30 +101,30 @@
   /* -------------------------------------------------------------------------- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: 'Outfit', var(--font-sans);
-  /* Optional for headers */
 
   /* -------------------------------------------------------------------------- */
   /* 4. Effects (Shadows & Radius) */
   /* -------------------------------------------------------------------------- */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-sm: 6px;
+  /* slightly more rounded */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  /* modern card radius */
 
-  /* Clean, crisp shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  /* very subtle */
-  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+  /* Diffused, premium shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(71, 85, 105, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(71, 85, 105, 0.08), 0 1px 2px -1px rgba(71, 85, 105, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(71, 85, 105, 0.08), 0 2px 4px -2px rgba(71, 85, 105, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(71, 85, 105, 0.08), 0 4px 6px -4px rgba(71, 85, 105, 0.04);
 
   /* Layout */
   --sidebar-w: 240px;
-  --sidebar-w-collapsed: 64px;
   --header-h: 60px;
 
   /* Animation */
-  --ease-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-default: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* smoother spring-like ease */
 
   /* -------------------------------------------------------------------------- */
   /* 5. Legacy Compatibility (Backwards Compat) */
@@ -127,7 +133,7 @@
   --primary-dark: var(--primary-700);
   --primary-light: var(--primary-400);
 
-  --secondary: var(--slate-600);
+  --secondary: var(--slate-500);
   --success: var(--success-text);
   --warning: var(--warning-text);
   --danger: var(--danger-text);
@@ -160,35 +166,39 @@
 /* Dark Mode Overrides */
 /* -------------------------------------------------------------------------- */
 [data-theme='dark'] {
-  --bg-app: #0f172a;
-  /* Changed from #020617 (slate-950) to #0f172a (slate-900) */
-  --bg-surface: #1e293b;
-  /* Changed from #0F172A (slate-900) to #1e293b (slate-800) */
+  --bg-app: #0F172A;
+  /* Slate 900 - Rich dark blue/gray */
+  --bg-surface: #1E293B;
+  /* Slate 800 */
   --bg-surface-hover: #334155;
-  /* Changed from #1E293B (slate-800) to #334155 (slate-700) */
-  --bg-sidebar: #0f172a;
-  /* Consistent with app bg */
-  --bg-header: #1e293b;
-  /* Consistent with surface */
+  /* Slate 700 */
+  --bg-sidebar: #0F172A;
+  --bg-header: #1E293B;
 
-  --text-main: #f8fafc;
-  /* slate-50 */
-  --text-body: #cbd5e1;
-  /* slate-300 - lighter/softer than slate-400 */
-  --text-muted: #94a3b8;
-  /* slate-400 */
+  /* Text - Softer whites */
+  --text-main: #F8FAFC;
+  /* Slate 50 */
+  --text-body: #CBD5E1;
+  /* Slate 300 */
+  --text-muted: #94A3B8;
+  /* Slate 400 */
 
-  --border-subtle: #1E293B;
-  --border-medium: #334155;
+  /* Borders - EXTREMELY Subtle in Dark Mode */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  /* Translucent for smoother blend */
+  --border-medium: rgba(255, 255, 255, 0.1);
 
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  /* Shadows - Darker and more spread */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
 
+  /* Actions */
   --action-secondary-bg: #1E293B;
-  --action-secondary-border: #334155;
+  --action-secondary-border: rgba(255, 255, 255, 0.1);
   --action-secondary-hover: #334155;
-  --action-secondary-text: #F1F5F9;
+  --action-secondary-text: #F8FAFC;
 }
 
 /* -------------------------------------------------------------------------- */

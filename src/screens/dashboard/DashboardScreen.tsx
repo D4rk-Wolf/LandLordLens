@@ -289,15 +289,71 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
                   <Text style={styles.sectionTitle}>Performance</Text>
                 </View>
                 <div className="saas-card" style={styles.chartContainer as any}>
-                  <BarChart
-                    title="Portfolio Status"
-                    data={[
-                      { label: 'Total', value: stats.totalProperties, color: 'var(--primary-500)' },
-                      { label: 'Occupied', value: stats.activeTenancies, color: 'var(--success-text)' },
-                      { label: 'Issues', value: stats.pendingMaintenance, color: 'var(--warning-text)' },
-                      { label: 'Alerts', value: stats.expiringCompliance, color: 'var(--danger-text)' },
-                    ]}
-                  />
+                  <View style={styles.portfolioSummaryContainer}>
+                    <View style={styles.portfolioHealthSection}>
+                      <View style={styles.healthRingContainer}>
+                        {/* Simple CSS-based circular progress simulation */}
+                        <View style={[styles.healthRing, {
+                          // @ts-ignore
+                          background: `conic-gradient(var(--primary-500) ${Math.round((stats.activeTenancies / (stats.totalProperties || 1)) * 360)}deg, var(--slate-200) 0deg)`
+                        }]}>
+                          <View style={styles.healthRingInner}>
+                            <Text style={styles.healthPercentage}>
+                              {stats.totalProperties > 0 ? Math.round((stats.activeTenancies / stats.totalProperties) * 100) : 0}%
+                            </Text>
+                            <Text style={styles.healthLabel}>Occupancy</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.healthTextContainer}>
+                        <Text style={styles.healthTitle}>Portfolio Health</Text>
+                        <Text style={styles.healthSubtitle}>
+                          {stats.pendingMaintenance === 0 && stats.expiringCompliance === 0
+                            ? 'Everything is running smoothly.'
+                            : `${stats.pendingMaintenance} issues require attention.`}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.portfolioStatsGrid}>
+                      <View style={styles.portfolioStatItem}>
+                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--primary-50)' }]}>
+                          <Text style={{ fontSize: 18 }}>🏠</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.pStatLabel}>Total Units</Text>
+                          <Text style={styles.pStatValue}>{stats.totalProperties}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.portfolioStatItem}>
+                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--success-bg)' }]}>
+                          <Text style={{ fontSize: 18 }}>👥</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.pStatLabel}>Occupied</Text>
+                          <Text style={[styles.pStatValue, { color: 'var(--success-text)' }]}>{stats.activeTenancies}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.portfolioStatItem}>
+                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--warning-bg)' }]}>
+                          <Text style={{ fontSize: 18 }}>🔧</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.pStatLabel}>Maintenance</Text>
+                          <Text style={[styles.pStatValue, { color: 'var(--warning-text)' }]}>{stats.pendingMaintenance}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.portfolioStatItem}>
+                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--danger-bg)' }]}>
+                          <Text style={{ fontSize: 18 }}>⚠️</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.pStatLabel}>Compliance</Text>
+                          <Text style={[styles.pStatValue, { color: 'var(--danger-text)' }]}>{stats.expiringCompliance}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
                 </div>
               </View>
             )}
@@ -537,6 +593,98 @@ const styles = StyleSheet.create({
   } as any,
   toggleThumbActive: {
     transform: [{ translateX: 20 }],
+  },
+  portfolioSummaryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 32,
+    flexWrap: 'wrap',
+  },
+  portfolioHealthSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    flex: 1,
+    minWidth: 200,
+  },
+  healthRingContainer: {
+    width: 100,
+    height: 100,
+    position: 'relative',
+  },
+  healthRing: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  healthRingInner: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: 'var(--bg-surface)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+  },
+  healthPercentage: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: 'var(--text-main)',
+  },
+  healthLabel: {
+    fontSize: 11,
+    color: 'var(--text-muted)',
+    fontWeight: '600',
+    marginTop: -2,
+    textTransform: 'uppercase',
+  },
+  healthTextContainer: {
+    flex: 1,
+    minWidth: 120,
+  },
+  healthTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'var(--text-main)',
+    marginBottom: 4,
+  },
+  healthSubtitle: {
+    fontSize: 13,
+    color: 'var(--text-muted)',
+    lineHeight: 18,
+  },
+  portfolioStatsGrid: {
+    flex: 1.5,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    minWidth: 280,
+  },
+  portfolioStatItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '45%',
+    gap: 12,
+  },
+  pStatIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pStatLabel: {
+    fontSize: 12,
+    color: 'var(--text-muted)',
+    fontWeight: '500',
+  },
+  pStatValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'var(--text-main)',
   },
 });
 
