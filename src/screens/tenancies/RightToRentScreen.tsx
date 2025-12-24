@@ -9,14 +9,12 @@ interface RightToRentScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
 const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
-  onSignOut,
 }) => {
   const { token } = useAuth();
   const [checks, setChecks] = useState<any[]>([]);

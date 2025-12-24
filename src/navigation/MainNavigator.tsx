@@ -109,7 +109,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -126,7 +125,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -143,7 +141,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               setCurrentScreen('property-detail');
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -163,7 +160,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -183,7 +179,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -203,7 +198,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
@@ -223,45 +217,43 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
               }
             });
           }}
-          onSignOut={signOut}
         />
       );
     }
 
     switch (currentScreen) {
       case 'dashboard':
-        return <DashboardScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <DashboardScreen onNavigate={navigate} />;
       case 'properties':
-        return <PropertiesScreen onNavigate={navigate} onSelectProperty={navigateToPropertyDetail} onSignOut={signOut} />;
+        return <PropertiesScreen onNavigate={navigate} onSelectProperty={navigateToPropertyDetail} />;
       case 'property-detail':
         return selectedPropertyId ? (
           <PropertyDetailScreen
             propertyId={selectedPropertyId}
             onNavigate={navigate}
             onBack={() => startTransition(() => setCurrentScreen('properties'))}
-            onSignOut={signOut}
           />
         ) : null;
       case 'new-property':
-        return <NewPropertyScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('properties'))} onSignOut={signOut} />;
+        return <NewPropertyScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('properties'))} />;
       case 'compliance':
-        return <ComplianceScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <ComplianceScreen onNavigate={navigate} />;
       case 'maintenance':
-        return <MaintenanceScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <MaintenanceScreen onNavigate={navigate} />;
       case 'new-maintenance':
-        return <NewMaintenanceScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('maintenance'))} onSignOut={signOut} />;
+        return <NewMaintenanceScreen onNavigate={navigate} onBack={() => startTransition(() => setCurrentScreen('maintenance'))} />;
       case 'inspections':
-        return <InspectionsScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <InspectionsScreen onNavigate={navigate} />;
       case 'expenses':
-        return <ExpensesScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <ExpensesScreen onNavigate={navigate} />;
       case 'admin':
-        return user?.role === 'admin' ? <AdminScreen onNavigate={navigate} onSignOut={signOut} /> : null;
+        return user?.role === 'admin' ? <AdminScreen onNavigate={navigate} /> : null;
       case 'settings':
-        return <SettingsScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <SettingsScreen onNavigate={navigate} />;
       case 'pricing':
-        return <PricingScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <PricingScreen onNavigate={navigate} />;
       default:
-        return <DashboardScreen onNavigate={navigate} onSignOut={signOut} />;
+        return <DashboardScreen onNavigate={navigate} />;
     }
   };
 
@@ -341,6 +333,20 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
             <div className="saas-user-name">{user?.name || 'User'}</div>
             <div className="saas-user-role">{user?.role || 'Landlord'}</div>
           </div>
+          <TouchableOpacity
+            onPress={signOut}
+            style={{
+              padding: 8,
+              borderRadius: 6,
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Text style={{ fontSize: 16 }}>🚪</Text>
+          </TouchableOpacity>
         </div>
       </div>
 

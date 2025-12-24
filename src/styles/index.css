@@ -64,7 +64,7 @@
   --bg-header: #FFFFFF;
 
   /* Text */
-  --text-main: var(--slate-900);
+  --text-main: var(--slate-800);
   /* Headings, primary content */
   --text-body: var(--slate-600);
   /* Paragraphs */
@@ -160,18 +160,23 @@
 /* Dark Mode Overrides */
 /* -------------------------------------------------------------------------- */
 [data-theme='dark'] {
-  --bg-app: #020617;
-  /* Very dark slate */
-  --bg-surface: #0F172A;
-  /* Dark slate */
-  --bg-surface-hover: #1E293B;
-  --bg-sidebar: #020617;
-  /* Even darker or same */
-  --bg-header: #0F172A;
+  --bg-app: #0f172a;
+  /* Changed from #020617 (slate-950) to #0f172a (slate-900) */
+  --bg-surface: #1e293b;
+  /* Changed from #0F172A (slate-900) to #1e293b (slate-800) */
+  --bg-surface-hover: #334155;
+  /* Changed from #1E293B (slate-800) to #334155 (slate-700) */
+  --bg-sidebar: #0f172a;
+  /* Consistent with app bg */
+  --bg-header: #1e293b;
+  /* Consistent with surface */
 
-  --text-main: #F1F5F9;
-  --text-body: #94A3B8;
-  --text-muted: #64748B;
+  --text-main: #f8fafc;
+  /* slate-50 */
+  --text-body: #cbd5e1;
+  /* slate-300 - lighter/softer than slate-400 */
+  --text-muted: #94a3b8;
+  /* slate-400 */
 
   --border-subtle: #1E293B;
   --border-medium: #334155;

@@ -9,14 +9,12 @@ interface TenantBackgroundCheckScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
 const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
-  onSignOut,
 }) => {
   const { token } = useAuth();
   const [backgroundCheck, setBackgroundCheck] = useState<any>(null);
@@ -105,7 +103,6 @@ const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = 
     <View style={styles.container}>
       <PageHeader
         title="Background Check"
-        onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>

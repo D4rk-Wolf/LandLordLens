@@ -9,12 +9,11 @@ import { useNotification } from '../../contexts/NotificationContext';
 
 interface SettingsScreenProps {
   onNavigate: (screen: string) => void;
-  onSignOut: () => void;
 }
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
   const { user, token } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { theme, toggleTheme, isDark, themeMode, setThemeMode } = useTheme();
   const { showNotification } = useNotification();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -76,21 +75,124 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
     }
   };
 
+  // General Preferences State
+  const [currency, setCurrencyState] = useState('USD');
+  const [dateFormat, setDateFormatState] = useState('MM/DD/YYYY');
+
+  // Notification State
+  const [emailAlerts, setEmailAlertsState] = useState(true);
+  const [pushNotifications, setPushNotificationsState] = useState(true);
+  const [marketingEmails, setMarketingEmailsState] = useState(false);
+
+  // Security State
+  const [twoFactorEnabled, setTwoFactorEnabledState] = useState(false);
+
+  // Load preferences on mount
+  React.useEffect(() => {
+    const loadPreference = (key: string, setter: React.Dispatch<React.SetStateAction<any>>, defaultVal: any) => {
+      const saved = localStorage.getItem(key);
+      if (saved !== null) {
+        try {
+          setter(JSON.parse(saved));
+        } catch (e) {
+          setter(saved); // Fallback for strings
+        }
+      } else {
+        setter(defaultVal);
+      }
+    };
+
+    loadPreference('settings_currency', setCurrencyState, 'USD');
+    loadPreference('settings_dateFormat', setDateFormatState, 'MM/DD/YYYY');
+    loadPreference('settings_emailAlerts', setEmailAlertsState, true);
+    loadPreference('settings_pushNotifications', setPushNotificationsState, true);
+    loadPreference('settings_marketingEmails', setMarketingEmailsState, false);
+    loadPreference('settings_2fa', setTwoFactorEnabledState, false);
+  }, []);
+
+  // Wrappers to save on change
+  const setCurrency = (val: string) => { setCurrencyState(val); localStorage.setItem('settings_currency', val); };
+  const setDateFormat = (val: string) => { setDateFormatState(val); localStorage.setItem('settings_dateFormat', val); };
+
+  const setEmailAlerts = (val: boolean) => { setEmailAlertsState(val); localStorage.setItem('settings_emailAlerts', JSON.stringify(val)); };
+  const setPushNotifications = (val: boolean) => { setPushNotificationsState(val); localStorage.setItem('settings_pushNotifications', JSON.stringify(val)); };
+  const setMarketingEmails = (val: boolean) => { setMarketingEmailsState(val); localStorage.setItem('settings_marketingEmails', JSON.stringify(val)); };
+  const setTwoFactorEnabled = (val: boolean) => { setTwoFactorEnabledState(val); localStorage.setItem('settings_2fa', JSON.stringify(val)); };
+
+
+  // Mock functions for UI interactions
+  const toggleSetting = (setter: (val: boolean) => void, value: boolean, label: string) => {
+    setter(!value);
+  };
+
+  const cycleCurrency = () => {
+    const options = ['USD', 'GBP', 'EUR', 'CAD'];
+    const nextIndex = (options.indexOf(currency) + 1) % options.length;
+    setCurrency(options[nextIndex]);
+  };
+
+  const cycleDateFormat = () => {
+    const options = ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'];
+    const nextIndex = (options.indexOf(dateFormat) + 1) % options.length;
+    setDateFormat(options[nextIndex]);
+  };
+
   const settingsSections = [
     {
       title: 'Account Information',
       items: [
-        { label: 'Name', value: user?.name || 'N/A', icon: '👤' },
-        { label: 'Email', value: user?.email || 'N/A', icon: '✉️' },
-        { label: 'Role', value: user?.role || 'N/A', icon: '🔑' },
-        ...(user?.subscription ? [{ label: 'Subscription', value: user.subscription, icon: '💳' }] : []),
+        { label: 'Name', value: user?.name || 'N/A', icon: '👤', type: 'info' },
+        { label: 'Email', value: user?.email || 'N/A', icon: '✉️', type: 'info' },
+        { label: 'Role', value: user?.role || 'N/A', icon: '🔑', type: 'info' },
+      ],
+    },
+    {
+      title: 'General Preferences',
+      items: [
+        { label: 'Language', value: 'English (US)', icon: '🌐', type: 'select' },
+        { label: 'Currency', value: currency, icon: '💱', type: 'select', action: cycleCurrency },
+        { label: 'Date Format', value: dateFormat, icon: '📅', type: 'select', action: cycleDateFormat },
+      ],
+    },
+    {
+      title: 'Notifications',
+      items: [
+        { label: 'Email Alerts', value: emailAlerts, icon: '📧', type: 'toggle', action: () => toggleSetting(setEmailAlerts, emailAlerts, 'Email Alerts') },
+        { label: 'Push Notifications', value: pushNotifications, icon: '🔔', type: 'toggle', action: () => toggleSetting(setPushNotifications, pushNotifications, 'Push Notifications') },
+        { label: 'Marketing Emails', value: marketingEmails, icon: '📢', type: 'toggle', action: () => toggleSetting(setMarketingEmails, marketingEmails, 'Marketing Emails') },
+      ],
+    },
+    {
+      title: 'Subscription & Billing',
+      items: [
+        { label: 'Current Plan', value: user?.subscription || 'Free Tier', icon: '💳', type: 'info' },
+        { label: 'Next Billing', value: 'Jan 1, 2026', icon: '🗓️', type: 'info' },
+        {
+          label: 'Manage Subscription', value: 'Manage', icon: '↗️', type: 'link', action: () => {
+            // Mock opening external portal
+            const w = window.open('', '_blank');
+            if (w) {
+              w.document.write('<h1>Billing Portal Simulation</h1><p>Redirecting to payment provider...</p>');
+              setTimeout(() => w.close(), 2000);
+            }
+            showNotification('Opened billing portal', 'info');
+          }
+        },
+      ],
+    },
+    {
+      title: 'Security',
+      items: [
+        { label: 'Two-Factor Auth', value: twoFactorEnabled, icon: '🛡️', type: 'toggle', action: () => toggleSetting(setTwoFactorEnabled, twoFactorEnabled, '2FA') },
+        { label: 'Change Password', value: 'Update', icon: '🔒', type: 'button', action: () => setShowPasswordForm(true) },
       ],
     },
   ];
 
   return (
     <View style={styles.container}>
-      <PageHeader title="Settings" onSignOut={onSignOut} />
+      <PageHeader
+        title="Settings" />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -107,27 +209,32 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
               <Text style={styles.sectionTitle}>Appearance</Text>
             </View>
             <View style={styles.sectionContent}>
-              <TouchableOpacity
-                style={[styles.themeToggle, isDark && styles.themeToggleActive]}
-                onPress={() => {
-                  toggleTheme();
-                  showNotification(`Switched to ${isDark ? 'light' : 'dark'} mode`, 'info');
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.infoRowLeft}>
-                  <View style={styles.infoIconContainer}>
-                    <Text style={styles.infoIcon}>{isDark ? '🌙' : '☀️'}</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.infoLabel}>Display Theme</Text>
-                    <Text style={styles.themeSubtitle}>Current: {isDark ? 'Dark Mode' : 'Light Mode'}</Text>
-                  </View>
+              <View style={styles.themeSelectorContainer}>
+                <Text style={styles.themeSelectorLabel}>Display Theme</Text>
+                <View style={styles.themeButtonGroup}>
+                  {(['light', 'dark', 'auto'] as const).map((mode) => (
+                    <TouchableOpacity
+                      key={mode}
+                      style={[
+                        styles.themeButton,
+                        themeMode === mode && styles.themeButtonActive
+                      ]}
+                      onPress={() => setThemeMode(mode)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.themeButtonIcon}>
+                        {mode === 'light' ? '☀️' : mode === 'dark' ? '🌙' : '⚙️'}
+                      </Text>
+                      <Text style={[
+                        styles.themeButtonText,
+                        themeMode === mode && styles.themeButtonTextActive
+                      ]}>
+                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                <View style={[styles.toggleSwitch, isDark && styles.toggleSwitchActive]}>
-                  <View style={[styles.toggleThumb, isDark && styles.toggleThumbActive]} />
-                </View>
-              </TouchableOpacity>
+              </View>
             </View>
           </View>
           {settingsSections.map((section, sectionIndex) => (
@@ -136,13 +243,17 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
                 <Text style={styles.sectionTitle}>{section.title}</Text>
               </View>
               <View style={styles.sectionContent}>
-                {section.items.map((item, itemIndex) => (
-                  <View
+                {section.items.map((item: any, itemIndex) => (
+                  <TouchableOpacity
                     key={itemIndex}
                     style={[
                       styles.infoRow,
                       itemIndex === section.items.length - 1 && styles.infoRowLast,
+                      (item.type === 'button' || item.type === 'link' || item.type === 'toggle' || item.type === 'select') ? styles.clickableRow : {}
                     ]}
+                    onPress={item.action ? item.action : undefined}
+                    activeOpacity={item.action ? 0.7 : 1}
+                    disabled={!item.action}
                   >
                     <View style={styles.infoRowLeft}>
                       <View style={styles.infoIconContainer}>
@@ -150,33 +261,48 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
                       </View>
                       <Text style={styles.infoLabel}>{item.label}</Text>
                     </View>
-                    <Text style={styles.infoValue} numberOfLines={1}>
-                      {item.value}
-                    </Text>
-                  </View>
+
+                    {item.type === 'toggle' ? (
+                      <View style={[styles.toggleSwitch, item.value && styles.toggleSwitchActive]}>
+                        <View style={[styles.toggleThumb, item.value && styles.toggleThumbActive]} />
+                      </View>
+                    ) : item.type === 'button' ? (
+                      <Text style={styles.actionButtonText}>{item.value}</Text>
+                    ) : item.type === 'link' ? (
+                      <Text style={styles.linkText}>{item.value}</Text>
+                    ) : (
+                      <Text style={styles.infoValue} numberOfLines={1}>
+                        {item.value.toString()}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
                 ))}
               </View>
             </View>
           ))}
 
+          {/* Danger Zone */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Security</Text>
+              <Text style={[styles.sectionTitle, { color: 'var(--danger)' }]}>Danger Zone</Text>
             </View>
-            <View style={styles.sectionContent}>
-              {!showPasswordForm ? (
-                <TouchableOpacity
-                  style={styles.changePasswordButton}
-                  onPress={() => setShowPasswordForm(true)}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.changePasswordIconContainer}>
-                    <Text style={styles.changePasswordIcon}>🔒</Text>
-                  </View>
-                  <Text style={styles.changePasswordButtonText}>Change Account Password</Text>
-                  <Text style={styles.buttonArrow}>→</Text>
-                </TouchableOpacity>
-              ) : (
+            <View style={[styles.sectionContent, { borderColor: 'var(--danger-border)' }]}>
+              <TouchableOpacity
+                style={styles.dangerRow}
+                onPress={() => Alert.alert('Delete Account', 'Are you sure? This action cannot be undone.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => showNotification('Account deletion requested', 'error') }])}
+              >
+                <Text style={styles.dangerText}>Delete Account</Text>
+                <Text style={styles.dangerIcon}>🗑️</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Password Change Modal / Overlay */}
+          {showPasswordForm && (
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalTitle}>Change Password</Text>
+
                 <View style={styles.passwordForm}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Current Password</Text>
@@ -239,7 +365,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.cancelButtonText}>Discard Changes</Text>
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.savePasswordButton, changingPassword && styles.savePasswordButtonDisabled]}
@@ -253,20 +379,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onSignOut }) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              )}
+              </View>
             </View>
-          </View>
-
-          <View style={styles.actionsSection}>
-            <TouchableOpacity
-              style={styles.signOutButton}
-              onPress={onSignOut}
-              activeOpacity={0.9}
-            >
-              <Text style={styles.signOutIcon}>🚪</Text>
-              <Text style={styles.signOutButtonText}>Secure Logout</Text>
-            </TouchableOpacity>
-          </View>
+          )}
 
           <View style={styles.footer}>
             <View style={styles.logoBadge}>
@@ -332,13 +447,13 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   sectionContent: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: 'var(--bg-surface)',
     //@ts-ignore
     backdropFilter: 'blur(16px)',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.04)',
+    borderColor: 'var(--border-subtle)',
+    boxShadow: 'var(--shadow-sm)',
     overflow: 'hidden',
   },
   infoRow: {
@@ -348,7 +463,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.03)',
+    borderBottomColor: 'var(--border-subtle)',
   },
   infoRowLast: {
     borderBottomWidth: 0,
@@ -363,11 +478,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--slate-100)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.03)',
+    boxShadow: 'none',
   },
   infoIcon: {
     fontSize: 20,
@@ -428,9 +543,9 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     borderWidth: 1.5,
-    borderColor: 'var(--gray-200)',
+    borderColor: 'var(--border-subtle)',
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'var(--bg-app)',
     paddingHorizontal: 16,
     minHeight: 56,
     justifyContent: 'center',
@@ -452,10 +567,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'var(--bg-surface)',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'var(--gray-200)',
+    borderColor: 'var(--border-subtle)',
     //@ts-ignore
     transition: 'all 0.2s ease',
   },
@@ -469,6 +584,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     backgroundColor: 'var(--primary)',
+    //@ts-ignore
     backgroundImage: 'var(--primary-gradient)',
     alignItems: 'center',
     boxShadow: '0 8px 20px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2)',
@@ -518,11 +634,11 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    boxShadow: 'var(--shadow-sm)',
   },
   logoBadgeIcon: {
     fontSize: 24,
@@ -540,12 +656,56 @@ const styles = StyleSheet.create({
     color: 'var(--text-tertiary)',
     fontWeight: '500',
   },
+  themeSelectorContainer: {
+    padding: 20,
+  },
+  themeSelectorLabel: {
+    fontSize: 16,
+    color: 'var(--text-secondary)',
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  themeButtonGroup: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  themeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: 'var(--bg-app)',
+    borderWidth: 1,
+    borderColor: 'var(--border-subtle)',
+    gap: 8,
+    transition: 'all 0.2s ease',
+  },
+  themeButtonActive: {
+    backgroundColor: 'var(--primary)',
+    borderColor: 'var(--primary)',
+    boxShadow: '0 4px 12px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2)',
+  },
+  themeButtonIcon: {
+    fontSize: 16,
+  },
+  themeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'var(--text-primary)',
+  },
+  themeButtonTextActive: {
+    color: '#ffffff',
+  },
+  // Deprecated Toggle Styles retained if needed elsewhere, otherwise safe to ignore
   themeToggle: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    backgroundColor: 'var(--bg-app)',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'transparent',
@@ -583,6 +743,66 @@ const styles = StyleSheet.create({
   toggleThumbActive: {
     transform: 'translateX(28px)',
   },
+  clickableRow: {
+    cursor: 'pointer',
+  },
+  actionButtonText: {
+    color: 'var(--primary)',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  linkText: {
+    color: 'var(--primary)',
+    fontWeight: '600',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+  dangerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    cursor: 'pointer',
+  },
+  dangerText: {
+    color: 'var(--danger)',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  dangerIcon: {
+    fontSize: 18,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    //@ts-ignore
+    backdropFilter: 'blur(8px)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: 20,
+  },
+  modalContainer: {
+    backgroundColor: 'var(--bg-surface)',
+    borderRadius: 24,
+    width: '100%',
+    maxWidth: 500,
+    padding: 24,
+    boxShadow: 'var(--shadow-lg)',
+    borderWidth: 1,
+    borderColor: 'var(--border-subtle)',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: 'var(--text-primary)',
+    marginBottom: 24,
+    textAlign: 'center',
+  }
 });
 
 export default SettingsScreen;

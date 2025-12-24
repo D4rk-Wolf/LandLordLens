@@ -24,10 +24,9 @@ interface Property {
 interface PropertiesScreenProps {
   onNavigate: (screen: string) => void;
   onSelectProperty: (id: string) => void;
-  onSignOut: () => void;
 }
 
-const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelectProperty, onSignOut }) => {
+const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelectProperty }) => {
   const { token, user } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
@@ -132,8 +131,7 @@ const PropertiesScreen: React.FC<PropertiesScreenProps> = ({ onNavigate, onSelec
     <View style={styles.container}>
       <PageHeader
         title="Properties"
-        subtitle={`${filteredProperties.length} records found`}
-        onSignOut={onSignOut}
+        subtitle="Manage your portfolio"
         rightAction={
           <Button
             title="Add Property"

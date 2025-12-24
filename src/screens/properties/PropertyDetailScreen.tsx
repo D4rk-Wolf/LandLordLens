@@ -10,14 +10,12 @@ interface PropertyDetailScreenProps {
   propertyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
 const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
   propertyId,
   onNavigate,
   onBack,
-  onSignOut,
 }) => {
   const { token } = useAuth();
   const [property, setProperty] = useState<any>(null);
@@ -56,7 +54,6 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
       <View style={styles.container}>
         <PageHeader
           title="Loading..."
-          onSignOut={onSignOut}
           leftAction={
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
               <Text style={styles.backButtonText}>← Back</Text>
@@ -74,7 +71,7 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
           </View>
 
           {/* Section 1 Skeleton */}
-          <View style={{ padding: 24, backgroundColor: 'white', borderRadius: 16, gap: 16 }}>
+          <View style={{ padding: 24, backgroundColor: 'var(--bg-surface)', borderRadius: 16, gap: 16 }}>
             <Skeleton width={180} height={24} />
             <View style={{ flexDirection: 'row', gap: 24, flexWrap: 'wrap' }}>
               <Skeleton width={100} height={40} />
@@ -84,7 +81,7 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
           </View>
 
           {/* Section 2 Skeleton */}
-          <View style={{ padding: 24, backgroundColor: 'white', borderRadius: 16 }}>
+          <View style={{ padding: 24, backgroundColor: 'var(--bg-surface)', borderRadius: 16 }}>
             <Skeleton width="100%" height={100} />
           </View>
         </View>
@@ -97,7 +94,6 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
       <View style={styles.container}>
         <PageHeader
           title="Not Found"
-          onSignOut={onSignOut}
           leftAction={
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
               <Text style={styles.backButtonText}>← Back</Text>
@@ -119,8 +115,7 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
   return (
     <View style={styles.container}>
       <PageHeader
-        title="Property Details"
-        onSignOut={onSignOut}
+        title={property?.address.line1 || 'Property Details'}
         breadcrumbs={breadcrumbs}
       />
       <ScrollView style={styles.scrollView}>

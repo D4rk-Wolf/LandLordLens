@@ -9,10 +9,9 @@ interface NewTenancyScreenProps {
   propertyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
-const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavigate, onBack, onSignOut }) => {
+const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavigate, onBack }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -64,7 +63,6 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
     <View style={styles.container}>
       <PageHeader
         title="New Tenancy"
-        onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
@@ -211,7 +209,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
     padding: 20,
     borderRadius: 12,
     marginBottom: 20,
@@ -247,7 +245,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
     color: '#2c3e50',
   },
   textArea: {

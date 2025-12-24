@@ -12,14 +12,14 @@ router.post('/data', authenticateToken, async (req, res) => {
         const userId = req.user.id;
 
         // Check if user already has properties
-        const existingCount = await Property.countDocuments({ landlord: userId });
+        const existingCount = await Property.countDocuments({ userId: userId });
         if (existingCount > 0) {
             return res.status(400).json({ error: 'User already has data. Cannot seed.' });
         }
 
         // 1. Create Sample Property
         const property = new Property({
-            landlord: userId,
+            userId: userId,
             address: {
                 line1: '123 Baker Street',
                 city: 'London',
@@ -31,43 +31,43 @@ router.post('/data', authenticateToken, async (req, res) => {
             bathrooms: 1,
             status: 'occupied',
             rentAmount: 1800,
-            description: 'Charming 2-bed apartment in central London.'
+
         });
         await property.save();
 
         // 2. Create Sample Tenancy
         const tenancy = new Tenancy({
-            property: property._id,
-            landlord: userId,
+            propertyId: property._id,
+            userId: userId,
             tenantName: 'John Watson',
             tenantEmail: 'john.watson@example.com',
             startDate: new Date('2024-01-01'),
             endDate: new Date('2025-01-01'),
-            rentAmount: 1800,
-            paymentFrequency: 'monthly',
-            status: 'active',
-            depositAmount: 2000
+            monthlyRent: 1800,
+            deposit: 2000,
+            depositProtected: true,
+            status: 'active'
         });
         await tenancy.save();
 
         // 3. Create Sample Maintenance Ticket
         const ticket = new MaintenanceTicket({
-            property: property._id,
-            landlord: userId,
+            propertyId: property._id,
+            userId: userId,
             title: 'Leaking tap in kitchen',
             description: 'The hot water tap is dripping constantly.',
             priority: 'low',
             status: 'open',
-            reportedBy: tenancy._id,
-            category: 'plumbing'
+            // category: 'plumbing' // Removing as it's not in the Mongoose schema I viewed
         });
         await ticket.save();
 
         // 4. Create Compliance Record
         const compliance = new ComplianceRecord({
-            property: property._id,
-            type: 'gas_safety',
-            status: 'valid',
+            propertyId: property._id,
+            userId: userId,
+            complianceType: 'gas_safety',
+            issueDate: new Date('2024-06-01'),
             expiryDate: new Date('2025-06-01'),
             notes: 'Passed with no issues.'
         });

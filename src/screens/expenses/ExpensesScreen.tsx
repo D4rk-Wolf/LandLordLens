@@ -8,10 +8,9 @@ import PageHeader from '../../components/ui/PageHeader';
 interface ExpensesScreenProps {
   onNavigate: (screen: string) => void;
   propertyId?: string;
-  onSignOut: () => void;
 }
 
-const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId, onSignOut }) => {
+const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId }) => {
   const { token } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
@@ -131,7 +130,6 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId,
     <View style={styles.container}>
       <PageHeader
         title="Expenses"
-        onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
             <Text style={styles.addButtonText}>+ Add</Text>

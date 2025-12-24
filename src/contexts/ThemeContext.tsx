@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
+type ThemeMode = 'light' | 'dark' | 'auto';
 type UserRole = 'landlord' | 'tenant' | 'manager' | 'admin';
 
 interface ThemeContextType {
     theme: Theme;
+    themeMode: ThemeMode;
+    setThemeMode: (mode: ThemeMode) => void;
     toggleTheme: () => void;
     userRole: UserRole;
     setUserRole: (role: UserRole) => void;
@@ -24,14 +27,20 @@ const ROLE_COLORS: Record<UserRole, string> = {
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>('light');
+    const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
     const [userRole, setUserRole] = useState<UserRole>('landlord');
 
     useEffect(() => {
         // Load theme from localStorage
-        const savedTheme = localStorage.getItem('theme') as Theme;
-        if (savedTheme) {
-            setTheme(savedTheme);
-            applyTheme(savedTheme);
+        const savedMode = localStorage.getItem('themeMode') as ThemeMode;
+        if (savedMode) {
+            setThemeModeState(savedMode);
+        } else {
+            // Fallback to existing 'theme' if 'themeMode' not set (migration)
+            const savedTheme = localStorage.getItem('theme') as Theme;
+            if (savedTheme) {
+                setThemeModeState(savedTheme);
+            }
         }
 
         // Load user role from localStorage
@@ -42,10 +51,33 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     }, []);
 
-    const applyTheme = (newTheme: Theme) => {
+    useEffect(() => {
         const root = document.documentElement;
-        root.setAttribute('data-theme', newTheme);
-    };
+        let activeTheme: Theme = 'light';
+
+        if (themeMode === 'auto') {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            activeTheme = systemTheme;
+        } else {
+            activeTheme = themeMode;
+        }
+
+        setTheme(activeTheme);
+        root.setAttribute('data-theme', activeTheme);
+        localStorage.setItem('themeMode', themeMode);
+
+        // Listen for system changes if mode is auto
+        if (themeMode === 'auto') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = (e: MediaQueryListEvent) => {
+                const newSystemTheme = e.matches ? 'dark' : 'light';
+                setTheme(newSystemTheme);
+                root.setAttribute('data-theme', newSystemTheme);
+            };
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+        }
+    }, [themeMode]);
 
     const applyRoleAccent = (role: UserRole) => {
         const root = document.documentElement;
@@ -59,11 +91,15 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         localStorage.setItem('userRole', role);
     };
 
+    const setThemeMode = (mode: ThemeMode) => {
+        setThemeModeState(mode);
+    };
+
     const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        applyTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+        // Cycle: light -> dark -> auto -> light
+        if (themeMode === 'light') setThemeMode('dark');
+        else if (themeMode === 'dark') setThemeMode('auto');
+        else setThemeMode('light');
     };
 
     const handleSetUserRole = (role: UserRole) => {
@@ -75,6 +111,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         <ThemeContext.Provider
             value={{
                 theme,
+                themeMode,
+                setThemeMode,
                 toggleTheme,
                 userRole,
                 setUserRole: handleSetUserRole,

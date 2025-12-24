@@ -8,10 +8,9 @@ import PageHeader from '../../components/ui/PageHeader';
 interface InspectionsScreenProps {
   onNavigate: (screen: string) => void;
   propertyId?: string;
-  onSignOut: () => void;
 }
 
-const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, propertyId, onSignOut }) => {
+const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, propertyId }) => {
   const { token } = useAuth();
   const [inspections, setInspections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +90,6 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
     <View style={styles.container}>
       <PageHeader
         title="Inspections"
-        onSignOut={onSignOut}
         rightAction={
           <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
             <Text style={styles.addButtonText}>+ Schedule</Text>

@@ -9,14 +9,12 @@ interface DepositProtectionScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
 const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
-  onSignOut,
 }) => {
   const { token } = useAuth();
   const [depositProtection, setDepositProtection] = useState<any>(null);

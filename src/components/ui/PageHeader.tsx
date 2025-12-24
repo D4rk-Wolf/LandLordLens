@@ -4,14 +4,13 @@ import Breadcrumbs, { BreadcrumbItem } from './Breadcrumbs';
 
 interface PageHeaderProps {
   title: string;
-  onSignOut?: () => void;
   rightAction?: React.ReactNode;
   leftAction?: React.ReactNode;
   breadcrumbs?: BreadcrumbItem[];
   subtitle?: string;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, onSignOut, rightAction, leftAction, breadcrumbs }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, rightAction, leftAction, breadcrumbs }) => {
   return (
     <View style={styles.container}>
       {/* Breadcrumbs Row */}
@@ -31,16 +30,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, onSignOut, rig
         </View>
         <View style={styles.rightSection}>
           {rightAction}
-          {onSignOut && (
-            <TouchableOpacity
-              style={styles.signOutButton}
-              onPress={onSignOut}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.signOutIcon}>🚪</Text>
-              <Text style={styles.signOutText}>Sign Out</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
     </View>
@@ -69,13 +58,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28, // Slightly larger
     fontWeight: '700',
-    color: 'var(--slate-900)',
+    color: 'var(--text-main)',
     fontFamily: 'var(--font-display)',
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 14,
-    color: 'var(--slate-500)',
+    color: 'var(--text-muted)',
     marginTop: 4,
   },
   titleSection: {

@@ -6,7 +6,6 @@ import { apiClient } from '../../utils/api-client';
 
 interface AdminScreenProps {
   onNavigate: (screen: string) => void;
-  onSignOut: () => void;
 }
 
 interface User {
@@ -31,7 +30,7 @@ const TIER_LABELS: Record<Tier, string> = {
   enterprise: 'Enterprise',
 };
 
-const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
+const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
   const { token } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<User[]>([]);

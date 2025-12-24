@@ -4,17 +4,15 @@ import PageHeader from '../../components/ui/PageHeader';
 
 interface PricingScreenProps {
     onNavigate: (screen: string) => void;
-    onSignOut: () => void;
 }
 
-const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate, onSignOut }) => {
+const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate }) => {
 
 
     return (
         <View style={styles.container}>
             <PageHeader
                 title="Pricing"
-                onSignOut={onSignOut}
                 breadcrumbs={[
                     { label: 'Dashboard', onPress: () => onNavigate('dashboard') },
                     { label: 'Pricing' },

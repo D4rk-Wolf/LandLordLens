@@ -18,11 +18,10 @@ interface MaintenanceTicket {
 
 interface MaintenanceScreenProps {
   onNavigate: (screen: string) => void;
-  onSignOut: () => void;
 }
 
-const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate, onSignOut }) => {
-  const { token } = useAuth();
+const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => {
+  const { token, user } = useAuth();
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +65,6 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate, onSig
     <div className="saas-content-scroll">
       <PageHeader
         title="Maintenance"
-        onSignOut={onSignOut}
         rightAction={
           <button
             onClick={() => onNavigate('new-maintenance')}

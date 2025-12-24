@@ -9,14 +9,12 @@ interface InventoryScreenProps {
   tenancyId: string;
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
 const InventoryScreen: React.FC<InventoryScreenProps> = ({
   tenancyId,
   onNavigate,
   onBack,
-  onSignOut,
 }) => {
   const { token } = useAuth();
   const [inventories, setInventories] = useState<any[]>([]);
@@ -81,7 +79,6 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
     <View style={styles.container}>
       <PageHeader
         title="Inventory"
-        onSignOut={onSignOut}
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>

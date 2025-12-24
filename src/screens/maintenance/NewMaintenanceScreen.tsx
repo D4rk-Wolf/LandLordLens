@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert 
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+import PageHeader from '../../components/ui/PageHeader';
 
 interface Property {
   _id: string;
@@ -17,10 +18,9 @@ interface NewMaintenanceScreenProps {
   onNavigate: (screen: string) => void;
   onBack: () => void;
   propertyId?: string;
-  onSignOut: () => void;
 }
 
-const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate, onBack, propertyId, onSignOut }) => {
+const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate, onBack, propertyId }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -93,12 +93,14 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>New Maintenance Ticket</Text>
-      </View>
+      <PageHeader
+        title="New Maintenance Ticket"
+        leftAction={
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <View style={styles.form}>
         <Text style={styles.label}>Property *</Text>
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
   },
   textArea: {
     height: 100,
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#ddd',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
   },
   priorityButtonActive: {
     backgroundColor: '#3498db',
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
   },
   propertyOptionActive: {
     borderColor: '#3498db',
@@ -305,7 +307,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },

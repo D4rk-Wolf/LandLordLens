@@ -17,10 +17,9 @@ interface ComplianceRecord {
 interface NewPropertyScreenProps {
   onNavigate: (screen: string) => void;
   onBack: () => void;
-  onSignOut: () => void;
 }
 
-const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBack, onSignOut }) => {
+const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBack }) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -173,8 +172,7 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
   return (
     <View style={styles.container}>
       <PageHeader
-        title="New Property"
-        onSignOut={onSignOut}
+        title="Add Property"
         leftAction={
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>

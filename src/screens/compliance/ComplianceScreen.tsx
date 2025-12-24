@@ -22,10 +22,9 @@ interface ComplianceRecord {
 
 interface ComplianceScreenProps {
   onNavigate: (screen: string) => void;
-  onSignOut: () => void;
 }
 
-const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignOut }) => {
+const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate }) => {
   const { token } = useAuth();
   const [records, setRecords] = useState<ComplianceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +113,6 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
     <div className="saas-content-scroll">
       <PageHeader
         title="Compliance"
-        onSignOut={onSignOut}
         rightAction={
           <button
             onClick={() => onNavigate('properties')}

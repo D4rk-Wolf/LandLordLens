@@ -13,10 +13,9 @@ import { Button } from '../../components/ui/Button';
 
 interface DashboardScreenProps {
   onNavigate: (screen: string) => void;
-  onSignOut: () => void;
 }
 
-const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, onSignOut }) => {
+const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
   const { token, user } = useAuth();
   const [stats, setStats] = useState({
     totalProperties: 0,
@@ -192,7 +191,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, onSignOut
   if (loading) {
     return (
       <View style={styles.container}>
-        <PageHeader title="Dashboard" onSignOut={onSignOut} />
+        <PageHeader title="Dashboard" />
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           <View style={styles.welcomeSection}>
             <Skeleton width={180} height={24} style={{ marginBottom: 16 }} />
@@ -207,7 +206,6 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, onSignOut
     <View style={styles.container}>
       <PageHeader
         title="Dashboard"
-        onSignOut={onSignOut}
         rightAction={
           <Button
             title="Customize"
@@ -396,7 +394,7 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: 'var(--slate-500)',
+    color: 'var(--text-muted)',
     fontWeight: '600',
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -405,7 +403,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: 'var(--slate-900)',
+    color: 'var(--text-main)',
     fontFamily: 'var(--font-display)',
     letterSpacing: -0.5,
   },
@@ -441,14 +439,14 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 36,
     fontWeight: '700',
-    color: 'var(--slate-900)',
+    color: 'var(--text-main)',
     marginBottom: 4,
     letterSpacing: -1,
     fontFamily: 'var(--font-display)',
   },
   statLabel: {
     fontSize: 14,
-    color: 'var(--slate-500)',
+    color: 'var(--text-muted)',
     fontWeight: '500',
   },
   sectionHeader: {
@@ -457,7 +455,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: 'var(--slate-800)',
+    color: 'var(--text-main)',
   },
   chartContainer: {
     // saas-card
@@ -478,12 +476,12 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: 'var(--slate-900)',
+    color: 'var(--text-main)',
     marginBottom: 4,
   },
   actionDescription: {
     fontSize: 13,
-    color: 'var(--slate-500)',
+    color: 'var(--text-muted)',
   },
   customizeModalContent: {
     padding: 24,
@@ -533,7 +531,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--bg-surface)',
     transform: [{ translateX: 0 }],
     transition: 'transform 0.2s',
   } as any,
