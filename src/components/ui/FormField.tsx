@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ViewStyle, TextStyle, Platform } from 'react-native';
 
 interface FormFieldProps {
   label: string;
@@ -14,6 +14,7 @@ interface FormFieldProps {
   required?: boolean;
   style?: ViewStyle;
   inputStyle?: TextStyle;
+  disabled?: boolean;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -29,6 +30,7 @@ const FormField: React.FC<FormFieldProps> = ({
   required = false,
   style,
   inputStyle,
+  disabled = false,
 }) => {
   return (
     <View style={[styles.container, style]}>
@@ -39,18 +41,22 @@ const FormField: React.FC<FormFieldProps> = ({
       <TextInput
         style={[
           styles.input,
-          error && styles.inputError,
           multiline && styles.inputMultiline,
+          error && styles.inputError,
+          disabled && styles.inputDisabled,
           inputStyle,
         ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#9ca3af"
+        placeholderTextColor="var(--slate-400)"
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         multiline={multiline}
         numberOfLines={numberOfLines}
+        editable={!disabled}
+        // @ts-ignore
+        className="input-saas" // Applies web-specific focus strings from index.css
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
@@ -59,42 +65,49 @@ const FormField: React.FC<FormFieldProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: 10,
-    marginLeft: 4,
+    fontWeight: '500',
+    color: 'var(--slate-700)',
+    marginBottom: 6,
+    fontFamily: 'var(--font-sans)',
   },
   required: {
-    color: 'var(--danger)',
+    color: 'var(--danger-text)',
   },
   input: {
-    borderWidth: 1.5,
-    borderColor: 'var(--gray-200)',
-    borderRadius: 16,
-    padding: 16,
-    fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    color: 'var(--text-primary)',
-    //@ts-ignore - web only
-    transition: 'all 0.2s ease',
-  },
-  inputError: {
-    borderColor: 'var(--danger)',
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    borderWidth: 1,
+    borderColor: 'var(--slate-300)',
+    borderRadius: 6, // Radius-md
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    backgroundColor: '#FFFFFF',
+    color: 'var(--slate-900)',
+    fontFamily: 'var(--font-sans)',
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
   },
   inputMultiline: {
-    minHeight: 120,
+    minHeight: 100,
     textAlignVertical: 'top',
   },
+  inputError: {
+    borderColor: 'var(--danger-border)',
+  },
+  inputDisabled: {
+    backgroundColor: 'var(--slate-50)',
+    color: 'var(--slate-500)',
+  },
   errorText: {
-    fontSize: 13,
-    color: 'var(--danger)',
-    marginTop: 6,
-    marginLeft: 4,
+    fontSize: 12,
+    color: 'var(--danger-text)',
+    marginTop: 4,
     fontWeight: '500',
   },
 });

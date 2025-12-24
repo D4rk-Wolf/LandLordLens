@@ -44,24 +44,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const applyTheme = (newTheme: Theme) => {
         const root = document.documentElement;
-
-        if (newTheme === 'dark') {
-            // Dark theme colors
-            root.style.setProperty('--bg-primary', 'hsl(222, 47%, 11%)');
-            root.style.setProperty('--bg-secondary', 'hsl(217, 33%, 17%)');
-            root.style.setProperty('--bg-tertiary', 'hsl(215, 28%, 24%)');
-            root.style.setProperty('--text-primary', 'hsl(210, 40%, 98%)');
-            root.style.setProperty('--text-secondary', 'hsl(215, 20%, 65%)');
-            root.style.setProperty('--border-color', 'hsl(217, 33%, 25%)');
-        } else {
-            // Light theme colors
-            root.style.setProperty('--bg-primary', 'hsl(0, 0%, 100%)');
-            root.style.setProperty('--bg-secondary', 'hsl(210, 40%, 98%)');
-            root.style.setProperty('--bg-tertiary', 'hsl(214, 32%, 91%)');
-            root.style.setProperty('--text-primary', 'hsl(222, 47%, 11%)');
-            root.style.setProperty('--text-secondary', 'hsl(215, 16%, 47%)');
-            root.style.setProperty('--border-color', 'hsl(214, 32%, 91%)');
-        }
+        root.setAttribute('data-theme', newTheme);
     };
 
     const applyRoleAccent = (role: UserRole) => {

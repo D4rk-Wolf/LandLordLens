@@ -20,13 +20,15 @@ interface User {
   isActive?: boolean;
 }
 
-const TIERS = ['free', 'basic', 'premium'] as const;
+const TIERS = ['free', 'starter', 'professional', 'business', 'enterprise'] as const;
 type Tier = typeof TIERS[number];
 
 const TIER_LABELS: Record<Tier, string> = {
   free: 'Free',
-  basic: 'Basic',
-  premium: 'Premium',
+  starter: 'Starter',
+  professional: 'Professional',
+  business: 'Business',
+  enterprise: 'Enterprise',
 };
 
 const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
@@ -46,7 +48,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
       const data = await apiClient.get<{ stats: any }>(
         '/admin/stats',
         token || undefined,
-        { cache: true, cacheTTL: 5 * 60 * 1000 } // 5 minute cache for admin stats
+        { cache: true, cacheTTL: 5 * 60 * 1000 }
       );
       setStats(data.stats);
     } catch (error) {
@@ -65,7 +67,7 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
       const data = await apiClient.get<{ users: User[] }>(
         '/admin/users',
         token || undefined,
-        { cache: false } // Don't cache users list to always get fresh data
+        { cache: false }
       );
       setUsers(data.users);
     } catch (error: any) {
@@ -84,14 +86,13 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
     setSuccess(null);
 
     try {
-      const response = await apiClient.put<{ user: User; message: string }>(
+      await apiClient.put<{ user: User; message: string }>(
         `/admin/users/${userId}/subscription`,
         { tier },
         token || undefined,
         { cache: false }
       );
 
-      // Update the user in the local state
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === userId ? { ...user, subscription: tier } : user
@@ -99,11 +100,8 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
       );
 
       setSuccess(`Successfully updated user tier to ${TIER_LABELS[tier]}`);
-
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
 
-      // Clear cache to refresh stats
       apiClient.clearCache('/admin/stats');
       fetchStats();
     } catch (error: any) {
@@ -159,317 +157,165 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate, onSignOut }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Admin Dashboard</Text>
-        <TouchableOpacity onPress={onSignOut} style={styles.signOutButton}>
-          <Text style={styles.signOutButtonText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
+    <div className="saas-content-scroll">
+      <div className="saas-header" style={{ paddingLeft: 0, paddingRight: 0, marginBottom: 24, background: 'transparent', borderBottom: 'none' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Admin Dashboard</h1>
+
+      </div>
 
       {loading ? (
-        <View style={styles.center}>
+        <div className="saas-loading-container" style={{ height: 300, background: 'transparent' }}>
           <ActivityIndicator size="large" color="#6366f1" />
-          <Text style={styles.loadingText}>Loading stats...</Text>
-        </View>
+          <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading stats...</div>
+        </div>
       ) : stats ? (
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalUsers}</Text>
-            <Text style={styles.statLabel}>Total Users</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.activeUsers}</Text>
-            <Text style={styles.statLabel}>Active Users</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalPayments}</Text>
-            <Text style={styles.statLabel}>Total Payments</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>£{stats.totalRevenue.toFixed(2)}</Text>
-            <Text style={styles.statLabel}>Total Revenue</Text>
-          </View>
-        </View>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '32px' }}>
+          <div className="saas-card" style={{ flex: 1, minWidth: '200px', padding: '24px' }}>
+            <div style={{ fontSize: '36px', fontWeight: '700', color: 'var(--primary-600)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>
+              {stats.totalUsers}
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Total Users</div>
+          </div>
+          <div className="saas-card" style={{ flex: 1, minWidth: '200px', padding: '24px' }}>
+            <div style={{ fontSize: '36px', fontWeight: '700', color: 'var(--success-text)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>
+              {stats.activeUsers}
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Active Users</div>
+          </div>
+          <div className="saas-card" style={{ flex: 1, minWidth: '200px', padding: '24px' }}>
+            <div style={{ fontSize: '36px', fontWeight: '700', color: 'var(--info-text)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>
+              {stats.totalPayments}
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Total Payments</div>
+          </div>
+          <div className="saas-card" style={{ flex: 1, minWidth: '200px', padding: '24px' }}>
+            <div style={{ fontSize: '36px', fontWeight: '700', color: 'var(--primary-800)', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>
+              £{stats.totalRevenue.toFixed(2)}
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Total Revenue</div>
+          </div>
+        </div>
       ) : null}
 
-      {/* Users Management Section */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>User Management</Text>
-          <TouchableOpacity onPress={fetchUsers} style={styles.refreshButton}>
-            <Text style={styles.refreshButtonText}>🔄 Refresh</Text>
-          </TouchableOpacity>
-        </View>
+      <div className="saas-card" style={{ padding: '0', overflow: 'hidden' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontSize: '18px' }}>User Management</h3>
+          <button
+            type="button"
+            onClick={fetchUsers}
+            className="btn btn-secondary"
+            style={{ fontSize: '13px', padding: '6px 12px' }}
+          >
+            🔄 Refresh
+          </button>
+        </div>
 
         {error && (
-          <View style={styles.messageBoxError}>
-            <Text style={styles.messageText}>{error}</Text>
-          </View>
+          <div style={{ margin: '20px', padding: '12px', background: 'var(--danger-bg)', color: 'var(--danger-text)', borderRadius: '6px', border: '1px solid var(--danger-border)' }}>
+            {error}
+          </div>
         )}
 
         {success && (
-          <View style={styles.messageBoxSuccess}>
-            <Text style={styles.messageText}>{success}</Text>
-          </View>
+          <div style={{ margin: '20px', padding: '12px', background: 'var(--success-bg)', color: 'var(--success-text)', borderRadius: '6px', border: '1px solid var(--success-border)' }}>
+            {success}
+          </div>
         )}
 
         {usersLoading ? (
-          <View style={styles.center}>
+          <div style={{ padding: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
             <ActivityIndicator size="large" color="#6366f1" />
-            <Text style={styles.loadingText}>Loading users...</Text>
-          </View>
+            <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading users...</div>
+          </div>
         ) : users.length === 0 ? (
-          <View style={styles.center}>
-            <Text style={styles.emptyText}>No users found</Text>
-          </View>
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>No users found</div>
         ) : (
-          <View style={styles.usersList}>
-            {users.map((user) => (
-              <View key={user._id} style={styles.userCard}>
-                <View style={styles.userInfo}>
-                  <View style={styles.userHeader}>
-                    <Text style={styles.userName}>{user.name}</Text>
-                    <View style={[
-                      styles.roleBadge,
-                      user.role === 'admin' && styles.roleBadgeAdmin,
-                    ]}>
-                      <Text style={styles.roleText}>{user.role}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.userEmail}>{user.email}</Text>
-                  {user.subscriptionStatus && (
-                    <Text style={styles.userStatus}>
-                      Status: {user.subscriptionStatus}
-                      {user.subscriptionPeriod && ` (${user.subscriptionPeriod})`}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.tierSection}>
-                  <Text style={styles.tierLabel}>Subscription Tier:</Text>
-                  {renderTierDropdown(user)}
-                </View>
-              </View>
-            ))}
-          </View>
+          <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
+            <table className="saas-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Status</th>
+                  <th>Current Tier</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="saas-avatar-placeholder" style={{ width: 36, height: 36, fontSize: 14 }}>
+                          {user.name?.[0] || 'U'}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{user.name}</div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{user.email}</div>
+                          {user.role === 'admin' && (
+                            <span className="badge badge-warning" style={{ marginTop: '4px', fontSize: '10px' }}>ADMIN</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`badge badge-${user.subscriptionStatus === 'active' ? 'success' : 'warning'}`}>
+                        {user.subscriptionStatus || 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge badge-tier-${user.subscription || 'free'}`}>
+                        {TIER_LABELS[user.subscription as Tier] || user.subscription || 'FREE'}
+                      </span>
+                    </td>
+                    <td>
+                      {renderTierDropdown(user)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </View>
-    </ScrollView>
+      </div>
+    </div>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  content: {
-    flex: 1,
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#6b7280',
-    fontSize: 14,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 15,
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#3498db',
-    marginBottom: 5,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#7f8c8d',
-  },
-  section: {
-    backgroundColor: '#fff',
-    margin: 15,
-    borderRadius: 10,
-    padding: 20,
-    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.1)',
-    elevation: 3,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-  },
-  refreshButton: {
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: '#f3f4f6',
-  },
-  refreshButtonText: {
-    fontSize: 14,
-    color: '#6366f1',
-    fontWeight: '600',
-  },
-  messageBoxError: {
-    backgroundColor: '#fee2e2',
-    borderColor: '#fecaca',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-  },
-  messageBoxSuccess: {
-    backgroundColor: '#d1fae5',
-    borderColor: '#a7f3d0',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-  },
-  messageText: {
-    color: '#1f2937',
-    fontSize: 14,
-  },
-  usersList: {
-    gap: 15,
-  },
-  userCard: {
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  userInfo: {
-    marginBottom: 15,
-  },
-  userHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
-    flex: 1,
-  },
-  roleBadge: {
-    backgroundColor: '#e5e7eb',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  roleBadgeAdmin: {
-    backgroundColor: '#fef3c7',
-  },
-  roleText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#374151',
-    textTransform: 'uppercase',
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
-  },
-  userStatus: {
-    fontSize: 12,
-    color: '#9ca3af',
-  },
-  tierSection: {
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingTop: 12,
-  },
-  tierLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 10,
-  },
+
   tierSelector: {
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
+    flexWrap: 'wrap',
   },
   tierButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'var(--bg-surface)',
     borderWidth: 1,
-    borderColor: '#d1d5db',
-  },
+    borderColor: 'var(--border-subtle)',
+    cursor: 'pointer',
+  } as any,
   tierButtonActive: {
-    backgroundColor: '#6366f1',
-    borderColor: '#6366f1',
+    backgroundColor: 'var(--primary-600)',
+    borderColor: 'var(--primary-600)',
   },
   tierButtonDisabled: {
     opacity: 0.5,
-  },
+    cursor: 'not-allowed',
+  } as any,
   tierButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'var(--text-body)',
   },
   tierButtonTextActive: {
     color: '#ffffff',
   },
   updatingIndicator: {
     marginLeft: 8,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#9ca3af',
-    fontSize: 16,
-    padding: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  signOutButton: {
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: '#fee2e2',
-  },
-  signOutButtonText: {
-    color: '#dc2626',
-    fontWeight: '600',
-    fontSize: 14,
   },
 });
 

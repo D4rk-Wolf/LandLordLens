@@ -68,6 +68,9 @@ app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 
+// Database Seeding (Dev/New User optimization)
+app.use('/api/seed', require('./routes/seed'));
+
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',

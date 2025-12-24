@@ -75,7 +75,7 @@ router.put('/users/:id/subscription', async (req, res) => {
 
     // Validate tier if provided
     if (tier) {
-      const validTiers = ['free', 'basic', 'premium'];
+      const validTiers = ['free', 'starter', 'professional', 'business', 'enterprise'];
       if (!validTiers.includes(tier)) {
         return res.status(400).json({
           error: 'Invalid subscription tier',

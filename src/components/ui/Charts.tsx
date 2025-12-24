@@ -66,7 +66,7 @@ export const PieChart: React.FC<ChartProps> = ({ data, title }) => {
                             />
                         );
                     })}
-                    <circle cx="50" cy="50" r="30" fill="white" />
+                    <circle cx="50" cy="50" r="30" fill="var(--bg-primary)" />
                 </svg>
                 <View style={styles.legend}>
                     {data.map((item, index) => (

@@ -20,37 +20,48 @@ async function createDemoUsers() {
         password: 'demo123',
         name: 'Demo Premium User',
         role: 'landlord',
-        subscription: 'premium',
+        subscription: 'business',
+      },
+      {
+        email: 'admin@landlordlens.com',
+        password: 'admin123',
+        name: 'Admin User',
+        role: 'admin',
+        subscription: 'enterprise',
       },
     ];
 
-    console.log('🚀 Creating demo users...\n');
+    console.log('🚀 Creating/Updating demo users...\n');
 
     for (const userData of demoUsers) {
-      // Check if user already exists
-      const existingUser = await User.findOne({ email: userData.email });
-      if (existingUser) {
-        console.log(`⚠️  User already exists: ${userData.email}`);
-        console.log(`   Skipping creation...\n`);
-        continue;
+      // Upsert user (update if exists, create if not)
+      // Note: In a real app we would hash passwords, but User model pre-save hook likely handles it
+      // or we rely on the fact these are demo users.
+      // Assuming User model has a pre-save hook for password hashing, 
+      // but findOneAndUpdate bypasses pre-save hooks. 
+      // So we should check if user exists.
+
+      let user = await User.findOne({ email: userData.email });
+
+      if (user) {
+        console.log(`🔄 Updating existing user: ${userData.email}`);
+        user.name = userData.name;
+        user.role = userData.role;
+        user.subscription = userData.subscription;
+        // Only update password if needed, but for demo script we enforce known password
+        user.password = userData.password;
+      } else {
+        console.log(`✨ Creating new user: ${userData.email}`);
+        user = new User(userData);
       }
 
-      // Create user
-      const user = new User({
-        email: userData.email,
-        password: userData.password,
-        name: userData.name,
-        role: userData.role,
-        subscription: userData.subscription,
-      });
+      await user.save(); // This triggers pre-save hooks (hashing)
 
-      await user.save();
-
-      console.log(`✅ ${userData.subscription.toUpperCase()} tier user created successfully!`);
+      console.log(`✅ ${userData.subscription.toUpperCase()} tier user processed successfully!`);
       console.log(`   Email: ${userData.email}`);
       console.log(`   Password: ${userData.password}`);
       console.log(`   Name: ${userData.name}`);
-      console.log(`   Subscription: ${userData.subscription}\n`);
+      console.log(`   Tier: ${userData.subscription}\n`);
     }
 
     console.log('✨ Demo users setup complete!');
@@ -58,9 +69,12 @@ async function createDemoUsers() {
     console.log('   Free Tier:');
     console.log('     Email: demo-free@landlordlens.com');
     console.log('     Password: demo123');
-    console.log('\n   Premium Tier:');
+    console.log('\n   Professional/Business Tier:');
     console.log('     Email: demo-premium@landlordlens.com');
     console.log('     Password: demo123');
+    console.log('\n   Admin User:');
+    console.log('     Email: admin@landlordlens.com');
+    console.log('     Password: admin123');
     console.log('\n⚠️  Please change passwords after first login for production use!');
 
     process.exit(0);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../utils/constants';
 import { logger } from '../../utils/logger';
@@ -63,304 +63,107 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate, onSig
   };
 
   return (
-    <View style={styles.container}>
+    <div className="saas-content-scroll">
       <PageHeader
         title="Maintenance"
         onSignOut={onSignOut}
         rightAction={
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => onNavigate('new-maintenance')}
-            activeOpacity={0.8}
+          <button
+            onClick={() => onNavigate('new-maintenance')}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <Text style={styles.addButtonIcon}>➕</Text>
-            <Text style={styles.addButtonText}>New Ticket</Text>
-          </TouchableOpacity>
+            <span>➕</span>
+            New Ticket
+          </button>
         }
       />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.subtitleContainer}>
-          <Text style={styles.subtitle}>
+      <div className="saas-layout-content">
+        <div className="saas-subtitle-container" style={{ marginBottom: 24, padding: '16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
             Track and manage maintenance requests for your properties
-          </Text>
-        </View>
+          </div>
+        </div>
 
         {loading ? (
-          <View style={styles.center}>
-            <Text style={styles.text}>Loading maintenance tickets...</Text>
-          </View>
+          <div className="saas-loading-container" style={{ height: 300, background: 'transparent' }}>
+            <ActivityIndicator size="large" color="#6366f1" />
+            <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading maintenance tickets...</div>
+          </div>
         ) : tickets.length === 0 ? (
-          <View style={styles.content}>
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconContainer}>
-                <Text style={styles.emptyIcon}>🔧</Text>
-              </View>
-              <Text style={styles.emptyTitle}>No Maintenance Tickets</Text>
-              <Text style={styles.emptyText}>
+          <div style={{ padding: '0 20px' }}>
+            <div className="saas-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px', textAlign: 'center' }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--warning-bg)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', fontSize: '32px' }}>
+                🔧
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '12px' }}>No Maintenance Tickets</h3>
+              <p style={{ color: 'var(--text-muted)', maxWidth: '400px', marginBottom: '24px', lineHeight: '1.5' }}>
                 Track and manage maintenance requests for your properties. Create a new ticket to get started.
-              </Text>
-              <TouchableOpacity
-                style={styles.addButtonLarge}
-                onPress={() => onNavigate('new-maintenance')}
-                activeOpacity={0.8}
+              </p>
+              <button
+                className="btn btn-primary"
+                onClick={() => onNavigate('new-maintenance')}
+                style={{ padding: '12px 24px', fontSize: '15px' }}
               >
-                <Text style={styles.addButtonText}>Create Your First Ticket</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+                Create Your First Ticket
+              </button>
+            </div>
+          </div>
         ) : (
-          <View style={styles.content}>
+          <div style={{ padding: '0 20px', display: 'grid', gap: '16px', paddingBottom: '32px' }}>
             {tickets.map((ticket) => {
               const priorityConfig = getPriorityConfig(ticket.priority);
               const statusConfig = getStatusConfig(ticket.status);
               return (
-                <TouchableOpacity
+                <div
                   key={ticket._id}
-                  style={styles.ticketCard}
-                  onPress={() => {
+                  className="saas-card hover-lift"
+                  onClick={() => {
                     // Could navigate to ticket detail screen
                   }}
-                  activeOpacity={0.7}
+                  style={{ cursor: 'pointer', padding: '20px', transition: 'all 0.2s ease' }}
                 >
-                  <View style={styles.ticketHeader}>
-                    <View style={styles.ticketTitleContainer}>
-                      <Text style={styles.ticketTitle}>{ticket.title}</Text>
-                      <View style={styles.badgesContainer}>
-                        <View
-                          style={[
-                            styles.priorityBadge,
-                            { backgroundColor: priorityConfig.bgColor },
-                          ]}
-                        >
-                          <Text style={styles.priorityIcon}>{priorityConfig.icon}</Text>
-                          <Text
-                            style={[
-                              styles.badgeText,
-                              { color: priorityConfig.color },
-                            ]}
-                          >
-                            {ticket.priority}
-                          </Text>
-                        </View>
-                        <View
-                          style={[
-                            styles.statusBadge,
-                            { backgroundColor: statusConfig.bgColor },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.badgeText,
-                              { color: statusConfig.color },
-                            ]}
-                          >
-                            {ticket.status}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                  <Text style={styles.ticketDescription} numberOfLines={2}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-main)', margin: 0, flex: 1, marginRight: '12px' }}>{ticket.title}</h3>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <span className="badge" style={{ backgroundColor: priorityConfig.bgColor, color: priorityConfig.color, border: `1px solid ${priorityConfig.color}40`, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>{priorityConfig.icon}</span> {ticket.priority}
+                        </span>
+                        <span className="badge" style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color, border: `1px solid ${statusConfig.color}40`, textTransform: 'capitalize' }}>
+                          {ticket.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: '1.5', margin: '0 0 16px 0' }}>
                     {ticket.description}
-                  </Text>
-                  <View style={styles.ticketFooter}>
+                  </p>
+                  <div style={{ display: 'flex', gap: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
                     {ticket.reportedBy && (
-                      <View style={styles.ticketMeta}>
-                        <Text style={styles.ticketMetaIcon}>👤</Text>
-                        <Text style={styles.ticketMetaText}>{ticket.reportedBy}</Text>
-                      </View>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '14px' }}>👤</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>{ticket.reportedBy}</span>
+                      </div>
                     )}
-                    <View style={styles.ticketMeta}>
-                      <Text style={styles.ticketMetaIcon}>📅</Text>
-                      <Text style={styles.ticketMetaText}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '14px' }}>📅</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>
                         {new Date(ticket.createdAt).toLocaleDateString()}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               );
             })}
-          </View>
+          </div>
         )}
-      </ScrollView>
-    </View>
+      </div>
+    </div>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  subtitleContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '400',
-  },
-  addButton: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  addButtonIcon: {
-    fontSize: 16,
-  },
-  addButtonText: {
-    color: '#ffffff',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  content: {
-    padding: 20,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    minHeight: 400,
-  },
-  text: {
-    fontSize: 16,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  emptyState: {
-    backgroundColor: '#ffffff',
-    padding: 40,
-    borderRadius: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-  },
-  emptyIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#fef3c7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  emptyIcon: {
-    fontSize: 48,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 12,
-    letterSpacing: -0.5,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
-    maxWidth: 300,
-  },
-  addButtonLarge: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
-    elevation: 4,
-  },
-  ticketCard: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  ticketHeader: {
-    marginBottom: 12,
-  },
-  ticketTitleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  ticketTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    flex: 1,
-    marginRight: 12,
-  },
-  badgesContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    flexShrink: 0,
-  },
-  priorityBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 4,
-  },
-  priorityIcon: {
-    fontSize: 10,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  ticketDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  ticketFooter: {
-    flexDirection: 'row',
-    gap: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-  },
-  ticketMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  ticketMetaIcon: {
-    fontSize: 14,
-  },
-  ticketMetaText: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-});
+// No StyleSheet needed
+const styles = {};
 
 export default MaintenanceScreen;

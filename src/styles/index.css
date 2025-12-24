@@ -1,339 +1,729 @@
 :root {
-  /* Premium HSL Color Palette */
-  --primary-h: 236;
-  --primary-s: 85%;
-  --primary-l: 66%;
-  --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-  --primary-dark: hsl(var(--primary-h), var(--primary-s), 55%);
-  --primary-light: hsl(var(--primary-h), var(--primary-s), 75%);
-  --primary-gradient: linear-gradient(135deg, hsla(236, 85%, 66%, 1) 0%, hsla(263, 90%, 65%, 1) 100%);
+  /* PROFESSIONAL SAAS DESIGN SYSTEM - 2024/2025 */
 
-  --secondary-h: 263;
-  --secondary-s: 90%;
-  --secondary-l: 65%;
-  --secondary: hsl(var(--secondary-h), var(--secondary-s), var(--secondary-l));
+  /* -------------------------------------------------------------------------- */
+  /* 1. Color Palette: Slate & Indigo */
+  /* -------------------------------------------------------------------------- */
 
-  --accent-h: 327;
-  --accent-s: 80%;
-  --accent-l: 60%;
-  --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
-  --accent-gradient: linear-gradient(135deg, hsla(327, 80%, 60%, 1) 0%, hsla(335, 80%, 70%, 1) 100%);
+  /* Neutral Scale (Slate) - Cool, professional grays */
+  --slate-50: #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+  --slate-950: #020617;
 
-  --success: hsl(155, 85%, 40%);
-  --success-gradient: linear-gradient(135deg, hsl(155, 85%, 40%) 0%, hsl(160, 90%, 30%) 100%);
+  /* Primary Brand (Indigo) - Trustworthy & Digital */
+  --primary-50: #EEF2FF;
+  --primary-100: #E0E7FF;
+  --primary-200: #C7D2FE;
+  --primary-300: #A5B4FC;
+  --primary-400: #818CF8;
+  --primary-500: #6366F1;
+  /* Core Brand Color */
+  --primary-600: #4F46E5;
+  --primary-700: #4338CA;
+  --primary-800: #3730A3;
+  --primary-900: #312E81;
+  --primary-950: #1E1B4B;
 
-  --warning: hsl(38, 95%, 50%);
-  --warning-gradient: linear-gradient(135deg, hsl(38, 95%, 50%) 0%, hsl(30, 90%, 45%) 100%);
+  /* Functional Colors */
+  --success-bg: #ECFDF5;
+  --success-text: #059669;
+  --success-border: #A7F3D0;
 
-  --danger: hsl(0, 85%, 60%);
-  --danger-gradient: linear-gradient(135deg, hsl(0, 85%, 60%) 0%, hsl(0, 80%, 50%) 100%);
+  --warning-bg: #FFFBEB;
+  --warning-text: #D97706;
+  --warning-border: #FDE68A;
 
-  --info: hsl(210, 90%, 60%);
-  --info-gradient: linear-gradient(135deg, hsl(210, 90%, 60%) 0%, hsl(220, 85%, 50%) 100%);
+  --danger-bg: #FEF2F2;
+  --danger-text: #DC2626;
+  --danger-border: #FECACA;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-blur: 16px;
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --info-bg: #EFF6FF;
+  --info-text: #2563EB;
+  --info-border: #BFDBFE;
 
-  /* Neutral Colors */
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  /* -------------------------------------------------------------------------- */
+  /* 2. Semantic Tokens */
+  /* -------------------------------------------------------------------------- */
 
   /* Backgrounds */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --view-bg: #f8fafc;
-  --bg-gradient: radial-gradient(circle at top right, #f8fafc, #eff6ff, #f8fafc);
+  --bg-app: var(--slate-50);
+  /* Main app background */
+  --bg-surface: #FFFFFF;
+  /* Panels, cards, modal */
+  --bg-surface-hover: var(--slate-50);
+  --bg-sidebar: var(--slate-900);
+  /* Dark sidebar for contrast */
+  --bg-header: #FFFFFF;
 
   /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --text-inverse: #ffffff;
+  --text-main: var(--slate-900);
+  /* Headings, primary content */
+  --text-body: var(--slate-600);
+  /* Paragraphs */
+  --text-muted: var(--slate-400);
+  /* Meta data, hints */
+  --text-on-dark: #F8FAFC;
+  /* Text on sidebar/dark areas */
+  --text-on-dark-muted: #94A3B8;
 
-  /* Enhanced Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-  --shadow-glow: 0 0 15px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.3);
+  /* Borders */
+  --border-subtle: var(--slate-200);
+  --border-medium: var(--slate-300);
+  --border-focus: var(--primary-500);
 
-  /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
+  /* Primary Action */
+  --action-primary-bg: var(--primary-600);
+  --action-primary-hover: var(--primary-700);
+  --action-primary-text: #FFFFFF;
 
-  /* Radii */
-  --radius-sm: 0.5rem;
-  --radius: 0.75rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.25rem;
-  --radius-xl: 1.75rem;
-  --radius-full: 9999px;
+  /* Secondary Action */
+  --action-secondary-bg: #FFFFFF;
+  --action-secondary-border: var(--slate-200);
+  --action-secondary-hover: var(--slate-50);
+  --action-secondary-text: var(--slate-700);
 
-  /* Transitions */
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* -------------------------------------------------------------------------- */
+  /* 3. Typography */
+  /* -------------------------------------------------------------------------- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Outfit', var(--font-sans);
+  /* Optional for headers */
 
-  /* Typography */
-  --font-sans: 'Outfit', 'Inter', -apple-system, system-ui, sans-serif;
-  --sidebar-width: 280px;
+  /* -------------------------------------------------------------------------- */
+  /* 4. Effects (Shadows & Radius) */
+  /* -------------------------------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Clean, crisp shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  /* very subtle */
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+
+  /* Layout */
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 64px;
+  --header-h: 60px;
+
+  /* Animation */
+  --ease-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* -------------------------------------------------------------------------- */
+  /* 5. Legacy Compatibility (Backwards Compat) */
+  /* -------------------------------------------------------------------------- */
+  --primary: var(--primary-600);
+  --primary-dark: var(--primary-700);
+  --primary-light: var(--primary-400);
+
+  --secondary: var(--slate-600);
+  --success: var(--success-text);
+  --warning: var(--warning-text);
+  --danger: var(--danger-text);
+  --info: var(--info-text);
+
+  --gray-50: var(--slate-50);
+  --gray-100: var(--slate-100);
+  --gray-200: var(--slate-200);
+  --gray-300: var(--slate-300);
+  --gray-400: var(--slate-400);
+  --gray-500: var(--slate-500);
+  --gray-600: var(--slate-600);
+  --gray-700: var(--slate-700);
+  --gray-800: var(--slate-800);
+  --gray-900: var(--slate-900);
+
+  --bg-primary: var(--bg-surface);
+  --bg-secondary: var(--slate-50);
+  --bg-page: var(--bg-app);
+
+  --text-primary: var(--text-main);
+  --text-secondary: var(--text-body);
+  --text-tertiary: var(--text-muted);
+  --text-inverse: #FFFFFF;
+
+  --shadow: var(--shadow-sm);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Dark Mode Overrides */
+/* -------------------------------------------------------------------------- */
 [data-theme='dark'] {
-  /* Neutral Colors - Dark Mode */
-  --gray-50: #0f172a;
-  --gray-100: #1e293b;
-  --gray-200: #334155;
-  --gray-300: #475569;
-  --gray-400: #64748b;
-  --gray-500: #94a3b8;
-  --gray-600: #cbd5e1;
-  --gray-700: #e2e8f0;
-  --gray-800: #f1f5f9;
-  --gray-900: #f8fafc;
+  --bg-app: #020617;
+  /* Very dark slate */
+  --bg-surface: #0F172A;
+  /* Dark slate */
+  --bg-surface-hover: #1E293B;
+  --bg-sidebar: #020617;
+  /* Even darker or same */
+  --bg-header: #0F172A;
 
-  /* Backgrounds - Dark Mode */
-  --bg-primary: #0f172a;
-  --bg-secondary: #020617;
-  --bg-tertiary: #1e293b;
-  --view-bg: #020617;
-  --bg-gradient: radial-gradient(circle at top right, #020617, #0f172a, #020617);
+  --text-main: #F1F5F9;
+  --text-body: #94A3B8;
+  --text-muted: #64748B;
 
-  /* Text - Dark Mode */
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #64748b;
+  --border-subtle: #1E293B;
+  --border-medium: #334155;
 
-  /* Glassmorphism - Dark Mode */
-  --glass-bg: rgba(15, 23, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 
-  /* Shadows - Dark Mode */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+  --action-secondary-bg: #1E293B;
+  --action-secondary-border: #334155;
+  --action-secondary-hover: #334155;
+  --action-secondary-text: #F1F5F9;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Reset & Base */
+/* -------------------------------------------------------------------------- */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-html,
-body {
-  width: 100%;
-  height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-gradient);
-  background-attachment: fixed;
-  color: var(--text-primary);
-  line-height: 1.6;
-  position: relative;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 10% 10%, hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 90%, hsla(var(--secondary-h), var(--secondary-s), var(--secondary-l), 0.05) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: 0;
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.5em;
 }
 
-#root {
+/* -------------------------------------------------------------------------- */
+/* Utility Classes */
+/* -------------------------------------------------------------------------- */
+
+/* Layout Containers */
+.saas-layout {
+  display: flex;
+  height: 100vh;
   width: 100%;
-  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-app);
+}
+
+.saas-sidebar {
+  width: var(--sidebar-w);
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  /* Usually none for dark sidebar, but good for structure */
   display: flex;
   flex-direction: column;
+  z-index: 50;
+  transition: width var(--ease-default);
+  color: var(--text-on-dark);
+}
+
+.saas-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   position: relative;
-  z-index: 1;
 }
 
-/* Glassmorphism Utilities */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+.saas-header {
+  height: var(--header-h);
+  background-color: var(--bg-header);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+.saas-content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  /* Standard internal padding */
+  background: var(--bg-app);
+}
+
+/* Cards */
+.saas-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.saas-card:hover {
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
+  border-color: var(--border-medium);
+  transition: all var(--ease-default);
 }
 
-.glass-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.8);
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  gap: 8px;
 }
 
-/* Lift Animation */
-.lift {
-  transition: all var(--transition-base);
+.btn-primary {
+  background-color: var(--action-primary-bg);
+  color: var(--action-primary-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.lift:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.btn-primary:hover {
+  background-color: var(--action-primary-hover);
 }
 
-/* React Native Web compatibility */
-div,
-span,
-p,
-a,
-button,
-input,
-textarea,
-select {
-  box-sizing: border-box;
+.btn-secondary {
+  background-color: var(--action-secondary-bg);
+  color: var(--action-secondary-text);
+  border-color: var(--action-secondary-border);
 }
 
-/* Ensure proper rendering for React Native Web components */
-[data-reactroot] {
+.btn-secondary:hover {
+  background-color: var(--action-secondary-hover);
+  border-color: var(--border-medium);
+}
+
+/* Inputs */
+.input-saas {
+  height: 40px;
   width: 100%;
-  min-height: 100vh;
+  padding: 0 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 14px;
+  transition: all 0.15s ease;
 }
 
-/* Modern Scrollbar styling - Enhanced */
+.input-saas:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+[data-theme='dark'] .input-saas:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.saas-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.saas-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background-color: var(--slate-50);
+  color: var(--slate-500);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+[data-theme='dark'] .saas-table th {
+  background-color: var(--slate-800);
+  color: var(--slate-400);
+}
+
+.saas-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-body);
+}
+
+.saas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.saas-table tr:hover td {
+  background-color: var(--slate-50);
+}
+
+[data-theme='dark'] .saas-table tr:hover td {
+  background-color: var(--slate-800);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.badge-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+
+.badge-danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+}
+
+.badge-info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
+}
+
+.badge-tier-free {
+  background: var(--slate-100);
+  color: var(--slate-600);
+  border: 1px solid var(--slate-200);
+}
+
+.badge-tier-starter {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.badge-tier-professional {
+  background: #F0FDF4;
+  color: #16A34A;
+  border: 1px solid #BBF7D0;
+}
+
+.badge-tier-business {
+  background: #FAF5FF;
+  color: #9333EA;
+  border: 1px solid #E9D5FF;
+}
+
+.badge-tier-enterprise {
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--gray-100);
-  border-radius: var(--radius-full);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
-  border-radius: var(--radius-full);
-  transition: all var(--transition-base);
-  border: 2px solid var(--gray-100);
+  background: var(--slate-300);
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--slate-400);
 }
 
-/* Selection styling - Enhanced */
-::selection {
-  background: var(--primary-gradient);
-  color: var(--text-inverse);
+/* React Native Web Specific */
+div[style*="fontFamily"] {
+  font-family: var(--font-sans) !important;
 }
 
-::-moz-selection {
-  background: var(--primary-gradient);
-  color: var(--text-inverse);
+/* -------------------------------------------------------------------------- */
+/* 6. Component Styles (Migrated from JS) */
+/* -------------------------------------------------------------------------- */
+
+/* Sidebar Components */
+.saas-sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Focus styles - Enhanced */
-*:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 3px;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+.saas-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Container max-width for large screens */
-@media (min-width: 1440px) {
-  .max-width-container {
-    max-width: var(--max-width-container);
-    margin: 0 auto;
-  }
+.saas-logo-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--primary-600);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
 }
 
-/* Smooth animations for all interactive elements */
-button,
-a,
-[role="button"],
-input,
-textarea {
-  transition: all var(--transition-base);
+.saas-logo-text-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Navigation hover effects for React Native Web */
-/* These styles target the nav items when rendered as web components */
-[data-testid*="nav-item"]:hover,
-button[data-testid*="nav"]:hover {
-  background-color: rgba(99, 102, 241, 0.08) !important;
-  transform: translateX(2px);
+.saas-logo-title {
+  color: #fff;
+  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 16px;
 }
 
-/* Active navigation item styles */
-[data-testid*="nav-item-active"] {
-  background-color: #6366f1 !important;
+.saas-logo-subtitle {
+  color: var(--slate-400);
+  font-size: 11px;
 }
 
-/* Smooth transitions for navigation */
-div[style*="navItem"],
-button[style*="navItem"] {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+.saas-nav-section {
+  padding: 16px;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-/* Hover effect for sign out button */
-button[style*="signOut"]:hover {
-  background-color: #fecaca !important;
-  transform: scale(1.02);
+.saas-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--slate-500);
+  margin-bottom: 8px;
+  font-weight: 600;
+  padding-left: 12px;
 }
 
-/* Disable animations for users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
+.saas-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+.saas-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
 
-  [data-testid*="nav-item"]:hover,
-  button[data-testid*="nav"]:hover {
-    transform: none !important;
-  }
+.saas-nav-item.active {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.saas-nav-icon {
+  font-size: 18px;
+  margin-right: 12px;
+  opacity: 0.7;
+}
+
+.saas-nav-item.active .saas-nav-icon {
+  opacity: 1;
+}
+
+.saas-nav-label {
+  font-size: 14px;
+  color: var(--text-on-dark-muted);
+  font-weight: 400;
+}
+
+.saas-nav-item.active .saas-nav-label {
+  color: #fff;
+  font-weight: 600;
+}
+
+.saas-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin: 12px 8px;
+}
+
+/* User Profile */
+.saas-user-profile {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.saas-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: var(--slate-700);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.saas-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.saas-user-name {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saas-user-role {
+  color: var(--slate-400);
+  font-size: 11px;
+}
+
+/* Header Definitions */
+.saas-header-action {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* Loading Screen */
+.saas-loading-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.saas-background-decoration {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.saas-decorative-circle {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.1;
+  filter: blur(80px);
+}
+
+.saas-circle-1 {
+  width: 600px;
+  height: 600px;
+  background-color: var(--primary);
+  top: -200px;
+  right: -200px;
+}
+
+.saas-circle-2 {
+  width: 500px;
+  height: 500px;
+  background-color: var(--secondary);
+  bottom: -150px;
+  left: -150px;
+}
+
+.saas-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.saas-logo-container {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
+}
+
+.saas-logo-icon {
+  font-size: 48px;
+}
+
+.saas-loading-text {
+  margin-top: 24px;
+  font-size: 20px;
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  font-family: var(--font-display);
 }

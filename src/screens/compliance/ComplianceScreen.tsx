@@ -111,398 +111,133 @@ const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate, onSignO
   ];
 
   return (
-    <View style={styles.container}>
+    <div className="saas-content-scroll">
       <PageHeader
         title="Compliance"
         onSignOut={onSignOut}
         rightAction={
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => onNavigate('properties')}
-            activeOpacity={0.8}
+          <button
+            onClick={() => onNavigate('properties')}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <Text style={styles.addButtonIcon}>➕</Text>
-            <Text style={styles.addButtonText}>Add Record</Text>
-          </TouchableOpacity>
+            <span>➕</span>
+            Add Record
+          </button>
         }
       />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.subtitleContainer}>
-          <Text style={styles.subtitle}>
+      <div className="saas-layout-content">
+        <div className="saas-subtitle-container" style={{ marginBottom: 24, padding: '16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
             Monitor and manage compliance documents for your properties
-          </Text>
-        </View>
+          </div>
+        </div>
 
         {loading ? (
-          <View style={styles.center}>
+          <div className="saas-loading-container" style={{ height: 300, background: 'transparent' }}>
             <ActivityIndicator size="large" color="#6366f1" />
-            <Text style={styles.text}>Loading compliance records...</Text>
-          </View>
+            <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading compliance records...</div>
+          </div>
         ) : records.length === 0 ? (
-          <View style={styles.content}>
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconContainer}>
-                <Text style={styles.emptyIcon}>📋</Text>
-              </View>
-              <Text style={styles.emptyTitle}>No Compliance Records</Text>
-              <Text style={styles.emptyText}>
+          <div style={{ padding: '0 20px' }}>
+            <div className="saas-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px', marginBottom: '24px', textAlign: 'center' }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--primary-100)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', fontSize: '32px' }}>
+                📋
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '12px' }}>No Compliance Records</h3>
+              <p style={{ color: 'var(--text-muted)', maxWidth: '400px', marginBottom: '24px', lineHeight: '1.5' }}>
                 Track important compliance documents like gas safety certificates, EPCs, and HMO licenses.
-              </Text>
-              <TouchableOpacity
-                style={styles.addButtonLarge}
-                onPress={() => onNavigate('properties')}
-                activeOpacity={0.8}
+              </p>
+              <button
+                className="btn btn-primary"
+                onClick={() => onNavigate('properties')}
+                style={{ padding: '12px 24px', fontSize: '15px' }}
               >
-                <Text style={styles.addButtonText}>Add Compliance Record</Text>
-              </TouchableOpacity>
-            </View>
+                Add Compliance Record
+              </button>
+            </div>
 
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionTitle}>Common Compliance Requirements</Text>
-              <View style={styles.complianceTypesList}>
+            <div className="saas-card" style={{ padding: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '16px' }}>Common Compliance Requirements</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
                 {complianceTypes.map((type, index) => (
-                  <View key={index} style={styles.complianceTypeItem}>
-                    <View style={styles.complianceTypeIcon}>
-                      <Text style={styles.complianceTypeIconText}>✓</Text>
-                    </View>
-                    <Text style={styles.complianceTypeText}>{type}</Text>
-                  </View>
+                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0' }}>
+                    <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--success-bg)', color: 'var(--success-text)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', fontWeight: 'bold' }}>
+                      ✓
+                    </div>
+                    <span style={{ color: 'var(--text-body)', fontWeight: '500' }}>{type}</span>
+                  </div>
                 ))}
-              </View>
-            </View>
-          </View>
+              </div>
+            </div>
+          </div>
         ) : (
-          <View style={styles.content}>
+          <div style={{ padding: '0 20px', display: 'grid', gap: '16px', paddingBottom: '32px' }}>
             {records.map((record) => {
               const statusConfig = getStatusConfig(record.expiryDate);
               return (
-                <TouchableOpacity
+                <div
                   key={record._id}
-                  style={styles.recordCard}
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    // Could navigate to property detail or compliance detail
+                  className="saas-card hover-lift"
+                  onClick={() => {
                     if (record.propertyId) {
-                      onNavigate(`property-detail`);
+                      onNavigate(`property-detail`); // Note: In a real app this would probably need ID
                     }
                   }}
+                  style={{ cursor: 'pointer', padding: '20px', transition: 'all 0.2s ease' }}
                 >
-                  <View style={styles.recordHeader}>
-                    <View style={styles.recordTypeContainer}>
-                      <View style={styles.recordIconContainer}>
-                        <Text style={styles.recordIcon}>📄</Text>
-                      </View>
-                      <View style={styles.recordTypeText}>
-                        <Text style={styles.recordType}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'var(--primary-50)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '24px' }}>
+                        📄
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '4px' }}>
                           {record.complianceType.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        </Text>
+                        </h3>
                         {record.propertyAddress && (
-                          <Text style={styles.propertyAddress} numberOfLines={1}>
+                          <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '4px' }}>
                             {record.propertyAddress.line1}, {record.propertyAddress.city}
-                          </Text>
+                          </div>
                         )}
-                        <Text style={styles.expiryDate}>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                           Expires: {new Date(record.expiryDate).toLocaleDateString()}
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        { backgroundColor: statusConfig.bgColor },
-                      ]}
-                    >
-                      <Text style={styles.statusIcon}>{statusConfig.icon}</Text>
-                      <Text
-                        style={[
-                          styles.statusText,
-                          { color: statusConfig.color },
-                        ]}
-                      >
-                        {statusConfig.label}
-                      </Text>
-                    </View>
-                  </View>
-                  {record.certificateNumber && (
-                    <View style={styles.certificateContainer}>
-                      <Text style={styles.certificateLabel}>Certificate:</Text>
-                      <Text style={styles.certificateNumber}>{record.certificateNumber}</Text>
-                    </View>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="badge" style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>{statusConfig.icon}</span> {statusConfig.label}
+                    </span>
+                  </div>
+
+                  {(record.certificateNumber || record.notes) && (
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-subtle)', display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                      {record.certificateNumber && (
+                        <div>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Certificate</span>
+                          <span style={{ fontSize: '14px', color: 'var(--text-main)', fontFamily: 'monospace' }}>{record.certificateNumber}</span>
+                        </div>
+                      )}
+                      {record.notes && (
+                        <div>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Notes</span>
+                          <span style={{ fontSize: '14px', color: 'var(--text-body)', fontStyle: 'italic' }}>{record.notes}</span>
+                        </div>
+                      )}
+                    </div>
                   )}
-                  {record.notes && (
-                    <View style={styles.notesContainer}>
-                      <Text style={styles.notesLabel}>Notes:</Text>
-                      <Text style={styles.notes}>{record.notes}</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                </div>
               );
             })}
-          </View>
-        )}
-      </ScrollView>
-    </View>
+          </div>
+        )
+        }
+      </div>
+    </div>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  subtitleContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '400',
-  },
-  addButton: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
-    elevation: 4,
-    gap: 8,
-  },
-  addButtonIcon: {
-    fontSize: 16,
-  },
-  addButtonText: {
-    color: '#ffffff',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  content: {
-    padding: 20,
-  },
-  text: {
-    fontSize: 16,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  emptyState: {
-    backgroundColor: '#ffffff',
-    padding: 40,
-    borderRadius: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-    marginBottom: 20,
-  },
-  emptyIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#dbeafe',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  emptyIcon: {
-    fontSize: 48,
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 12,
-    letterSpacing: -0.5,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
-    maxWidth: 300,
-  },
-  addButtonLarge: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    boxShadow: '0px 4px 8px 0px rgba(99, 102, 241, 0.3)',
-    elevation: 4,
-  },
-  infoSection: {
-    backgroundColor: '#ffffff',
-    padding: 24,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 20,
-    letterSpacing: -0.5,
-  },
-  complianceTypesList: {
-    gap: 12,
-  },
-  complianceTypeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-  },
-  complianceTypeIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#d1fae5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  complianceTypeIconText: {
-    color: '#059669',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  complianceTypeText: {
-    fontSize: 14,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  recordCard: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
-    boxShadow: '0px 2px 8px 0px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  propertyAddress: {
-    fontSize: 13,
-    color: '#9ca3af',
-    marginTop: 2,
-    marginBottom: 4,
-  },
-  certificateContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  certificateLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  certificateNumber: {
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    minHeight: 400,
-  },
-  recordHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  recordTypeContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flex: 1,
-    marginRight: 12,
-  },
-  recordIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#f0f4ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  recordIcon: {
-    fontSize: 24,
-  },
-  recordTypeText: {
-    flex: 1,
-  },
-  recordType: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  expiryDate: {
-    fontSize: 13,
-    color: '#6b7280',
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 4,
-    gap: 12,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-    flexShrink: 0,
-  },
-  statusIcon: {
-    fontSize: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  notesContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-  },
-  notesLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6b7280',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  notes: {
-    fontSize: 14,
-    color: '#374151',
-    lineHeight: 20,
-    fontStyle: 'italic',
-  },
-});
+// No StyleSheet needed as we use global CSS and inline styles for minor tweaks
+const styles = {};
 
 export default ComplianceScreen;

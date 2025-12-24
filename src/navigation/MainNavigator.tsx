@@ -95,43 +95,6 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
     return currentScreen === screenId;
   };
 
-  const renderNavItem = (item: NavItem) => {
-    const isActive = isScreenActive(item.id);
-    return (
-      <TouchableOpacity
-        key={item.id}
-        style={[
-          styles.navItem,
-          isActive && styles.navItemActive,
-        ]}
-        onPress={() => navigate(item.id)}
-        activeOpacity={0.8}
-        // @ts-ignore - for web hover effects
-        data-testid={`nav-item-${item.id}${isActive ? '-active' : ''}`}
-      >
-        <View style={[
-          styles.navIconContainer,
-          isActive && styles.navIconContainerActive,
-        ]}>
-          <Text style={[
-            styles.navIcon,
-            isActive && styles.navIconActive,
-          ]}>
-            {item.icon}
-          </Text>
-        </View>
-        <Text
-          style={[
-            styles.navLabel,
-            isActive && styles.navLabelActive,
-          ]}
-        >
-          {item.label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-
   const renderScreen = () => {
     // Handle dynamic screens with property IDs
     if (currentScreen.startsWith('new-tenancy-')) {
@@ -303,380 +266,140 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
   };
 
   return (
-    <View style={styles.container}>
-      {/* Mobile Menu Toggle */}
-      {isMobile && (
-        <View style={styles.menuButtonContainer}>
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => setIsSidebarOpen(!isSidebarOpen)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.menuIcon}>{isSidebarOpen ? '✕' : '☰'}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Sidebar Backdrop for Mobile */}
+    <div className="saas-layout">
+      {/* Mobile Menu Backdrop */}
       {isMobile && isSidebarOpen && (
-        <TouchableOpacity
-          style={styles.backdrop}
-          onPress={() => setIsSidebarOpen(false)}
-          activeOpacity={1}
+        <div
+          style={{
+            position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 40
+          }}
+          onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      <View style={[
-        styles.sidebar,
-        isMobile && !isSidebarOpen && styles.sidebarClosed,
-        isMobile && isSidebarOpen && styles.sidebarMobile
-      ]}>
-        <View style={styles.sidebarHeader}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoIconContainer}>
-              <Text style={styles.logoIcon}>🏠</Text>
-            </View>
-            <View style={styles.logoTextContainer}>
-              <Text style={styles.logoText}>LandlordLens</Text>
-              <Text style={styles.logoSubtext}>Property Management</Text>
-            </View>
-          </View>
-        </View>
+      {/* Sidebar */}
+      <div
+        className={`saas-sidebar ${isMobile && !isSidebarOpen ? 'hidden' : ''}`}
+        style={isMobile ? { position: 'absolute', height: '100%', transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)' } : {}}
+      >
+        <div className="saas-sidebar-header">
+          <div className="saas-logo-row">
+            <div className="saas-logo-badge">
+              <span style={{ fontSize: '20px' }}>🏠</span>
+            </div>
+            <div className="saas-logo-text-col">
+              <span className="saas-logo-title">LandLordLens</span>
+              <span className="saas-logo-subtitle">Pro Managment</span>
+            </div>
+          </div>
+        </div>
 
-        <View style={styles.navSection}>
-          <Text style={styles.navSectionLabel}>Main</Text>
-          {mainNavItems.map((item) => {
-            const isActive = isScreenActive(item.id);
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.navItem,
-                  isActive && styles.navItemActive,
-                ]}
-                onPress={() => {
-                  navigate(item.id);
-                  // Close sidebar on mobile after navigation
-                  if (isMobile) setIsSidebarOpen(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={[
-                  styles.navIconContainer,
-                  isActive && styles.navIconContainerActive,
-                ]}>
-                  <Text style={[
-                    styles.navIcon,
-                    isActive && styles.navIconActive,
-                  ]}>
-                    {item.icon}
-                  </Text>
-                </View>
-                <Text
-                  style={[
-                    styles.navLabel,
-                    isActive && styles.navLabelActive,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <div className="saas-nav-section">
+          <div className="saas-section-title">Main</div>
+          {mainNavItems.map((item) => (
+            <NavButton
+              key={item.id}
+              item={item}
+              isActive={isScreenActive(item.id)}
+              onPress={() => { navigate(item.id); if (isMobile) setIsSidebarOpen(false); }}
+            />
+          ))}
+        </div>
 
-        <View style={styles.navSection}>
-          <Text style={styles.navSectionLabel}>System</Text>
-          {systemNavItems.map((item) => {
-            const isActive = isScreenActive(item.id);
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.navItem,
-                  isActive && styles.navItemActive,
-                ]}
-                onPress={() => {
-                  navigate(item.id);
-                  if (isMobile) setIsSidebarOpen(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={[
-                  styles.navIconContainer,
-                  isActive && styles.navIconContainerActive,
-                ]}>
-                  <Text style={[
-                    styles.navIcon,
-                    isActive && styles.navIconActive,
-                  ]}>
-                    {item.icon}
-                  </Text>
-                </View>
-                <Text
-                  style={[
-                    styles.navLabel,
-                    isActive && styles.navLabelActive,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+        <div className="saas-nav-section">
+          <div className="saas-section-title">System</div>
+          {systemNavItems.map((item) => (
+            <NavButton
+              key={item.id}
+              item={item}
+              isActive={isScreenActive(item.id)}
+              onPress={() => { navigate(item.id); if (isMobile) setIsSidebarOpen(false); }}
+            />
+          ))}
+
+          <div className="saas-divider" />
+
           {user?.role === 'admin' && (
-            <TouchableOpacity
-              style={[
-                styles.navItem,
-                isScreenActive('admin') && styles.navItemActive,
-              ]}
-              onPress={() => {
-                navigate('admin');
-                if (isMobile) setIsSidebarOpen(false);
-              }}
-              activeOpacity={0.8}
-            >
-              <View style={[
-                styles.navIconContainer,
-                isScreenActive('admin') && styles.navIconContainerActive,
-              ]}>
-                <Text style={[
-                  styles.navIcon,
-                  isScreenActive('admin') && styles.navIconActive,
-                ]}>
-                  👑
-                </Text>
-              </View>
-              <Text
-                style={[
-                  styles.navLabel,
-                  isScreenActive('admin') && styles.navLabelActive,
-                ]}
-              >
-                Admin
-              </Text>
-            </TouchableOpacity>
+            <NavButton
+              item={{ id: 'admin', label: 'Admin', icon: '👑' }}
+              isActive={isScreenActive('admin')}
+              onPress={() => { navigate('admin'); if (isMobile) setIsSidebarOpen(false); }}
+            />
           )}
-          <TouchableOpacity
-            style={[
-              styles.navItem,
-              isScreenActive('settings') && styles.navItemActive,
-            ]}
-            onPress={() => {
-              navigate('settings');
-              if (isMobile) setIsSidebarOpen(false);
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={[
-              styles.navIconContainer,
-              isScreenActive('settings') && styles.navIconContainerActive,
-            ]}>
-              <Text style={[
-                styles.navIcon,
-                isScreenActive('settings') && styles.navIconActive,
-              ]}>
-                ⚙️
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.navLabel,
-                isScreenActive('settings') && styles.navLabelActive,
-              ]}
-            >
-              Settings
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={styles.content}>
-        <View style={styles.contentInner}>
+
+          <NavButton
+            item={{ id: 'settings', label: 'Settings', icon: '⚙️' }}
+            isActive={isScreenActive('settings')}
+            onPress={() => { navigate('settings'); if (isMobile) setIsSidebarOpen(false); }}
+          />
+        </div>
+
+        {/* User Mini Profile at Bottom */}
+        <div className="saas-user-profile">
+          <div className="saas-avatar-placeholder">{user?.name?.[0] || 'U'}</div>
+          <div className="saas-user-info">
+            <div className="saas-user-name">{user?.name || 'User'}</div>
+            <div className="saas-user-role">{user?.role || 'Landlord'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="saas-main">
+        {/* Top Header */}
+        <header className="saas-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {isMobile && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--text-main)' }}
+              >
+                ☰
+              </button>
+            )}
+            <h2 style={{ fontSize: '18px', margin: 0 }}>
+              {mainNavItems.find(i => isScreenActive(i.id))?.label ||
+                systemNavItems.find(i => isScreenActive(i.id))?.label ||
+                (currentScreen === 'admin' ? 'Admin' : 'Overview')}
+            </h2>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="saas-header-action">🔔</div>
+            <div className="saas-header-action">Help</div>
+          </div>
+        </header>
+
+        {/* Scrollable Content Area */}
+        <div className="saas-content-scroll">
           <Suspense fallback={<LoadingFallback />}>
             {renderScreen()}
           </Suspense>
-        </View>
-      </View>
-    </View>
+        </div>
+      </div>
+    </div>
   );
 };
 
+// Helper Component for Sidebar Items
+const NavButton = ({ item, isActive, onPress }: { item: NavItem; isActive: boolean; onPress: () => void }) => (
+  <button
+    onClick={onPress}
+    className={`saas-nav-item ${isActive ? 'active' : ''}`}
+    type="button"
+  >
+    <span className="saas-nav-icon">{item.icon}</span>
+    <span className="saas-nav-label">{item.label}</span>
+  </button>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    position: 'relative',
-  },
-  sidebar: {
-    width: 280,
-    backgroundColor: 'var(--bg-primary)',
-    borderRightWidth: 1,
-    borderRightColor: 'var(--gray-200)',
-    flexDirection: 'column',
-    boxShadow: '4px 0px 16px 0px rgba(0, 0, 0, 0.04)',
-    elevation: 5,
-    zIndex: 1000,
-    //@ts-ignore
-    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease',
-  },
-  sidebarClosed: {
-    position: 'absolute',
-    height: '100%',
-    //@ts-ignore
-    transform: [{ translateX: -280 }],
-  },
-  sidebarMobile: {
-    position: 'absolute',
-    height: '100%',
-    // @ts-ignore
-    transform: [{ translateX: 0 }],
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    zIndex: 999,
-    //@ts-ignore
-    backdropFilter: 'blur(4px)',
-    transition: 'opacity 0.3s ease',
-  },
-  sidebarHeader: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: 'var(--gray-100)',
-  },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  logoIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'var(--primary-light)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.9,
-  },
-  logoIcon: {
-    fontSize: 24,
-  },
-  logoTextContainer: {
-    flex: 1,
-  },
-  logoText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: 'var(--text-primary)',
-    letterSpacing: -0.5,
-  },
-  logoSubtext: {
-    fontSize: 10,
-    color: 'var(--text-tertiary)',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  navSection: {
-    paddingVertical: 12,
-    flex: 1,
-  },
-  navSectionLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: 'var(--text-tertiary)',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    paddingHorizontal: 24,
-    marginBottom: 8,
-    marginTop: 12,
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    borderRadius: 14,
-    backgroundColor: 'transparent',
-    //@ts-ignore
-    transition: 'all 0.2s ease',
-  },
-  navItemActive: {
-    backgroundColor: 'var(--primary)',
-    boxShadow: '0 4px 12px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2)',
-  },
-  navIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    backgroundColor: 'transparent',
-  },
-  navIconContainerActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  navIcon: {
-    fontSize: 18,
-  },
-  navLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'var(--text-secondary)',
-    flex: 1,
-  },
-  navLabelActive: {
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-  navIconActive: {
-    color: '#ffffff',
-  },
-  content: {
-    flex: 1,
-    width: '100%',
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-  },
-  contentInner: {
-    flex: 1,
-    width: '100%',
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 400,
-  },
-  menuButtonContainer: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    zIndex: 1001,
-  },
-  menuButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: 'var(--glass-bg)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'var(--glass-border)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-  },
-  menuIcon: {
-    fontSize: 20,
-  },
+  }
 });
 
 export default MainNavigator;
