@@ -44,18 +44,18 @@ const expenseSchema = new mongoose.Schema({
   category: {
     type: String,
     enum: [
-      'repairs',
-      'maintenance',
-      'insurance',
-      'legal',
-      'accounting',
-      'advertising',
-      'utilities',
-      'cleaning',
-      'replacement_items',
-      'improvements',
-      'mortgage',
-      'other',
+      // HMRC Standard Categories (MTD ITSA)
+      'rent_rates_insurance',
+      'repairs_maintenance',
+      'legal_professional',
+      'loan_interest',
+      'phone_other',
+      'property_business_expenses', // Catch-all for other allowable
+      'cost_of_services', // e.g. gardener, cleaner
+      'capital_allowances', // Improvements etc
+      'residential_finance_costs',
+      'other_allowable',
+      'non_allowable' // Personal etc
     ],
     required: true,
   },
@@ -127,7 +127,10 @@ expenseSchema.pre('save', function (next) {
       this.taxYear = `${year}-${year + 1}`;
     }
   }
-  next();
+  // Check if next is a function before calling it (safety)
+  if (typeof next === 'function') {
+    next();
+  }
 });
 
 expenseSchema.index({ userId: 1, date: -1 });

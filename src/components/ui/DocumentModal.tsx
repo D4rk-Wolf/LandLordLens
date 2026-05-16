@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Animated, Dimensions } from 'react-native';
 
 interface DocumentModalProps {
@@ -16,8 +16,8 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
     documentType,
     children
 }) => {
-    const scale = useRef(new Animated.Value(0.9)).current;
-    const opacity = useRef(new Animated.Value(0)).current;
+    const [scale] = useState(() => new Animated.Value(0.9));
+    const [opacity] = useState(() => new Animated.Value(0));
 
     useEffect(() => {
         if (isVisible) {
@@ -29,7 +29,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({
             scale.setValue(0.9);
             opacity.setValue(0);
         }
-    }, [isVisible]);
+    }, [isVisible, opacity, scale]);
 
     return (
         <Modal

@@ -55,45 +55,33 @@ const propertySchema = new mongoose.Schema({
     enum: ['england', 'wales', 'scotland', 'northern_ireland'],
     default: 'england',
   },
-  isHMO: {
-    type: Boolean,
-    default: false,
+  financials: {
+    purchasePrice: Number,
+    purchaseDate: Date,
+    currentValuation: { type: Number, default: 0 },
+    mortgageProvider: String,
+    mortgageBalance: { type: Number, default: 0 },
+    monthlyMortgagePayment: { type: Number, default: 0 },
+    interestRate: Number,
+    isInterestOnly: { type: Boolean, default: true }
   },
-  hmoLicenseNumber: {
-    type: String,
-  },
-  hmoLicenseExpiry: {
-    type: Date,
-  },
-  epcRating: {
-    type: String,
-    enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-  },
-  epcCertificateNumber: {
-    type: String,
-  },
-  epcExpiryDate: {
-    type: Date,
-  },
-  smokeAlarmsInstalled: {
-    type: Boolean,
-    default: false,
-  },
-  smokeAlarmsLastTested: {
-    type: Date,
-  },
-  carbonMonoxideAlarmsInstalled: {
-    type: Boolean,
-    default: false,
-  },
-  carbonMonoxideAlarmsLastTested: {
-    type: Date,
-  },
-  legionellaRiskAssessmentDate: {
-    type: Date,
-  },
-  legionellaRiskAssessmentNextDue: {
-    type: Date,
+  compliance: {
+    gasCertificateExpiry: { type: Date },
+    eicrExpiry: { type: Date },
+    epcRating: { type: String, enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G'] },
+    epcCertificateNumber: { type: String },
+    epcExpiryDate: { type: Date },
+    depositProtected: { type: Boolean, default: false },
+    depositScheme: { type: String },
+    depositProtectedDate: { type: Date },
+    licensingType: { type: String, enum: ['None', 'HMO', 'Selective'], default: 'None' },
+    licenseExpiry: { type: Date }, // For HMO or Selective license
+    smokeAlarmsInstalled: { type: Boolean, default: false },
+    smokeAlarmsLastTested: { type: Date },
+    carbonMonoxideAlarmsInstalled: { type: Boolean, default: false },
+    carbonMonoxideAlarmsLastTested: { type: Date },
+    legionellaRiskAssessmentDate: { type: Date },
+    legionellaRiskAssessmentNextDue: { type: Date },
   },
   furnished: {
     type: Boolean,
@@ -126,5 +114,10 @@ const propertySchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// Indexes for frequent lookups
+propertySchema.index({ userId: 1 });
+propertySchema.index({ status: 1 });
+propertySchema.index({ propertyType: 1 });
 
 module.exports = mongoose.model('Property', propertySchema);

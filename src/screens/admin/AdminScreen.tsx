@@ -4,10 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 
-interface AdminScreenProps {
-  onNavigate: (screen: string) => void;
-}
-
 interface User {
   _id: string;
   email: string;
@@ -30,7 +26,7 @@ const TIER_LABELS: Record<Tier, string> = {
   enterprise: 'Enterprise',
 };
 
-const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
+const AdminScreen: React.FC = () => {
   const { token } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -41,8 +37,6 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
   const [success, setSuccess] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
-    if (!token) return;
-
     try {
       const data = await apiClient.get<{ stats: any }>(
         '/admin/stats',
@@ -58,7 +52,6 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
   }, [token]);
 
   const fetchUsers = useCallback(async () => {
-    if (!token) return;
     setUsersLoading(true);
     setError(null);
 
@@ -78,8 +71,6 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
   }, [token]);
 
   const updateUserTier = useCallback(async (userId: string, tier: Tier) => {
-    if (!token) return;
-
     setUpdatingUsers((prev) => new Set(prev).add(userId));
     setError(null);
     setSuccess(null);
@@ -101,7 +92,6 @@ const AdminScreen: React.FC<AdminScreenProps> = ({ onNavigate }) => {
       setSuccess(`Successfully updated user tier to ${TIER_LABELS[tier]}`);
       setTimeout(() => setSuccess(null), 3000);
 
-      apiClient.clearCache('/admin/stats');
       fetchStats();
     } catch (error: any) {
       logger.error('Error updating user tier', error);

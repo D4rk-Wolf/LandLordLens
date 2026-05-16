@@ -1,68 +1,77 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+import { useTenancy } from '../../hooks/queries/useTenancy';
+import { TenantBackgroundCheck } from '../../types/models';
 
-interface TenantBackgroundCheckScreenProps {
-  tenancyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = ({
-  tenancyId,
-  onNavigate,
-  onBack,
-}) => {
+const TenantBackgroundCheckScreen: React.FC = () => {
+  const { tenancyId } = useParams<{ tenancyId: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [backgroundCheck, setBackgroundCheck] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
+  const backgroundCheck = data?.backgroundCheck;
+
   const [editing, setEditing] = useState(false);
+
+  // Initialize with default values for all sections
   const [formData, setFormData] = useState({
-    creditCheck: { performed: false, provider: '', score: '', status: 'pending' },
-    employmentCheck: { performed: false, employerName: '', employerContact: '', position: '', salary: '', status: 'pending' },
-    previousLandlordReference: { performed: false, landlordName: '', landlordContact: '', propertyAddress: '', rentPaidOnTime: true, propertyMaintained: true, wouldRentAgain: true, status: 'pending' },
-    criminalRecordCheck: { performed: false, status: 'pending' },
-    overallStatus: 'pending',
+    overallStatus: 'pending' as 'pending' | 'approved' | 'rejected' | 'conditional',
     notes: '',
+    creditCheck: { performed: false, provider: '', score: '', status: 'pending' as const },
+    employmentCheck: { performed: false, employerName: '', employerContact: '', position: '', salary: '', status: 'pending' as const },
+    previousLandlordReference: { performed: false, landlordName: '', landlordContact: '', propertyAddress: '', rentPaidOnTime: true, propertyMaintained: true, wouldRentAgain: true, status: 'pending' as const },
+    criminalRecordCheck: { performed: false, status: 'pending' as const },
   });
 
+
   useEffect(() => {
-    fetchBackgroundCheck();
-  }, [tenancyId]);
-
-  const fetchBackgroundCheck = useCallback(async () => {
-    if (!token) return;
-
-    try {
-      const data = await apiClient.get<any>(
-        `/tenancies/${tenancyId}`,
-        token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      if (data.backgroundCheck) {
-        setBackgroundCheck(data.backgroundCheck);
-        setFormData({
-          creditCheck: data.backgroundCheck.creditCheck || formData.creditCheck,
-          employmentCheck: data.backgroundCheck.employmentCheck || formData.employmentCheck,
-          previousLandlordReference: data.backgroundCheck.previousLandlordReference || formData.previousLandlordReference,
-          criminalRecordCheck: data.backgroundCheck.criminalRecordCheck || formData.criminalRecordCheck,
-          overallStatus: data.backgroundCheck.overallStatus || 'pending',
-          notes: data.backgroundCheck.notes || '',
-        });
-      }
-    } catch (error) {
-      logger.error('Error fetching background check', error);
-    } finally {
-      setLoading(false);
+    if (backgroundCheck) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData({
+        overallStatus: backgroundCheck.overallStatus as any || 'pending',
+        notes: backgroundCheck.notes || '',
+        creditCheck: {
+          performed: false,
+          provider: '',
+          score: '',
+          status: 'pending',
+          ...(backgroundCheck.creditCheck || {})
+        } as any,
+        employmentCheck: {
+          performed: false,
+          employerName: '',
+          employerContact: '',
+          position: '',
+          salary: '',
+          status: 'pending',
+          ...(backgroundCheck.employmentCheck || {})
+        } as any,
+        previousLandlordReference: {
+          performed: false,
+          landlordName: '',
+          landlordContact: '',
+          propertyAddress: '',
+          rentPaidOnTime: true,
+          propertyMaintained: true,
+          wouldRentAgain: true,
+          status: 'pending',
+          ...(backgroundCheck.previousLandlordReference || {})
+        } as any,
+        criminalRecordCheck: {
+          performed: false,
+          status: 'pending',
+          ...(backgroundCheck.criminalRecordCheck || {})
+        } as any,
+      });
     }
-  }, [tenancyId, token]);
+  }, [backgroundCheck]);
 
-  useEffect(() => {
-    fetchBackgroundCheck();
-  }, [fetchBackgroundCheck]);
+  // Removed manual fetchBackgroundCheck definition and useEffect
+
 
   const handleSave = async () => {
     try {
@@ -73,7 +82,7 @@ const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = 
       );
 
       Alert.alert('Success', 'Background check saved');
-      await fetchBackgroundCheck();
+      await refetch();
       setEditing(false);
     } catch (error: any) {
       logger.error('Error saving background check', error);
@@ -104,7 +113,7 @@ const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = 
       <PageHeader
         title="Background Check"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }
@@ -365,7 +374,7 @@ const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = 
               {/* Overall Status */}
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Overall Status</Text>
-                {['approved', 'rejected', 'conditional', 'pending'].map((status) => (
+                {(['approved', 'rejected', 'conditional', 'pending'] as const).map((status) => (
                   <TouchableOpacity
                     key={status}
                     style={[
@@ -406,7 +415,7 @@ const TenantBackgroundCheckScreen: React.FC<TenantBackgroundCheckScreenProps> = 
                   <TouchableOpacity
                     onPress={() => {
                       setEditing(false);
-                      fetchBackgroundCheck();
+                      refetch();
                     }}
                     style={[styles.button, styles.cancelButton]}
                   >

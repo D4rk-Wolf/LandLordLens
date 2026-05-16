@@ -1,24 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+import { useTenancy } from '../../hooks/queries/useTenancy';
+import { RightToRentCheck } from '../../types/models';
 
-interface RightToRentScreenProps {
-  tenancyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
-  tenancyId,
-  onNavigate,
-  onBack,
-}) => {
+const RightToRentScreen: React.FC = () => {
+  const { tenancyId } = useParams<{ tenancyId: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [checks, setChecks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
+  const checks: RightToRentCheck[] = data?.rightToRent || [];
+
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     tenantName: '',
@@ -29,26 +25,8 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
     notes: '',
   });
 
-  const fetchRightToRent = useCallback(async () => {
-    if (!token) return;
+  // Removed manual fetchRightToRent definition and useEffect
 
-    try {
-      const data = await apiClient.get<any>(
-        `/tenancies/${tenancyId}`,
-        token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      setChecks(data.rightToRent || []);
-    } catch (error) {
-      logger.error('Error fetching right to rent', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [tenancyId, token]);
-
-  useEffect(() => {
-    fetchRightToRent();
-  }, [fetchRightToRent]);
 
   const handleSave = async () => {
     try {
@@ -63,7 +41,7 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
       );
 
       Alert.alert('Success', 'Right to rent check saved');
-      await fetchRightToRent();
+      await refetch();
       setShowForm(false);
       setFormData({
         tenantName: '',
@@ -104,7 +82,7 @@ const RightToRentScreen: React.FC<RightToRentScreenProps> = ({
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Right to Rent Checks</Text>

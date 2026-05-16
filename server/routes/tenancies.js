@@ -1,13 +1,36 @@
+/**
+ * TENANCY ROUTES
+ * Handles the lifecyle of a tenancy: creation, depositing protection, and background checks.
+ * Integrates with the "LeaseAbstractionService" to parse uploaded PDFs.
+ */
+
 const express = require('express');
-const { authenticateToken } = require('./auth');
+const { authenticateToken } = require('./auth'); // Middleware to ensure login
 const Tenancy = require('../../models/tenant/Tenancy');
 const DepositProtection = require('../../models/tenant/DepositProtection');
 const RightToRent = require('../../models/tenant/RightToRent');
 const TenantBackgroundCheck = require('../../models/tenant/TenantBackgroundCheck');
 const Inventory = require('../../models/tenant/Inventory');
 const Property = require('../../models/tenant/Property');
+const multer = require('multer'); // Middleware for handling file uploads (PDFs)
+const leaseAbstractionService = require('../services/LeaseAbstractionService'); // Custom AI service
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true }); // 'mergeParams' allows us to access propertyId from parent router if needed
+
+// Configure Multer for PDF uploads (Tenancy Agreements)
+// Files are stored in memory (RAM) temporarily for processing
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file size limit
+  fileFilter: (req, file, cb) => {
+    // Only accept PDF files
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
 
 // All routes require authentication
 router.use(authenticateToken);

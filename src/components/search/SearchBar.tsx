@@ -16,13 +16,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
     searchData = [],
     searchFields = [],
 }) => {
-    const { query, setQuery, results, isSearching, search, clearResults } = useSearch();
+    const { results, isSearching, search, clearResults } = useSearch();
     const [localQuery, setLocalQuery] = useState('');
     const [showResults, setShowResults] = useState(false);
 
     // Debounced search
     useEffect(() => {
-        const debouncedSearch = debounce((q: string) => {
+        const debouncedSearch = debounce((q: any) => {
             if (q.trim()) {
                 search(q, searchData, searchFields);
                 setShowResults(true);
@@ -33,7 +33,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         }, 300);
 
         debouncedSearch(localQuery);
-    }, [localQuery, searchData, searchFields]);
+    }, [localQuery, searchData, searchFields, search, clearResults]);
 
     const handleResultClick = (result: any) => {
         setShowResults(false);
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderWidth: 1,
         borderColor: 'var(--gray-200)',
-        //@ts-ignore
+        //@ts-expect-error
         backdropFilter: 'blur(8px)',
     },
     searchIcon: {
@@ -159,7 +159,8 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1,
         borderColor: 'var(--gray-200)',
-        //@ts-ignore
+
+        //@ts-expect-error
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
         maxHeight: 400,
         overflow: 'hidden',
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: 'var(--gray-100)',
-        //@ts-ignore
+        //@ts-expect-error
         transition: 'background-color 0.2s ease',
     },
     resultContent: {
@@ -217,7 +218,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'var(--gray-200)',
         padding: 24,
-        //@ts-ignore
+
+        //@ts-expect-error
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
     },
     noResultsText: {

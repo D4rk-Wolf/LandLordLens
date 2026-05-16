@@ -1,24 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+import { useTenancy } from '../../hooks/queries/useTenancy';
+import { Inventory } from '../../types/models';
 
-interface InventoryScreenProps {
-  tenancyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const InventoryScreen: React.FC<InventoryScreenProps> = ({
-  tenancyId,
-  onNavigate,
-  onBack,
-}) => {
+const InventoryScreen: React.FC = () => {
+  const { tenancyId } = useParams<{ tenancyId: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [inventories, setInventories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
+  const inventories: Inventory[] = data?.inventories || [];
+
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     type: 'check_in',
@@ -28,26 +24,8 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
     notes: '',
   });
 
-  const fetchInventories = useCallback(async () => {
-    if (!token) return;
+  // Removed manual fetchInventories definition and useEffect
 
-    try {
-      const data = await apiClient.get<any>(
-        `/tenancies/${tenancyId}`,
-        token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      setInventories(data.inventories || []);
-    } catch (error) {
-      logger.error('Error fetching inventories', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [tenancyId, token]);
-
-  useEffect(() => {
-    fetchInventories();
-  }, [fetchInventories]);
 
   const handleSave = async () => {
     try {
@@ -61,7 +39,7 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
       );
 
       Alert.alert('Success', 'Inventory record saved');
-      await fetchInventories();
+      await refetch();
       setShowForm(false);
     } catch (error: any) {
       logger.error('Error saving inventory', error);
@@ -80,7 +58,7 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({
       <PageHeader
         title="Inventory"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }

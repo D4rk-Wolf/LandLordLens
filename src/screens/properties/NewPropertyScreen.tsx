@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
@@ -14,13 +15,9 @@ interface ComplianceRecord {
   notes: string;
 }
 
-interface NewPropertyScreenProps {
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBack }) => {
+const NewPropertyScreen: React.FC = () => {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     address: {
@@ -88,6 +85,65 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
     setComplianceRecords(updated);
   };
 
+  // Adding new state for loading indicators
+  const [epcLoading, setEpcLoading] = useState(false);
+  const [rentLoading, setRentLoading] = useState(false);
+  const [rentEstimate, setRentEstimate] = useState<{ estimatedRent: number, range: { low: number, high: number } } | null>(null);
+
+  // Function to fetch EPC Data
+  const fetchEpcData = async () => {
+    if (!formData.address.postcode) {
+      Alert.alert('Error', 'Please enter a postcode first');
+      return;
+    }
+
+    try {
+      const data = await apiClient.get<any>(`/services/epc-lookup?postcode=${formData.address.postcode}`, token || undefined);
+
+      // Auto-populate EPC compliance record
+      const epcRecord: ComplianceRecord = {
+        complianceType: 'epc',
+        certificateNumber: data.certificateNumber,
+        issueDate: data.certificateDate ? data.certificateDate.split('T')[0] : '',
+        expiryDate: data.expiryDate ? data.expiryDate.split('T')[0] : '',
+        issuer: 'Open Data Communities',
+        notes: `Rating: ${data.currentEnergyRating}. Potential: ${data.potentialEnergyRating}. \nRecommendations available.`,
+      };
+
+      setComplianceRecords(prev => [...prev, epcRecord]);
+      Alert.alert('Success', `Found EPC Rating: ${data.currentEnergyRating}. Added to compliance records.`);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch EPC data. Please check the postcode.');
+    } finally {
+      setEpcLoading(false);
+    }
+  };
+
+  // Function to fetch Rent Estimate
+  const fetchRentEstimate = async () => {
+    if (!formData.address.postcode || !formData.bedrooms) {
+      Alert.alert('Error', 'Please enter postcode and bedrooms');
+      return;
+    }
+
+    setRentLoading(true);
+    try {
+      const data = await apiClient.post<any>('/services/rent-estimate', {
+        postcode: formData.address.postcode,
+        bedrooms: parseInt(formData.bedrooms),
+        propertyType: formData.propertyType
+      }, token || undefined);
+
+      setRentEstimate(data);
+      if (data.estimatedRent) {
+        setFormData(prev => ({ ...prev, rentAmount: data.estimatedRent.toString() }));
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch rent estimate.');
+    } finally {
+      setRentLoading(false);
+    }
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -160,7 +216,7 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
       );
 
       Alert.alert('Success', 'Property created successfully', [
-        { text: 'OK', onPress: () => onNavigate('properties') },
+        { text: 'OK', onPress: () => navigate('/properties') },
       ]);
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to create property');
@@ -174,7 +230,7 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
       <PageHeader
         title="Add Property"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }
@@ -255,6 +311,13 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
                 {errors.addressPostcode && (
                   <Text style={styles.errorText}>{errors.addressPostcode}</Text>
                 )}
+                <TouchableOpacity
+                  style={[styles.smallButton, { marginTop: 8 }]}
+                  onPress={fetchEpcData}
+                  disabled={epcLoading}
+                >
+                  <Text style={styles.smallButtonText}>{epcLoading ? 'Searching...' : '🔍 Auto-Fill EPC'}</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -323,14 +386,28 @@ const NewPropertyScreen: React.FC<NewPropertyScreenProps> = ({ onNavigate, onBac
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Monthly Rent (£)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.rentAmount}
-                onChangeText={(text) => setFormData({ ...formData, rentAmount: text })}
-                keyboardType="numeric"
-                placeholder="0.00"
-                placeholderTextColor="#9ca3af"
-              />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={formData.rentAmount}
+                  onChangeText={(text) => setFormData({ ...formData, rentAmount: text })}
+                  keyboardType="numeric"
+                  placeholder="0.00"
+                  placeholderTextColor="#9ca3af"
+                />
+                <TouchableOpacity
+                  style={[styles.smallButton, { alignSelf: 'center' }]}
+                  onPress={fetchRentEstimate}
+                  disabled={rentLoading}
+                >
+                  <Text style={styles.smallButtonText}>{rentLoading ? '...' : 'Get Estimate'}</Text>
+                </TouchableOpacity>
+              </View>
+              {rentEstimate && (
+                <Text style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>
+                  Est: £{rentEstimate.range.low} - £{rentEstimate.range.high}
+                </Text>
+              )}
             </View>
 
             <View style={styles.inputContainer}>

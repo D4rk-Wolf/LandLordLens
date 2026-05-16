@@ -7,11 +7,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useNotification } from '../../contexts/NotificationContext';
 
-interface SettingsScreenProps {
-  onNavigate: (screen: string) => void;
-}
-
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
+const SettingsScreen: React.FC = () => {
   const { user, token } = useAuth();
   const { theme, toggleTheme, isDark, themeMode, setThemeMode } = useTheme();
   const { showNotification } = useNotification();
@@ -24,7 +20,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
   const [changingPassword, setChangingPassword] = useState(false);
 
   const handleUpdateProfile = () => {
-    showNotification('Profile updated successfully!', 'success');
+    showNotification('Profile settings saved.', 'success');
   };
 
   const handleChangePassword = async () => {
@@ -54,8 +50,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
         token || undefined
       );
 
-      showNotification('Password changed successfully!', 'success');
-      Alert.alert('Success', 'Password changed successfully', [
+      showNotification('Security credentials updated.', 'success');
+      Alert.alert('Success', 'Your password has been securely updated.', [
         {
           text: 'OK',
           onPress: () => {
@@ -289,7 +285,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
             <View style={[styles.sectionContent, { borderColor: 'var(--danger-border)' }]}>
               <TouchableOpacity
                 style={styles.dangerRow}
-                onPress={() => Alert.alert('Delete Account', 'Are you sure? This action cannot be undone.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => showNotification('Account deletion requested', 'error') }])}
+                onPress={() => Alert.alert('Delete Account', 'This action is permanent and cannot be undone. Please confirm.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => showNotification('Account deletion request queued.', 'info') }])}
               >
                 <Text style={styles.dangerText}>Delete Account</Text>
                 <Text style={styles.dangerIcon}>🗑️</Text>
@@ -447,12 +443,12 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   sectionContent: {
-    backgroundColor: 'var(--bg-surface)',
+    backgroundColor: 'var(--glass-bg)',
     //@ts-ignore
     backdropFilter: 'blur(16px)',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'var(--border-subtle)',
+    borderColor: 'var(--glass-border)',
     boxShadow: 'var(--shadow-sm)',
     overflow: 'hidden',
   },
@@ -787,14 +783,16 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContainer: {
-    backgroundColor: 'var(--bg-surface)',
+    backgroundColor: 'var(--glass-bg)',
+    //@ts-ignore
+    backdropFilter: 'blur(24px)',
     borderRadius: 24,
     width: '100%',
     maxWidth: 500,
     padding: 24,
     boxShadow: 'var(--shadow-lg)',
     borderWidth: 1,
-    borderColor: 'var(--border-subtle)',
+    borderColor: 'var(--glass-border)',
   },
   modalTitle: {
     fontSize: 20,

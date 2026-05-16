@@ -2,7 +2,7 @@
     "watch": [
         "server"
     ],
-    "ext": "js,json",
+    "ext": "js,json,ts",
     "ignore": [
         "node_modules",
         "dist",

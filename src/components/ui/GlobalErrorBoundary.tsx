@@ -37,7 +37,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
                         <Text style={styles.icon}>⚠️</Text>
                         <Text style={styles.title}>Something went wrong</Text>
                         <Text style={styles.message}>
-                            An unexpected error occurred. We've been notified and are working to fix it.
+                            An unexpected error occurred. We&apos;ve been notified and are working to fix it.
                         </Text>
                         {this.state.error && (
                             <View style={styles.errorBox}>
@@ -74,16 +74,12 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#ffffff',
-        borderRadius: 24,
-        padding: 40,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 10,
+        borderRadius: 16,
+        padding: 32,
         maxWidth: 500,
         width: '100%',
+        boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)',
+        elevation: 10,
     },
     icon: {
         fontSize: 48,

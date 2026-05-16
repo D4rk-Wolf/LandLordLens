@@ -24,7 +24,7 @@ services:
   - type: web
     name: landlordlens-backend
     env: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:server
     startCommand: npm start
     plan: free
     envVars:

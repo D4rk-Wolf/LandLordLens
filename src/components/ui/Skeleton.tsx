@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Animated, DimensionValue } from 'react-native';
 
 interface SkeletonProps {
@@ -14,7 +14,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     borderRadius = 8,
     style
 }) => {
-    const opacity = useRef(new Animated.Value(0.3)).current;
+    const [opacity] = useState(() => new Animated.Value(0.3));
 
     useEffect(() => {
         Animated.loop(

@@ -1,21 +1,25 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
 
 interface ExpensesScreenProps {
-  onNavigate: (screen: string) => void;
   propertyId?: string;
 }
 
-const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId }) => {
+const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropertyId }) => {
+  const { propertyId: paramPropertyId } = useParams<{ propertyId: string }>();
+  const propertyId = propPropertyId || paramPropertyId;
   const { token } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [processingReceipt, setProcessingReceipt] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     propertyId: propertyId || '',
     type: 'maintenance_repairs',
@@ -29,8 +33,6 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId 
   });
 
   const fetchExpenses = useCallback(async () => {
-    if (!token) return;
-
     try {
       const endpoint = propertyId ? `/expenses?propertyId=${propertyId}` : '/expenses';
       const data = await apiClient.get<{ expenses: any[] }>(
@@ -47,8 +49,6 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId 
   }, [token, propertyId]);
 
   const fetchSummary = useCallback(async () => {
-    if (!token) return;
-
     try {
       const data = await apiClient.get<{ summary: any }>(
         '/expenses/summary',
@@ -65,6 +65,48 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId 
     fetchExpenses();
     fetchSummary();
   }, [fetchExpenses, fetchSummary]);
+
+  const handleScanReceipt = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setProcessingReceipt(true);
+      const data = new FormData();
+      data.append('receipt', file);
+
+      // Using raw fetch for FormData handling
+      const response = await fetch('/api/expenses/scan', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: data
+      });
+
+      if (!response.ok) throw new Error('Scan failed');
+
+      const result = await response.json();
+
+      setFormData({
+        ...formData,
+        amount: result.amount || formData.amount,
+        date: result.date || formData.date,
+        supplier: result.merchant !== 'Unknown Merchant' ? result.merchant : formData.supplier,
+        description: result.description || formData.description
+      });
+
+      setShowForm(true);
+      Alert.alert('Success', 'Receipt scanned! details updated.');
+
+    } catch (error) {
+      console.error('OCR Error', error);
+      Alert.alert('Error', 'Failed to scan receipt. Please enter details manually.');
+    } finally {
+      setProcessingReceipt(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -131,9 +173,28 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ onNavigate, propertyId 
       <PageHeader
         title="Expenses"
         rightAction={
-          <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
-            <Text style={styles.addButtonText}>+ Add</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept="image/*"
+              onChange={handleScanReceipt}
+            />
+            <TouchableOpacity
+              onPress={() => fileInputRef.current?.click()}
+              style={[styles.addButton, { backgroundColor: '#e0e7ff', flexDirection: 'row', gap: 6 }]}
+              disabled={processingReceipt}
+            >
+              <Text>{processingReceipt ? '⏳' : '📸'}</Text>
+              <Text style={[styles.addButtonText, { color: '#4338ca' }]}>
+                {processingReceipt ? 'Scanning...' : 'Scan Receipt'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowForm(true)} style={styles.addButton}>
+              <Text style={styles.addButtonText}>+ Add</Text>
+            </TouchableOpacity>
+          </View>
         }
       />
       <ScrollView style={styles.scrollView}>

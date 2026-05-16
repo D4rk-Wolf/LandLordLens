@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
 
 interface InspectionsScreenProps {
-  onNavigate: (screen: string) => void;
   propertyId?: string;
 }
 
-const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, propertyId }) => {
+const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ propertyId: propPropertyId }) => {
+  const { propertyId: paramPropertyId } = useParams<{ propertyId: string }>();
+  const propertyId = propPropertyId || paramPropertyId;
   const { token } = useAuth();
   const [inspections, setInspections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +25,6 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ onNavigate, prope
   });
 
   const fetchInspections = useCallback(async () => {
-    if (!token) return;
-
     try {
       const endpoint = propertyId ? `/inspections?propertyId=${propertyId}` : '/inspections';
       const data = await apiClient.get<{ inspections: any[] }>(

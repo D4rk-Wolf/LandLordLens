@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface SignUpScreenProps {
-  onNavigateToSignIn: () => void;
-}
-
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ onNavigateToSignIn }) => {
+const SignUpScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignUp = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -142,7 +140,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onNavigateToSignIn }) => {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity onPress={onNavigateToSignIn} style={styles.linkButton} activeOpacity={0.7}>
+        <TouchableOpacity onPress={() => navigate('/auth/login')} style={styles.linkButton} activeOpacity={0.7}>
           <Text style={styles.linkText}>Already have an account? <Text style={styles.linkTextBold}>Sign In</Text></Text>
         </TouchableOpacity>
       </View>

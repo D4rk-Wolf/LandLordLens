@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Card } from './Card';
 
 interface EmptyStateProps {
     icon: string;
@@ -9,6 +10,7 @@ interface EmptyStateProps {
     onAction?: () => void;
     secondaryActionLabel?: string;
     onSecondaryAction?: () => void;
+    style?: any;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -19,9 +21,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     onAction,
     secondaryActionLabel,
     onSecondaryAction,
+    style,
 }) => {
     return (
-        <View style={styles.container}>
+        <Card style={[styles.container, style]}>
             <View style={styles.iconContainer}>
                 <Text style={styles.icon}>{icon}</Text>
             </View>
@@ -34,7 +37,6 @@ const EmptyState: React.FC<EmptyStateProps> = ({
                         <TouchableOpacity
                             style={styles.primaryButton}
                             onPress={onAction}
-                            activeOpacity={0.8}
                         >
                             <Text style={styles.primaryButtonText}>{actionLabel}</Text>
                         </TouchableOpacity>
@@ -43,30 +45,28 @@ const EmptyState: React.FC<EmptyStateProps> = ({
                         <TouchableOpacity
                             style={styles.secondaryButton}
                             onPress={onSecondaryAction}
-                            activeOpacity={0.8}
                         >
                             <Text style={styles.secondaryButtonText}>{secondaryActionLabel}</Text>
                         </TouchableOpacity>
                     )}
                 </View>
             )}
-        </View>
+        </Card>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 80,
+        paddingVertical: 64,
         paddingHorizontal: 32,
     },
     iconContainer: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
-        backgroundColor: 'var(--gray-100)',
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'var(--slate-100)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
@@ -96,10 +96,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     primaryButton: {
-        paddingVertical: 14,
+        paddingVertical: 12,
         paddingHorizontal: 24,
-        backgroundColor: 'var(--primary)',
-        borderRadius: 12,
+        backgroundColor: 'var(--primary-600)',
+        borderRadius: 8,
         //@ts-ignore
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     },

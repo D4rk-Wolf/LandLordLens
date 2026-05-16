@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiClient } from '../../utils/api-client';
 import { logger } from '../../utils/logger';
 import PageHeader from '../../components/ui/PageHeader';
 
-interface NewTenancyScreenProps {
-  propertyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavigate, onBack }) => {
+const NewTenancyScreen: React.FC = () => {
+  const { id: propertyId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,7 +21,54 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
     deposit: '',
     notes: '',
   });
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [processingLease, setProcessingLease] = useState(false);
 
+  const handleLeaseUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      Alert.alert('Error', 'Please upload a PDF file');
+      return;
+    }
+
+    setProcessingLease(true);
+    const formData = new FormData();
+    formData.append('lease', file);
+
+    try {
+      // POST to parse-lease endpoint
+      const response = await apiClient.post<{
+        tenantName: string;
+        startDate: string;
+        endDate: string;
+        monthlyRent: number;
+        deposit: number;
+      }>('/tenancies/parse-lease', formData, token || undefined);
+
+      const { tenantName, startDate, endDate, monthlyRent, deposit } = response;
+
+      setFormData(prev => ({
+        ...prev,
+        tenantName: tenantName || prev.tenantName,
+        startDate: startDate || prev.startDate,
+        endDate: endDate || prev.endDate,
+        monthlyRent: monthlyRent ? String(monthlyRent) : prev.monthlyRent,
+        deposit: deposit ? String(deposit) : prev.deposit,
+        notes: prev.notes + (prev.notes ? '\n' : '') + '[Auto-extracted from lease]',
+      }));
+
+      Alert.alert('Success', 'Lease details extracted! Please verify the fields.');
+    } catch (error) {
+      logger.error('Error parsing lease', error);
+      Alert.alert('Error', 'Failed to extract lease details. Please enter manually.');
+    } finally {
+      setProcessingLease(false);
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
   const handleSubmit = async () => {
     if (!formData.tenantName || !formData.tenantEmail || !formData.startDate || !formData.monthlyRent) {
       Alert.alert('Error', 'Please fill in all required fields');
@@ -49,11 +93,12 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
       );
 
       Alert.alert('Success', 'Tenancy created successfully', [
-        { text: 'OK', onPress: onBack },
+        { text: 'OK', onPress: () => navigate(-1) },
       ]);
-    } catch (error: any) {
+    } catch (error) {
       logger.error('Error creating tenancy', error);
-      Alert.alert('Error', error.message || 'Failed to create tenancy');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create tenancy';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,7 +109,7 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
       <PageHeader
         title="New Tenancy"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }
@@ -73,7 +118,28 @@ const NewTenancyScreen: React.FC<NewTenancyScreenProps> = ({ propertyId, onNavig
 
         <View style={styles.form}>
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>👤 Tenant Information</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={styles.sectionTitle}>👤 Tenant Information</Text>
+
+              <View>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  accept="application/pdf"
+                  onChange={handleLeaseUpload}
+                />
+                <TouchableOpacity
+                  style={[styles.addButton, processingLease && styles.submitButtonDisabled]}
+                  onPress={() => fileInputRef.current?.click()}
+                  disabled={processingLease}
+                >
+                  <Text style={styles.addButtonText}>
+                    {processingLease ? 'Scanning...' : 'Upload Lease PDF 📄'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Tenant Name *</Text>
@@ -270,6 +336,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  addButton: {
+    backgroundColor: '#e0f2fe',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#7dd3fc',
+  },
+  addButtonText: {
+    color: '#0284c7',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 

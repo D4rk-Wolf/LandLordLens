@@ -40,41 +40,58 @@ export const BarChart: React.FC<ChartProps> = ({ data, title, height = 200 }) =>
 
 export const PieChart: React.FC<ChartProps> = ({ data, title }) => {
     const total = data.reduce((acc, curr) => acc + curr.value, 0);
-    let currentAngle = 0;
+
+    // Pre-calculate segments using reduce to avoid mutation issues
+    const segments = data.reduce((acc: any[], item) => {
+        const lastEnd = acc.length > 0 ? acc[acc.length - 1].endAngle : 0;
+        const percentage = total > 0 ? (item.value / total) * 100 : 0;
+        const startAngle = lastEnd;
+        const endAngle = startAngle + (percentage / 100) * 360;
+
+        acc.push({
+            item,
+            startAngle,
+            endAngle,
+            percentage,
+            largeArc: percentage > 50 ? 1 : 0
+        });
+        return acc;
+    }, []);
 
     return (
         <View style={styles.container}>
             {title && <Text style={styles.title}>{title}</Text>}
             <View style={styles.pieContainer}>
-                <svg viewBox="0 0 100 100" style={{ width: 150, height: 150, transform: 'rotate(-90deg)' }}>
-                    {data.map((item, index) => {
-                        const percentage = total > 0 ? (item.value / total) * 100 : 0;
-                        const x1 = 50 + 50 * Math.cos((currentAngle * Math.PI) / 180);
-                        const y1 = 50 + 50 * Math.sin((currentAngle * Math.PI) / 180);
-                        currentAngle += (percentage / 100) * 360;
-                        const x2 = 50 + 50 * Math.cos((currentAngle * Math.PI) / 180);
-                        const y2 = 50 + 50 * Math.sin((currentAngle * Math.PI) / 180);
-                        const largeArc = percentage > 50 ? 1 : 0;
+                <View style={styles.pieContainer}>
+                    <svg viewBox="0 0 100 100" style={{ width: 150, height: 150, transform: 'rotate(-90deg)' }}>
+                        {segments.map((segment, index) => {
+                            if (segment.percentage === 0) return null;
 
-                        if (percentage === 0) return null;
+                            const { startAngle, endAngle, largeArc, item } = segment;
 
-                        return (
-                            <path
-                                key={index}
-                                d={`M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                                fill={item.color}
-                            />
-                        );
-                    })}
-                    <circle cx="50" cy="50" r="30" fill="var(--bg-primary)" />
-                </svg>
-                <View style={styles.legend}>
-                    {data.map((item, index) => (
-                        <View key={index} style={styles.legendItem}>
-                            <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-                            <Text style={styles.legendLabel}>{item.label}: {item.value}</Text>
-                        </View>
-                    ))}
+                            const x1 = 50 + 50 * Math.cos((startAngle * Math.PI) / 180);
+                            const y1 = 50 + 50 * Math.sin((startAngle * Math.PI) / 180);
+                            const x2 = 50 + 50 * Math.cos((endAngle * Math.PI) / 180);
+                            const y2 = 50 + 50 * Math.sin((endAngle * Math.PI) / 180);
+
+                            return (
+                                <path
+                                    key={index}
+                                    d={`M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                    fill={item.color}
+                                />
+                            );
+                        })}
+                        <circle cx="50" cy="50" r="30" fill="var(--bg-primary)" />
+                    </svg>
+                    <View style={styles.legend}>
+                        {data.map((item, index) => (
+                            <View key={index} style={styles.legendItem}>
+                                <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                                <Text style={styles.legendLabel}>{item.label}: {item.value}</Text>
+                            </View>
+                        ))}
+                    </View>
                 </View>
             </View>
         </View>

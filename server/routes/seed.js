@@ -1,3 +1,10 @@
+/**
+ * SEED ROUTE
+ * Helper generic route to populate specific users with sample data (Demo Mode).
+ * Creates a Property, Tenancy, Maintenance Ticket, and Compliance Record.
+ * ONLY runs if the user has no existing properties (safety check).
+ */
+
 const express = require('express');
 const { authenticateToken } = require('./auth');
 const Property = require('../../models/tenant/Property');
@@ -9,7 +16,7 @@ const router = express.Router();
 
 router.post('/data', authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.userId;
 
         // Check if user already has properties
         const existingCount = await Property.countDocuments({ userId: userId });

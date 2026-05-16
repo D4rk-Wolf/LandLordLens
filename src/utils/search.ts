@@ -2,10 +2,10 @@
 
 export interface SearchableItem {
     _id: string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
-export interface SearchResult<T = any> {
+export interface SearchResult<T> {
     item: T;
     score: number;
     matchedFields: string[];
@@ -74,13 +74,13 @@ export const highlightMatch = (text: string, query: string): string => {
 /**
  * Debounce function for search input
  */
-export const debounce = <T extends (...args: any[]) => any>(
-    func: T,
+export const debounce = <F extends (...args: unknown[]) => unknown>(
+    func: F,
     wait: number
-): ((...args: Parameters<T>) => void) => {
+): ((...args: Parameters<F>) => void) => {
     let timeout: NodeJS.Timeout;
 
-    return (...args: Parameters<T>) => {
+    return (...args: Parameters<F>) => {
         clearTimeout(timeout);
         timeout = setTimeout(() => func(...args), wait);
     };

@@ -1,6 +1,17 @@
+/**
+ * EXPENSES ROUTES
+ * Manages financial expense records.
+ * Integrates with "OcrService" to parse uploaded receipts.
+ * Tracks "Tax Deductibility" for end-of-year tax reporting.
+ */
+
 const express = require('express');
 const { authenticateToken } = require('./auth');
 const Expense = require('../../models/tenant/Expense');
+const multer = require('multer');
+const ocrService = require('../services/OcrService');
+// Memory storage for OCR receipt processing
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 const router = express.Router();
 
@@ -8,11 +19,12 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Get all expenses for the user
+// Supports filtering by Year, Category, and Deductibility
 router.get('/', async (req, res) => {
   try {
     const { propertyId, taxYear, category, isTaxDeductible } = req.query;
     const query = { userId: req.user.userId };
-    
+
     if (propertyId) query.propertyId = propertyId;
     if (taxYear) query.taxYear = taxYear;
     if (category) query.category = category;
@@ -22,10 +34,25 @@ router.get('/', async (req, res) => {
       .populate('propertyId')
       .populate('tenancyId')
       .sort({ date: -1 });
-    
+
     res.json({ expenses });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Scan receipt
+router.post('/scan', upload.single('receipt'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No receipt image provided' });
+    }
+
+    const data = await ocrService.extractReceiptData(req.file.buffer);
+    res.json(data);
+  } catch (error) {
+    // console.error('Scan error', error); 
+    res.status(500).json({ error: 'Failed to process receipt' });
   }
 });
 
@@ -37,7 +64,7 @@ router.get('/summary', async (req, res) => {
     if (taxYear) query.taxYear = taxYear;
 
     const expenses = await Expense.find(query);
-    
+
     const summary = {
       total: expenses.reduce((sum, e) => sum + e.amount, 0),
       taxDeductible: expenses

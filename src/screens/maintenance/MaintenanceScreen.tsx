@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_URL } from '../../utils/constants';
 import { logger } from '../../utils/logger';
@@ -16,11 +17,11 @@ interface MaintenanceTicket {
   createdAt: string;
 }
 
-interface MaintenanceScreenProps {
-  onNavigate: (screen: string) => void;
-}
+import { Card } from '../../components/ui/Card';
+import EmptyState from '../../components/ui/EmptyState';
 
-const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => {
+const MaintenanceScreen: React.FC = () => {
+  const navigate = useNavigate();
   const { token, user } = useAuth();
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +68,7 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
         title="Maintenance"
         rightAction={
           <button
-            onClick={() => onNavigate('new-maintenance')}
+            onClick={() => navigate('/maintenance/new')}
             className="btn btn-primary"
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
@@ -89,37 +90,28 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
             <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading maintenance tickets...</div>
           </div>
         ) : tickets.length === 0 ? (
-          <div style={{ padding: '0 20px' }}>
-            <div className="saas-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px', textAlign: 'center' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--warning-bg)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', fontSize: '32px' }}>
-                🔧
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '12px' }}>No Maintenance Tickets</h3>
-              <p style={{ color: 'var(--text-muted)', maxWidth: '400px', marginBottom: '24px', lineHeight: '1.5' }}>
-                Track and manage maintenance requests for your properties. Create a new ticket to get started.
-              </p>
-              <button
-                className="btn btn-primary"
-                onClick={() => onNavigate('new-maintenance')}
-                style={{ padding: '12px 24px', fontSize: '15px' }}
-              >
-                Create Your First Ticket
-              </button>
-            </div>
-          </div>
+          <View style={{ paddingHorizontal: 20 }}>
+            <EmptyState
+              icon="🔧"
+              title="No Maintenance Tickets"
+              description="Track and manage maintenance requests for your properties. Create a new ticket to get started."
+              actionLabel="Create Your First Ticket"
+              onAction={() => navigate('/maintenance/new')}
+            />
+          </View>
         ) : (
           <div style={{ padding: '0 20px', display: 'grid', gap: '16px', paddingBottom: '32px' }}>
             {tickets.map((ticket) => {
               const priorityConfig = getPriorityConfig(ticket.priority);
               const statusConfig = getStatusConfig(ticket.status);
               return (
-                <div
+                <Card
                   key={ticket._id}
-                  className="saas-card hover-lift"
-                  onClick={() => {
+                  variant="interactive"
+                  onPress={() => {
                     // Could navigate to ticket detail screen
                   }}
-                  style={{ cursor: 'pointer', padding: '20px', transition: 'all 0.2s ease' }}
+                  style={{ padding: 20 }}
                 >
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
@@ -151,7 +143,7 @@ const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onNavigate }) => 
                       </span>
                     </div>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>

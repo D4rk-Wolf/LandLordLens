@@ -1,7 +1,15 @@
+/**
+ * SUBSCRIPTION ROUTES
+ * This file handles all API endpoints related to subscription management.
+ * It connects the frontend to the SubscriptionService and handles data validation.
+ */
+
 const express = require('express');
-const { authenticateToken } = require('./auth');
+const { authenticateToken } = require('./auth'); // Middleware to ensure user is logged in
 const User = require('../../models/User');
 const Property = require('../../models/tenant/Property');
+const subscriptionService = require('../services/SubscriptionService');
+// Import helper functions for subscription logic (pricing, limits, etc.)
 const {
   getAllTiers,
   getSubscriptionTier,
@@ -15,12 +23,15 @@ const {
 
 const router = express.Router();
 
-// All routes require authentication
+// --- AUTHENTICATION ---
+// All routes in this file require the user to be logged in.
+// This middleware adds the `req.user` object with the user's ID.
 router.use(authenticateToken);
 
 /**
  * GET /api/subscription
- * Get current user's subscription information
+ * Retrieves the current user's subscription details and usage stats.
+ * Used by the dashboard to show "5/10 Properties Used", etc.
  */
 router.get('/', async (req, res) => {
   try {
@@ -29,10 +40,12 @@ router.get('/', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Calculate current usage
     const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
     const userSubscription = user.subscription || 'free';
     const subscriptionTier = getSubscriptionTier(userSubscription);
 
+    // Assemble a comprehensive response object
     const subscriptionInfo = {
       currentTier: userSubscription,
       tierDetails: {
@@ -53,9 +66,10 @@ router.get('/', async (req, res) => {
       usage: {
         propertyCount: currentPropertyCount,
         maxProperties: getMaxProperties(userSubscription),
-        canAddMore: canAddProperty(userSubscription, currentPropertyCount),
+        canAddMore: canAddProperty(userSubscription, currentPropertyCount), // Boolean helper
         remainingProperties: Math.max(0, getMaxProperties(userSubscription) - currentPropertyCount),
       },
+      // Check if they are over their limit (e.g., after a downgrade or trial expiry)
       validation: validateSubscriptionForProperties(userSubscription, currentPropertyCount),
     };
 
@@ -67,13 +81,15 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/subscription/tiers
- * Get all available subscription tiers
+ * Returns all available subscription plans.
+ * Used by the Pricing page to verify features and prices.
  */
 router.get('/tiers', async (req, res) => {
   try {
     const tiers = getAllTiers();
     const formattedTiers = {};
 
+    // Format the static tier data for the frontend
     Object.keys(tiers).forEach((tierKey) => {
       const tier = tiers[tierKey];
       formattedTiers[tierKey] = {
@@ -101,7 +117,9 @@ router.get('/tiers', async (req, res) => {
 
 /**
  * PUT /api/subscription
- * Update user's subscription tier
+ * Manually updates a user's subscription tier.
+ * NOTE: This is mainly for free/basic tier changes or admin overrides.
+ * Paid upgrades should go through Stripe checkout.
  */
 router.put('/', async (req, res) => {
   try {
@@ -111,7 +129,7 @@ router.put('/', async (req, res) => {
       return res.status(400).json({ error: 'Subscription tier is required' });
     }
 
-    // Validate tier
+    // Validate request
     const validTiers = ['free', 'basic', 'premium'];
     if (!validTiers.includes(tier)) {
       return res.status(400).json({
@@ -125,12 +143,10 @@ router.put('/', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if downgrading would violate property limits
+    // Check logic: Prevent downgrading if they are using too many properties
     const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
-    const currentTier = user.subscription || 'free';
     const newTierMaxProperties = getMaxProperties(tier);
 
-    // If downgrading, check if user has too many properties
     if (currentPropertyCount > newTierMaxProperties) {
       const requiredTier = getRequiredTier(currentPropertyCount);
       return res.status(400).json({
@@ -138,11 +154,11 @@ router.put('/', async (req, res) => {
         message: `You currently have ${currentPropertyCount} properties. The ${tier} tier only supports up to ${newTierMaxProperties} properties. You need at least the ${requiredTier} tier.`,
         currentPropertyCount: currentPropertyCount,
         requestedTierMaxProperties: newTierMaxProperties,
-        requiredTier: requiredTier,
+        requiredTier: requiredTier, // Suggest the tier they actually need
       });
     }
 
-    // Update subscription
+    // Update the database
     user.subscription = tier;
     user.updatedAt = Date.now();
     await user.save();
@@ -181,7 +197,8 @@ router.put('/', async (req, res) => {
 
 /**
  * GET /api/subscription/check-upgrade
- * Check if user needs to upgrade based on current property count
+ * Helper endpoint to check if a user needs to upgrade BEFORE they try to add a property.
+ * Used to show "Upgrade Required" modal.
  */
 router.get('/check-upgrade', async (req, res) => {
   try {
@@ -203,6 +220,7 @@ router.get('/check-upgrade', async (req, res) => {
       });
     }
 
+    // Calculate details for the upgrade prompt
     const requiredTier = validation.requiredTier;
     const requiredTierDetails = getSubscriptionTier(requiredTier);
 
@@ -226,6 +244,39 @@ router.get('/check-upgrade', async (req, res) => {
         yearlySavings: getYearlySavings(requiredTier),
       },
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/subscription/create-checkout-session
+ * EXPECTS: { tier: 'professional', period: 'monthly' }
+ * Initiates the flow to redirect the user to Stripe.
+ */
+router.post('/create-checkout-session', async (req, res) => {
+  try {
+    const { tier, period } = req.body;
+    if (!tier || !period) {
+      return res.status(400).json({ error: 'Tier and period are required' });
+    }
+
+    // Call service to generate Stripe URL
+    const session = await subscriptionService.createCheckoutSession(req.user.userId, tier, period);
+    res.json({ sessionId: session.id, url: session.url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/subscription/create-portal-session
+ * Initiates flow for user to manage existing subscription (Stripe hosted portal).
+ */
+router.post('/create-portal-session', async (req, res) => {
+  try {
+    const session = await subscriptionService.createPortalSession(req.user.userId);
+    res.json({ url: session.url });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

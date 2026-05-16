@@ -1,14 +1,14 @@
 // Form validation utilities
 
-export type ValidationRule<T = any> = (value: T, allValues?: any) => string | undefined;
+export type ValidationRule<T = unknown> = (value: T, allValues?: Record<string, unknown>) => string | undefined;
 
-export interface ValidationRules<T> {
+export interface ValidationRules {
     [K: string]: ValidationRule;
 }
 
 // Common validators
 export const validators = {
-    required: (message = 'This field is required'): ValidationRule => (value: any) => {
+    required: (message = 'This field is required'): ValidationRule => (value: unknown) => {
         if (value === null || value === undefined || value === '') {
             return message;
         }
@@ -72,18 +72,18 @@ export const validators = {
         return postcodeRegex.test(value) ? undefined : message;
     },
 
-    match: (otherField: string, message = 'Fields do not match'): ValidationRule => (value: any, allValues?: any) => {
+    match: (otherField: string, message = 'Fields do not match'): ValidationRule => (value: unknown, allValues?: Record<string, unknown>) => {
         if (!allValues) return undefined;
         return value === allValues[otherField] ? undefined : message;
     },
 
-    custom: (validator: (value: any) => boolean, message: string): ValidationRule => (value: any) => {
+    custom: (validator: (value: unknown) => boolean, message: string): ValidationRule => (value: unknown) => {
         return validator(value) ? undefined : message;
     },
 };
 
 // Combine multiple validators
-export const composeValidators = (...validators: ValidationRule[]): ValidationRule => (value: any, allValues?: any) => {
+export const composeValidators = (...validators: ValidationRule[]): ValidationRule => (value: unknown, allValues?: Record<string, unknown>) => {
     for (const validator of validators) {
         const error = validator(value, allValues);
         if (error) return error;

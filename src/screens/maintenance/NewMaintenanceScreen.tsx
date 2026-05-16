@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
@@ -14,19 +15,15 @@ interface Property {
   };
 }
 
-interface NewMaintenanceScreenProps {
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-  propertyId?: string;
-}
-
-const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate, onBack, propertyId }) => {
+const NewMaintenanceScreen: React.FC = () => {
+  const { id: propertyIdParam } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
   const [formData, setFormData] = useState({
-    propertyId: propertyId || '',
+    propertyId: propertyIdParam || '',
     title: '',
     description: '',
     priority: 'medium',
@@ -34,8 +31,6 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
   });
 
   const fetchProperties = useCallback(async () => {
-    if (!token) return;
-
     try {
       const data = await apiClient.get<{ properties: Property[] }>(
         '/properties',
@@ -43,15 +38,15 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setProperties(data.properties || []);
-      if (propertyId && !formData.propertyId) {
-        setFormData(prev => ({ ...prev, propertyId }));
+      if (propertyIdParam && !formData.propertyId) {
+        setFormData(prev => ({ ...prev, propertyId: propertyIdParam }));
       }
     } catch (error) {
       logger.error('Error fetching properties', error);
     } finally {
       setLoadingProperties(false);
     }
-  }, [token, propertyId]);
+  }, [token, propertyIdParam, formData.propertyId]);
 
   useEffect(() => {
     fetchProperties();
@@ -82,7 +77,7 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
       );
 
       Alert.alert('Success', 'Maintenance ticket created successfully', [
-        { text: 'OK', onPress: () => onNavigate('maintenance') },
+        { text: 'OK', onPress: () => navigate('/maintenance') },
       ]);
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to create maintenance ticket');
@@ -96,7 +91,7 @@ const NewMaintenanceScreen: React.FC<NewMaintenanceScreenProps> = ({ onNavigate,
       <PageHeader
         title="New Maintenance Ticket"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }

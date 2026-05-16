@@ -1,24 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
-import PageHeader from '../../components/ui/PageHeader';
+import { useTenancy } from '../../hooks/queries/useTenancy';
 
-interface DepositProtectionScreenProps {
-  tenancyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
-  tenancyId,
-  onNavigate,
-  onBack,
-}) => {
+const DepositProtectionScreen: React.FC = () => {
+  const { tenancyId } = useParams<{ tenancyId: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [depositProtection, setDepositProtection] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
+  const depositProtection = data?.depositProtection;
+
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     depositAmount: '',
@@ -28,37 +22,20 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
     notes: '',
   });
 
-  const fetchDepositProtection = useCallback(async () => {
-    if (!token) return;
-
-    try {
-      const data = await apiClient.get<any>(
-        `/tenancies/${tenancyId}`,
-        token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      if (data.depositProtection) {
-        setDepositProtection(data.depositProtection);
-        setFormData({
-          depositAmount: data.depositProtection.depositAmount?.toString() || '',
-          scheme: data.depositProtection.scheme || 'dps',
-          protectionReference: data.depositProtection.protectionReference || '',
-          protectedDate: data.depositProtection.protectedDate
-            ? new Date(data.depositProtection.protectedDate).toISOString().split('T')[0]
-            : new Date().toISOString().split('T')[0],
-          notes: data.depositProtection.notes || '',
-        });
-      }
-    } catch (error) {
-      logger.error('Error fetching deposit protection', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [tenancyId, token]);
-
   useEffect(() => {
-    fetchDepositProtection();
-  }, [fetchDepositProtection]);
+    if (depositProtection) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData({
+        depositAmount: depositProtection.depositAmount?.toString() || '',
+        scheme: depositProtection.scheme || 'dps',
+        protectionReference: depositProtection.protectionReference || '',
+        protectedDate: depositProtection.protectedDate
+          ? new Date(depositProtection.protectedDate).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        notes: depositProtection.notes || '',
+      });
+    }
+  }, [depositProtection]);
 
   const handleSave = async () => {
     try {
@@ -73,7 +50,7 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
       );
 
       Alert.alert('Success', 'Deposit protection record saved');
-      await fetchDepositProtection();
+      await refetch();
       setEditing(false);
     } catch (error: any) {
       logger.error('Error saving deposit protection', error);
@@ -96,7 +73,7 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Deposit Protection</Text>
@@ -230,9 +207,9 @@ const DepositProtectionScreen: React.FC<DepositProtectionScreenProps> = ({
             <View style={styles.buttonRow}>
               {editing && (
                 <TouchableOpacity
-                  onPress={() => {
+                  onPress={async () => {
                     setEditing(false);
-                    fetchDepositProtection();
+                    await refetch();
                   }}
                   style={[styles.button, styles.cancelButton]}
                 >

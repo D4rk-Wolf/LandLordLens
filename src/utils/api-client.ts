@@ -6,80 +6,52 @@
 import { API_URL } from './constants';
 import { logger } from './logger';
 
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-  expiry: number;
-}
-
 interface RequestConfig {
   headers?: Record<string, string>;
-  cache?: boolean;
-  cacheTTL?: number; // Time to live in milliseconds
+  cache?: boolean; // Deprecated, kept for backward compatibility
+  cacheTTL?: number; // Deprecated
 }
 
 class APIClient {
-  private cache: Map<string, CacheEntry<any>> = new Map();
-  private pendingRequests: Map<string, Promise<any>> = new Map();
-  private readonly DEFAULT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private pendingRequests: Map<string, Promise<unknown>> = new Map();
 
-  private getCacheKey(url: string, options?: RequestInit): string {
+  private getRequestKey(url: string, options?: RequestInit): string {
     return `${url}:${JSON.stringify(options)}`;
   }
 
-  private isCacheValid(entry: CacheEntry<any>): boolean {
-    return Date.now() < entry.expiry;
-  }
-
-  private async fetchWithCache<T>(
+  private async fetchAndDeduplicate<T>(
     url: string,
     options: RequestInit = {},
-    config: RequestConfig = {}
   ): Promise<T> {
-    const cacheKey = this.getCacheKey(url, options);
-    
-    // Check cache first
-    if (config.cache !== false) {
-      const cached = this.cache.get(cacheKey);
-      if (cached && this.isCacheValid(cached)) {
-        logger.debug(`Cache hit: ${url}`);
-        return cached.data;
-      }
-    }
+    const requestKey = this.getRequestKey(url, options);
 
     // Check if request is already pending
-    if (this.pendingRequests.has(cacheKey)) {
+    if (this.pendingRequests.has(requestKey)) {
       logger.debug(`Deduplicating request: ${url}`);
-      return this.pendingRequests.get(cacheKey)!;
+      return this.pendingRequests.get(requestKey) as Promise<T>;
     }
 
     // Make the request
-    const requestPromise = fetch(url, options)
+    const requestOptions: RequestInit = {
+      ...options,
+      credentials: 'include', // Ensure cookies are sent with requests
+    };
+
+    const requestPromise = fetch(url, requestOptions)
       .then(async (response) => {
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const error = await response.json().catch(() => ({ error: response.statusText }));
+          throw new Error(error.error || `HTTP ${response.status}`);
         }
         return response.json();
       })
-      .then((data: T) => {
-        // Cache the response
-        if (config.cache !== false) {
-          const ttl = config.cacheTTL || this.DEFAULT_CACHE_TTL;
-          this.cache.set(cacheKey, {
-            data,
-            timestamp: Date.now(),
-            expiry: Date.now() + ttl,
-          });
-        }
-        return data;
-      })
       .finally(() => {
         // Remove from pending requests
-        this.pendingRequests.delete(cacheKey);
+        this.pendingRequests.delete(requestKey);
       });
 
     // Store pending request
-    this.pendingRequests.set(cacheKey, requestPromise);
+    this.pendingRequests.set(requestKey, requestPromise);
 
     return requestPromise;
   }
@@ -95,28 +67,35 @@ class APIClient {
       },
     };
 
-    return this.fetchWithCache<T>(url, options, config);
+    return this.fetchAndDeduplicate<T>(url, options);
   }
 
   async post<T>(
     endpoint: string,
-    data: any,
+    data: unknown,
     token?: string,
     config: RequestConfig = {}
   ): Promise<T> {
     const url = `${API_URL}${endpoint}`;
+    const isFormData = data instanceof FormData;
+
+    const headers: Record<string, string> = {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...config.headers,
+    };
+
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const options: RequestInit = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...config.headers,
-      },
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? (data as BodyInit) : JSON.stringify(data),
     };
 
     // POST requests shouldn't be cached
-    return fetch(url, options).then(async (response) => {
+    return fetch(url, { ...options, credentials: 'include' }).then(async (response) => {
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: response.statusText }));
         throw new Error(error.error || `HTTP ${response.status}`);
@@ -127,7 +106,7 @@ class APIClient {
 
   async put<T>(
     endpoint: string,
-    data: any,
+    data: unknown,
     token?: string,
     config: RequestConfig = {}
   ): Promise<T> {
@@ -174,36 +153,6 @@ class APIClient {
   async parallel<T>(requests: Array<() => Promise<T>>): Promise<T[]> {
     return Promise.all(requests.map((req) => req()));
   }
-
-  // Clear cache for specific endpoint or all cache
-  clearCache(endpoint?: string): void {
-    if (endpoint) {
-      const prefix = `${API_URL}${endpoint}`;
-      for (const key of this.cache.keys()) {
-        if (key.startsWith(prefix)) {
-          this.cache.delete(key);
-        }
-      }
-    } else {
-      this.cache.clear();
-    }
-  }
-
-  // Clear expired cache entries
-  clearExpiredCache(): void {
-    for (const [key, entry] of this.cache.entries()) {
-      if (!this.isCacheValid(entry)) {
-        this.cache.delete(key);
-      }
-    }
-  }
 }
 
 export const apiClient = new APIClient();
-
-// Clear expired cache every 10 minutes
-if (typeof window !== 'undefined') {
-  setInterval(() => {
-    apiClient.clearExpiredCache();
-  }, 10 * 60 * 1000);
-}

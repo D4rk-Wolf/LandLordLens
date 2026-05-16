@@ -1,241 +1,162 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+// import { MaterialCommunityIcons } from '@expo/vector-icons'; // Icon fallback used in code
 
-interface ComplianceRecord {
-  _id: string;
-  propertyId: string;
-  complianceType: string;
-  expiryDate: string;
-  status: string;
-  notes?: string;
-  propertyAddress?: {
-    line1: string;
-    city: string;
+interface ComplianceSummary {
+  totalProperties: number;
+  highRisk: number;
+  mediumRisk: number;
+  compliant: number;
+  breakdown: {
+    gasSafety: { expired: number; expiringSoon: number; valid: number };
+    eicr: { expired: number; expiringSoon: number; valid: number };
+    epc: { belowC: number; expired: number; valid: number };
+    deposit: { unprotected: number; valid: number };
+    license: { expired: number; valid: number };
   };
-  certificateNumber?: string;
-  issuer?: string;
 }
 
-interface ComplianceScreenProps {
-  onNavigate: (screen: string) => void;
-}
-
-const ComplianceScreen: React.FC<ComplianceScreenProps> = ({ onNavigate }) => {
+const ComplianceScreen: React.FC = () => {
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [records, setRecords] = useState<ComplianceRecord[]>([]);
+  const [summary, setSummary] = useState<ComplianceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchComplianceRecords = useCallback(async () => {
-    if (!token) return;
-
-    try {
-      const propertiesData = await apiClient.get<{ properties: any[] }>(
-        '/properties',
-        token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      const properties = propertiesData.properties || [];
-
-      if (properties.length === 0) {
-        setRecords([]);
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await apiClient.get<ComplianceSummary>('/compliance/summary', token || undefined);
+        setSummary(data);
+      } catch (error) {
+        console.error('Failed to fetch summary', error);
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      // Fetch compliance records for all properties in parallel
-      const propertyDetailRequests = properties.map((property) =>
-        () => apiClient.get<any>(`/properties/${property._id}`, token || undefined, {
-          cache: true,
-          cacheTTL: 2 * 60 * 1000,
-        }).then((propertyDetail) => {
-          const complianceRecords = propertyDetail.complianceRecords || [];
-          return complianceRecords.map((r: any) => ({
-            ...r,
-            propertyAddress: property.address,
-            certificateNumber: r.certificateNumber,
-            issuer: r.issuer,
-          }));
-        }).catch((error) => {
-          logger.debug(`Failed to fetch compliance for property ${property._id}: ${error}`);
-          return [];
-        })
-      );
-
-      const allRecordsArrays = await apiClient.parallel(propertyDetailRequests);
-      const allRecords = allRecordsArrays.flat();
-
-      setRecords(allRecords);
-    } catch (error) {
-      logger.error('Error fetching compliance records', error);
-      Alert.alert('Error', 'Failed to load compliance records');
-    } finally {
-      setLoading(false);
+    if (token) {
+      fetchSummary();
     }
   }, [token]);
 
-  useEffect(() => {
-    fetchComplianceRecords();
-  }, [fetchComplianceRecords]);
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text style={{ marginTop: 10, color: '#666' }}>Loading compliance dashboard...</Text>
+      </View>
+    );
+  }
 
-  const getDaysUntilExpiry = (expiryDate: string): number => {
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    const diffTime = expiry.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
+  const renderStatusCard = (title: string, stats: any, icon: any, color: string) => (
+    <div className="saas-card hover-lift" style={{ padding: '20px', flex: '1 1 300px', cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '10px', background: `${color}20`, display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '12px' }}>
+          {/* Using text emoji fallback if icon fails or for consistency with existing UI */}
+          <span style={{ fontSize: '20px', color: color }}>{
+            icon === 'fire' ? '🔥' :
+              icon === 'flash' ? '⚡' :
+                icon === 'home-lightning-bolt-outline' ? '🏠' :
+                  icon === 'shield-check' ? '🛡️' : '📜'
+          }</span>
+        </div>
+        <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>{title}</h3>
+      </div>
 
-  const getStatusConfig = (expiryDate: string) => {
-    const daysUntil = getDaysUntilExpiry(expiryDate);
-    if (daysUntil < 0) {
-      return { color: '#dc2626', bgColor: '#fee2e2', label: 'Expired', icon: '🔴' };
-    }
-    if (daysUntil < 30) {
-      return { color: '#d97706', bgColor: '#fef3c7', label: `Expires in ${daysUntil} days`, icon: '🟠' };
-    }
-    return { color: '#059669', bgColor: '#d1fae5', label: 'Valid', icon: '🟢' };
-  };
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ef4444' }}>{stats?.expired || 0}</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>Expired</div>
+        </div>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f59e0b' }}>
+            {stats?.expiringSoon || stats?.belowC || stats?.unprotected || 0}
+          </div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+            {stats?.belowC ? 'Below C' : (stats?.unprotected ? 'Unprotected' : 'Warning')}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#10b981' }}>{stats?.valid || 0}</div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>Valid</div>
+        </div>
+      </div>
 
-  const complianceTypes = [
-    'Gas Safety Certificate',
-    'Electrical Safety Certificate',
-    'EPC Certificate',
-    'HMO License',
-    'Fire Safety Assessment',
-    'Legionella Risk Assessment',
-  ];
+      <button className="btn btn-outline" style={{ width: '100%', marginTop: '16px', fontSize: '14px', padding: '8px' }}>
+        View Details
+      </button>
+    </div>
+  );
 
   return (
     <div className="saas-content-scroll">
       <PageHeader
-        title="Compliance"
+        title="Compliance Dashboard"
         rightAction={
-          <button
-            onClick={() => onNavigate('properties')}
-            className="btn btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <span>➕</span>
-            Add Record
+          <button onClick={() => navigate('/properties')} className="btn btn-primary">
+            + Update Property
           </button>
         }
       />
-      <div className="saas-layout-content">
-        <div className="saas-subtitle-container" style={{ marginBottom: 24, padding: '16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-subtle)' }}>
-          <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-            Monitor and manage compliance documents for your properties
+
+      <div className="saas-layout-content" style={{ padding: '0 20px 40px 20px' }}>
+
+        {/* Risk Summary Banner */}
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', flexWrap: 'wrap' }}>
+          <div className="saas-card" style={{ flex: 1, padding: '20px', backgroundColor: '#fef2f2', border: '1px solid #fee2e2', textAlign: 'center' }}>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#dc2626' }}>{summary?.highRisk || 0}</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: '#991b1b' }}>High Risk Actions</div>
+          </div>
+          <div className="saas-card" style={{ flex: 1, padding: '20px', backgroundColor: '#fffbeb', border: '1px solid #fef3c7', textAlign: 'center' }}>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#d97706' }}>{summary?.mediumRisk || 0}</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: '#92400e' }}>Medium Risk</div>
+          </div>
+          <div className="saas-card" style={{ flex: 1, padding: '20px', backgroundColor: '#ecfdf5', border: '1px solid #d1fae5', textAlign: 'center' }}>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#059669' }}>{summary?.compliant || 0}</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: '#065f46' }}>Fully Compliant</div>
           </div>
         </div>
 
-        {loading ? (
-          <div className="saas-loading-container" style={{ height: 300, background: 'transparent' }}>
-            <ActivityIndicator size="large" color="#6366f1" />
-            <div style={{ marginTop: 12, color: 'var(--text-muted)' }}>Loading compliance records...</div>
-          </div>
-        ) : records.length === 0 ? (
-          <div style={{ padding: '0 20px' }}>
-            <div className="saas-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px', marginBottom: '24px', textAlign: 'center' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--primary-100)', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px', fontSize: '32px' }}>
-                📋
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '12px' }}>No Compliance Records</h3>
-              <p style={{ color: 'var(--text-muted)', maxWidth: '400px', marginBottom: '24px', lineHeight: '1.5' }}>
-                Track important compliance documents like gas safety certificates, EPCs, and HMO licenses.
-              </p>
-              <button
-                className="btn btn-primary"
-                onClick={() => onNavigate('properties')}
-                style={{ padding: '12px 24px', fontSize: '15px' }}
-              >
-                Add Compliance Record
-              </button>
-            </div>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', color: '#111827' }}>Compliance Areas</h3>
 
-            <div className="saas-card" style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '16px' }}>Common Compliance Requirements</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '16px' }}>
-                {complianceTypes.map((type, index) => (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0' }}>
-                    <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--success-bg)', color: 'var(--success-text)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', fontWeight: 'bold' }}>
-                      ✓
-                    </div>
-                    <span style={{ color: 'var(--text-body)', fontWeight: '500' }}>{type}</span>
-                  </div>
-                ))}
-              </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+          {renderStatusCard('Gas Safety', summary?.breakdown?.gasSafety, 'fire', '#f97316')}
+          {renderStatusCard('EICR (Electric)', summary?.breakdown?.eicr, 'flash', '#eab308')}
+          {renderStatusCard('EPC Rating', summary?.breakdown?.epc, 'home-lightning-bolt-outline', '#10b981')}
+          {renderStatusCard('Deposit Protection', summary?.breakdown?.deposit, 'shield-check', '#3b82f6')}
+          {renderStatusCard('Licensing', summary?.breakdown?.license, 'certificate', '#8b5cf6')}
+        </div>
+
+        {/* Lead Gen / Monetization Block */}
+        <div style={{ marginTop: '40px', padding: '24px', backgroundColor: '#eff6ff', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ fontSize: '40px' }}>👷</div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '18px', color: '#1e40af' }}>Need a Compliance Check?</h3>
+              <p style={{ margin: '4px 0 0 0', color: '#1e3a8a' }}>Book a Gas Safe engineer or EPC assessor directly through us.</p>
             </div>
           </div>
-        ) : (
-          <div style={{ padding: '0 20px', display: 'grid', gap: '16px', paddingBottom: '32px' }}>
-            {records.map((record) => {
-              const statusConfig = getStatusConfig(record.expiryDate);
-              return (
-                <div
-                  key={record._id}
-                  className="saas-card hover-lift"
-                  onClick={() => {
-                    if (record.propertyId) {
-                      onNavigate(`property-detail`); // Note: In a real app this would probably need ID
-                    }
-                  }}
-                  style={{ cursor: 'pointer', padding: '20px', transition: 'all 0.2s ease' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'var(--primary-50)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '24px' }}>
-                        📄
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)', marginBottom: '4px' }}>
-                          {record.complianceType.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        </h3>
-                        {record.propertyAddress && (
-                          <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                            {record.propertyAddress.line1}, {record.propertyAddress.city}
-                          </div>
-                        )}
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                          Expires: {new Date(record.expiryDate).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="badge" style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>{statusConfig.icon}</span> {statusConfig.label}
-                    </span>
-                  </div>
+          <button className="btn btn-primary" style={{ padding: '12px 24px' }}>
+            Book an Engineer
+          </button>
+        </div>
 
-                  {(record.certificateNumber || record.notes) && (
-                    <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-subtle)', display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                      {record.certificateNumber && (
-                        <div>
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Certificate</span>
-                          <span style={{ fontSize: '14px', color: 'var(--text-main)', fontFamily: 'monospace' }}>{record.certificateNumber}</span>
-                        </div>
-                      )}
-                      {record.notes && (
-                        <div>
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Notes</span>
-                          <span style={{ fontSize: '14px', color: 'var(--text-body)', fontStyle: 'italic' }}>{record.notes}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )
-        }
       </div>
     </div>
   );
 };
 
-// No StyleSheet needed as we use global CSS and inline styles for minor tweaks
-const styles = {};
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 400,
+  },
+});
 
 export default ComplianceScreen;

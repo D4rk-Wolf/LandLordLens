@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
 
-interface NewComplianceScreenProps {
-  propertyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, onNavigate, onBack }) => {
+const NewComplianceScreen: React.FC = () => {
+  const { id: propertyId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,7 +51,7 @@ const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, o
       );
 
       Alert.alert('Success', 'Compliance record created successfully', [
-        { text: 'OK', onPress: onBack },
+        { text: 'OK', onPress: () => navigate(-1) },
       ]);
     } catch (error: any) {
       logger.error('Error creating compliance record', error);
@@ -69,7 +66,7 @@ const NewComplianceScreen: React.FC<NewComplianceScreenProps> = ({ propertyId, o
       <PageHeader
         title="Add Compliance Record"
         leftAction={
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         }

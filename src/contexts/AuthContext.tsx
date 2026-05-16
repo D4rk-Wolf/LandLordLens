@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { API_URL } from '../utils/constants';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import { apiClient } from '../utils/api-client';
 
 interface User {
   id: string;
@@ -23,90 +23,77 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  // Token is now managed by httpOnly cookie, so we don't store it in client state
+  // We keep the isAuthenticated logic based on user presence
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored token on mount
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const checkAuth = async () => {
+      try {
+        const data = await apiClient.get<{ user: User }>('/auth/me');
+        setUser(data.user);
+      } catch (error) {
+        // Not authenticated or session expired
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
-      const response = await fetch(`${API_URL}/auth/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await apiClient.post<{ user: User }>(
+        '/auth/signin',
+        { email, password }
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Sign in failed');
-      }
-
-      const data = await response.json();
-      setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-    } catch (error: any) {
+    } catch (error) {
       throw error;
     }
-  };
+  }, []);
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = useCallback(async (email: string, password: string, name: string) => {
     try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
+      const data = await apiClient.post<{ user: User }>(
+        '/auth/signup',
+        { email, password, name }
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Sign up failed');
-      }
-
-      const data = await response.json();
-      setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-    } catch (error: any) {
+    } catch (error) {
       throw error;
     }
-  };
+  }, []);
 
-  const signOut = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  };
+  const signOut = useCallback(async () => {
+    try {
+      await apiClient.post('/auth/signout', {});
+    } catch (error) {
+      console.error('Sign out error', error);
+    } finally {
+      setUser(null);
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      token: null, // Token is HTTP-only
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      isAuthenticated: !!user,
+    }),
+    [user, loading, signIn, signUp, signOut]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        signIn,
-        signUp,
-        signOut,
-        isAuthenticated: !!token && !!user,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

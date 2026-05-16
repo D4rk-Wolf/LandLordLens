@@ -1,17 +1,22 @@
+/**
+ * SIGN IN SCREEN
+ * Handles user authentication.
+ * Uses `useAuth` context to call the `signIn` function.
+ * displays a styled form with specific attention to "Premium" aesthetics (gradients, glassmorphism).
+ */
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface SignInScreenProps {
-  onNavigateToSignUp: () => void;
-}
-
-const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
+const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -113,9 +118,9 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onNavigateToSignUp }) => {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity onPress={onNavigateToSignUp} style={styles.linkButton} activeOpacity={0.7}>
+        <TouchableOpacity onPress={() => navigate('/auth/register')} style={styles.linkButton} activeOpacity={0.7}>
           <Text style={styles.linkText}>
-            Don't have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
+            Don&apos;t have an account? <Text style={styles.linkTextBold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
       </View>

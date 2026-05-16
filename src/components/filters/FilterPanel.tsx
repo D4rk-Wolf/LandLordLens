@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Modal } from 'react-native';
-import { FilterConfig, FilterOption } from '../../hooks/useFilters';
+import { FilterConfig } from '../../hooks/useFilters';
 
 interface FilterPanelProps {
     isVisible: boolean;
     onClose: () => void;
     filterConfig: FilterConfig;
-    activeFilters: Record<string, any>;
-    onApplyFilters: (filters: Record<string, any>) => void;
+    activeFilters: Record<string, unknown>;
+    onApplyFilters: (filters: Record<string, unknown>) => void;
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -98,7 +98,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 );
 
             case 'range':
-                const rangeValue = value || {};
+                const rangeValue = (value as { min?: number; max?: number }) || {};
                 return (
                     <View style={styles.filterSection}>
                         <Text style={styles.filterLabel}>{config.label}</Text>
@@ -135,14 +135,15 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 );
 
             case 'boolean':
+                const boolValue = value as boolean;
                 return (
                     <View style={styles.filterSection}>
                         <TouchableOpacity
                             style={styles.booleanToggle}
-                            onPress={() => setLocalFilters(prev => ({ ...prev, [key]: !value }))}
+                            onPress={() => setLocalFilters(prev => ({ ...prev, [key]: !boolValue }))}
                         >
-                            <View style={[styles.checkbox, value && styles.checkboxActive]}>
-                                {value && <Text style={styles.checkmark}>✓</Text>}
+                            <View style={[styles.checkbox, boolValue && styles.checkboxActive]}>
+                                {boolValue && <Text style={styles.checkmark}>✓</Text>}
                             </View>
                             <Text style={styles.filterLabel}>{config.label}</Text>
                         </TouchableOpacity>

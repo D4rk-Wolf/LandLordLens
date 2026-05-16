@@ -22,6 +22,10 @@ let toastIdCounter = 0;
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [toasts, setToasts] = useState<Toast[]>([]);
 
+    const hideToast = useCallback((id: string) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    }, []);
+
     const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
         const id = `toast-${++toastIdCounter}`;
         const newToast: Toast = {
@@ -38,11 +42,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 hideToast(id);
             }, newToast.duration);
         }
-    }, []);
-
-    const hideToast = useCallback((id: string) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, []);
+    }, [hideToast]);
 
     return (
         <ToastContext.Provider value={{ toasts, showToast, hideToast }}>

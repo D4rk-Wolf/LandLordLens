@@ -9,18 +9,18 @@
   /* 1. Color Palette: Slate & Soft Indigo */
   /* -------------------------------------------------------------------------- */
 
-  /* Neutral Scale (Slate) - Cool, professional grays */
-  --slate-50: #F8FAFC;
-  --slate-100: #F1F5F9;
-  --slate-200: #E2E8F0;
-  --slate-300: #CBD5E1;
-  --slate-400: #94A3B8;
-  --slate-500: #64748B;
-  --slate-600: #475569;
-  --slate-700: #334155;
-  --slate-800: #1E293B;
-  --slate-900: #0F172A;
-  --slate-950: #020617;
+  /* Neutral Scale (Stone) - Warm, grounded grays */
+  --slate-50: #fafaf9;
+  --slate-100: #f5f5f4;
+  --slate-200: #e7e5e4;
+  --slate-300: #d6d3d1;
+  --slate-400: #a8a29e;
+  --slate-500: #78716c;
+  --slate-600: #57534e;
+  --slate-700: #44403c;
+  --slate-800: #292524;
+  --slate-900: #1c1917;
+  --slate-950: #0c0a09;
 
   /* Primary Brand (Soft Indigo) - Sophisticated & Calming */
   --primary-50: #EEF2FF;
@@ -59,7 +59,7 @@
   /* -------------------------------------------------------------------------- */
 
   /* Backgrounds */
-  --bg-app: #F8FAFC;
+  --bg-app: #F1F5F9;
   /* slate-50 - never pure white */
   --bg-surface: #FFFFFF;
   --bg-surface-hover: #F1F5F9;
@@ -159,29 +159,77 @@
   --text-tertiary: var(--text-muted);
   --text-inverse: #FFFFFF;
 
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: 12px;
+
   --shadow: var(--shadow-sm);
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* -------------------------------------------------------------------------- */
 /* Dark Mode Overrides */
 /* -------------------------------------------------------------------------- */
 [data-theme='dark'] {
-  --bg-app: #0F172A;
-  /* Slate 900 - Rich dark blue/gray */
-  --bg-surface: #1E293B;
-  /* Slate 800 */
-  --bg-surface-hover: #334155;
-  /* Slate 700 */
-  --bg-sidebar: #0F172A;
-  --bg-header: #1E293B;
+  --bg-app: #0c0a09;
+  /* Stone 950 - Warm rich dark */
+  --bg-surface: #1c1917;
+  /* Stone 900 */
+  --bg-surface-hover: #292524;
+  /* Stone 800 */
+  --bg-sidebar: #0c0a09;
+  --bg-header: #1c1917;
 
-  /* Text - Softer whites */
-  --text-main: #F8FAFC;
-  /* Slate 50 */
-  --text-body: #CBD5E1;
-  /* Slate 300 */
-  --text-muted: #94A3B8;
-  /* Slate 400 */
+  /* Text - Softer warm whites */
+  --text-main: #fafaf9;
+  /* Stone 50 */
+  --text-body: #d6d3d1;
+  /* Stone 300 */
+  --text-muted: #a8a29e;
+  /* Stone 400 */
 
   /* Borders - EXTREMELY Subtle in Dark Mode */
   --border-subtle: rgba(255, 255, 255, 0.06);
@@ -195,10 +243,15 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
 
   /* Actions */
-  --action-secondary-bg: #1E293B;
+  --action-secondary-bg: #1c1917;
   --action-secondary-border: rgba(255, 255, 255, 0.1);
-  --action-secondary-hover: #334155;
-  --action-secondary-text: #F8FAFC;
+  --action-secondary-hover: #292524;
+  --action-secondary-text: #fafaf9;
+
+  /* Glassmorphism Dark Mode */
+  --glass-bg: rgba(28, 25, 23, 0.7);
+  /* Stone 900 at 70% */
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -214,10 +267,12 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-app);
   color: var(--text-main);
-  line-height: 1.5;
+  line-height: 1.6;
+  /* Increased for better readability */
   -webkit-font-smoothing: antialiased;
 }
 
+/* Headings */
 /* Headings */
 h1,
 h2,
@@ -229,6 +284,8 @@ h6 {
   font-weight: 600;
   color: var(--text-main);
   margin-bottom: 0.5em;
+  letter-spacing: -0.025em;
+  /* Premium tight spacing */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -246,9 +303,11 @@ h6 {
 
 .saas-sidebar {
   width: var(--sidebar-w);
+  width: var(--sidebar-w);
   background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-subtle);
-  /* Usually none for dark sidebar, but good for structure */
+  /* Dark Slate 900 for high contrast */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  /* Subtle border for dark mode */
   display: flex;
   flex-direction: column;
   z-index: 50;
@@ -266,7 +325,9 @@ h6 {
 
 .saas-header {
   height: var(--header-h);
-  background-color: var(--bg-header);
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -288,15 +349,19 @@ h6 {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 20px;
-  margin-bottom: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  /* Slightly stronger shadow */
+  padding: 24px;
+  /* Increased padding */
+  transition: all 0.2s ease;
 }
 
 .saas-card:hover {
   box-shadow: var(--shadow-md);
   border-color: var(--border-medium);
   transition: all var(--ease-default);
+  transform: translateY(-2px);
+  /* Premium Lift Effect */
 }
 
 /* Buttons */
@@ -358,53 +423,85 @@ h6 {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
-/* Tables */
+/* Tables - Premium Data Layout */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  max-height: 80vh;
+  /* Allow internal scrolling for very long tables */
+  position: relative;
 }
 
 .saas-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  /* Required for sticky headers sometimes, or use collapse */
+  border-spacing: 0;
   font-size: 14px;
 }
 
 .saas-table th {
   text-align: left;
-  padding: 12px 16px;
+  padding: 16px;
   background-color: var(--slate-50);
+  /* Sticky Header */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border-medium);
+
+  /* Typography */
   color: var(--slate-500);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-sans);
+
+  /* Glassmorphism for Header */
+  background: rgba(248, 250, 252, 0.95);
+  /* High opacity slate-50 */
+  backdrop-filter: blur(8px);
 }
 
 [data-theme='dark'] .saas-table th {
-  background-color: var(--slate-800);
+  background-color: var(--slate-900);
+  background: rgba(28, 25, 23, 0.95);
   color: var(--slate-400);
+  border-bottom-color: var(--border-medium);
 }
 
 .saas-table td {
   padding: 16px;
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-body);
+  transition: background-color 0.1s ease;
 }
 
 .saas-table tr:last-child td {
   border-bottom: none;
 }
 
-.saas-table tr:hover td {
+/* Zebra Striping - Very Subtle */
+.saas-table tr:nth-child(even) td {
   background-color: var(--slate-50);
 }
 
+[data-theme='dark'] .saas-table tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Hover Effect */
+.saas-table tr:hover td {
+  background-color: var(--primary-50) !important;
+  /* Force override zebra */
+}
+
 [data-theme='dark'] .saas-table tr:hover td {
-  background-color: var(--slate-800);
+  background-color: rgba(67, 56, 202, 0.15) !important;
 }
 
 /* Badges */

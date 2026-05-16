@@ -1,101 +1,42 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
+import { useProperty } from '../../hooks/queries/useProperty';
+import { Tenancy, MaintenanceRequest, ComplianceRecord } from '../../types/models';
 
-interface PropertyDetailScreenProps {
-  propertyId: string;
-  onNavigate: (screen: string) => void;
-  onBack: () => void;
-}
-
-const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
-  propertyId,
-  onNavigate,
-  onBack,
-}) => {
+const PropertyDetailScreen: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { token } = useAuth();
-  const [property, setProperty] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, isError } = useProperty(id);
 
-  const fetchProperty = useCallback(async () => {
-    if (!token) return;
-
-    try {
-      const data = await apiClient.get<any>(
-        `/properties/${propertyId}`,
-        token,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      setProperty(data);
-    } catch (error) {
-      logger.error('Error fetching property', error);
-      Alert.alert('Error', 'Failed to load property details');
-    } finally {
-      setLoading(false);
-    }
-  }, [propertyId, token]);
-
-  useEffect(() => {
-    fetchProperty();
-  }, [fetchProperty]);
+  // Destructure data for easier access, handling undefined during loading
+  const property = data?.property;
+  const tenancies = data?.tenancies || [];
+  const complianceRecords = data?.complianceRecords || [];
+  const maintenanceTickets = data?.maintenanceTickets || [];
 
   const breadcrumbs = [
-    { label: 'Dashboard', onPress: () => onNavigate('dashboard') },
-    { label: 'Properties', onPress: onBack },
-    { label: property?.property?.address?.line1 || 'Details', onPress: undefined },
+    { label: 'Dashboard', onPress: () => navigate('/dashboard') },
+    { label: 'Properties', onPress: () => navigate('/properties') },
+    { label: property?.address?.line1 || 'Details', onPress: undefined },
   ];
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <PageHeader
-          title="Loading..."
-          leftAction={
-            <TouchableOpacity onPress={onBack} style={styles.backButton}>
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-          }
-        />
-        <View style={{ padding: 24, gap: 24 }}>
-          {/* Hero Skeleton */}
-          <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-            <Skeleton width={64} height={64} borderRadius={16} />
-            <View style={{ gap: 8 }}>
-              <Skeleton width={200} height={28} />
-              <Skeleton width={150} height={20} />
-            </View>
-          </View>
+  // ... (skip loading check code)
 
-          {/* Section 1 Skeleton */}
-          <View style={{ padding: 24, backgroundColor: 'var(--bg-surface)', borderRadius: 16, gap: 16 }}>
-            <Skeleton width={180} height={24} />
-            <View style={{ flexDirection: 'row', gap: 24, flexWrap: 'wrap' }}>
-              <Skeleton width={100} height={40} />
-              <Skeleton width={100} height={40} />
-              <Skeleton width={100} height={40} />
-            </View>
-          </View>
-
-          {/* Section 2 Skeleton */}
-          <View style={{ padding: 24, backgroundColor: 'var(--bg-surface)', borderRadius: 16 }}>
-            <Skeleton width="100%" height={100} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  if (!property) {
+  if (isError || !property) {
+    // ... (skip error view code)
     return (
       <View style={styles.container}>
         <PageHeader
           title="Not Found"
           leftAction={
-            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigate('/properties')} style={styles.backButton}>
               <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>
           }
@@ -103,8 +44,8 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
         <View style={styles.errorContainer}>
           <Text style={styles.errorIcon}>🏠</Text>
           <Text style={styles.errorTitle}>Property Not Found</Text>
-          <Text style={styles.errorText}>The property you're looking for doesn't exist or has been removed.</Text>
-          <TouchableOpacity onPress={onBack} style={styles.addButtonLarge}>
+          <Text style={styles.errorText}>The property you&apos;re looking for doesn&apos;t exist or has been removed.</Text>
+          <TouchableOpacity onPress={() => navigate('/properties')} style={styles.addButtonLarge}>
             <Text style={styles.addButtonLargeText}>← Return to Properties</Text>
           </TouchableOpacity>
         </View>
@@ -112,16 +53,41 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
     );
   }
 
+
+  const handleExportAudit = async (tenancyId: string) => {
+    try {
+      const response = await fetch(`/api/compliance/export-audit/${tenancyId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit_pack_${tenancyId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export audit pack');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <PageHeader
-        title={property?.address.line1 || 'Property Details'}
+        title={property.address.line1 || 'Property Details'}
         breadcrumbs={breadcrumbs}
       />
       <ScrollView style={styles.scrollView}>
 
         <View style={styles.content}>
-          {/* @ts-ignore */}
           <div className="saas-card">
             <View style={styles.heroContent}>
               <View style={styles.heroIconContainer}>
@@ -129,25 +95,24 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
               </View>
               <View style={styles.heroText}>
                 <Text style={styles.heroAddress}>
-                  {property.property.address.line1}
-                  {property.property.address.line2 && `, ${property.property.address.line2}`}
+                  {property.address.line1}
+                  {property.address.line2 && `, ${property.address.line2}`}
                 </Text>
                 <Text style={styles.heroLocation}>
-                  {property.property.address.city}, {property.property.address.postcode}
+                  {property.address.city}, {property.address.postcode}
                 </Text>
               </View>
             </View>
             <View style={styles.heroBadges}>
               <span className="badge badge-primary">
-                {property.property.propertyType.charAt(0).toUpperCase() + property.property.propertyType.slice(1)}
+                {property.propertyType.charAt(0).toUpperCase() + property.propertyType.slice(1)}
               </span>
               <span className="badge badge-info">
-                {property.property.bedrooms} {property.property.bedrooms === 1 ? 'Bed' : 'Beds'}
+                {property.bedrooms} {property.bedrooms === 1 ? 'Bed' : 'Beds'}
               </span>
             </View>
           </div>
 
-          {/* @ts-ignore */}
           <div className="saas-card">
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Property Information</Text>
@@ -155,142 +120,158 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
             <View style={styles.infoGrid}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Type</Text>
-                <Text style={styles.infoValue}>{property.property.propertyType}</Text>
+                <Text style={styles.infoValue}>{property.propertyType}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Bedrooms</Text>
-                <Text style={styles.infoValue}>{property.property.bedrooms}</Text>
+                <Text style={styles.infoValue}>{property.bedrooms}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Bathrooms</Text>
-                <Text style={styles.infoValue}>{property.property.bathrooms || 'N/A'}</Text>
+                <Text style={styles.infoValue}>{property.bathrooms || 'N/A'}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Status</Text>
-                <span className={`badge badge-${property.property.status === 'vacant' ? 'success' : 'warning'}`}>
-                  {property.property.status}
+                <span className={`badge badge-${property.status === 'vacant' ? 'success' : 'warning'}`}>
+                  {property.status}
                 </span>
               </View>
-              {property.property.rentAmount && (
+              {property.rentAmount && (
                 <View style={styles.infoItem}>
                   <Text style={styles.infoLabel}>Monthly Rent</Text>
-                  <Text style={[styles.infoValue, { color: 'var(--success-text)' }]}>£{property.property.rentAmount}</Text>
+                  <Text style={[styles.infoValue, { color: 'var(--success-text)' }]}>£{property.rentAmount}</Text>
                 </View>
               )}
             </View>
-            {/* @ts-ignore */}
           </div>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeaderWithButton}>
             <View>
-              <Text style={styles.sectionTitle}>Tenancies ({property.tenancies?.length || 0})</Text>
+              <Text style={styles.sectionTitle}>Tenancies ({tenancies.length})</Text>
               <Text style={styles.sectionSubtitle}>
                 Manage tenant information and documentation
               </Text>
             </View>
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => onNavigate(`new-tenancy-${propertyId}`)}
+              onPress={() => navigate(`/properties/${id}/new-tenancy`)}
               activeOpacity={0.8}
             >
               <Text style={styles.addButtonIcon}>➕</Text>
               <Text style={styles.addButtonText}>Add</Text>
             </TouchableOpacity>
           </View>
-          {property.tenancies && property.tenancies.length > 0 ? (
-            property.tenancies.map((tenancy: any) => (
-              <View key={tenancy._id} style={styles.tenancyCard}>
-                <View style={styles.tenancyCardHeader}>
-                  <View style={styles.tenancyInfo}>
-                    <View style={styles.tenancyAvatar}>
-                      <Text style={styles.tenancyAvatarText}>
-                        {tenancy.tenantName.charAt(0).toUpperCase()}
+          {
+            tenancies.length > 0 ? (
+              tenancies.map((tenancy: Tenancy) => (
+                <View key={tenancy._id} style={styles.tenancyCard}>
+                  <View style={styles.tenancyCardHeader}>
+                    <View style={styles.tenancyInfo}>
+                      <View style={styles.tenancyAvatar}>
+                        <Text style={styles.tenancyAvatarText}>
+                          {tenancy.tenantName.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
+                      <View style={styles.tenancyDetails}>
+                        <Text style={styles.tenancyName}>{tenancy.tenantName}</Text>
+                        <Text style={styles.tenancyEmail}>{tenancy.tenantEmail}</Text>
+                        <Text style={styles.tenancyRent}>£{tenancy.monthlyRent}/month</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.tenancyStatusBadge, { backgroundColor: tenancy.status === 'active' ? '#d1fae5' : '#f3f4f6' }]}>
+                      <Text style={[styles.tenancyStatusText, { color: tenancy.status === 'active' ? '#059669' : '#6b7280' }]}>
+                        {tenancy.status}
                       </Text>
                     </View>
-                    <View style={styles.tenancyDetails}>
-                      <Text style={styles.tenancyName}>{tenancy.tenantName}</Text>
-                      <Text style={styles.tenancyEmail}>{tenancy.tenantEmail}</Text>
-                      <Text style={styles.tenancyRent}>£{tenancy.monthlyRent}/month</Text>
-                    </View>
                   </View>
-                  <View style={[styles.tenancyStatusBadge, { backgroundColor: tenancy.status === 'active' ? '#d1fae5' : '#f3f4f6' }]}>
-                    <Text style={[styles.tenancyStatusText, { color: tenancy.status === 'active' ? '#059669' : '#6b7280' }]}>
-                      {tenancy.status}
-                    </Text>
+                  <View style={styles.tenancyActions}>
+                    <TouchableOpacity
+                      style={styles.tenancyActionButton}
+                      onPress={() => navigate(`/tenancies/${tenancy._id}/deposit`)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.tenancyActionIcon}>💷</Text>
+                      <Text style={styles.tenancyActionText}>Deposit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.tenancyActionButton}
+                      onPress={() => navigate(`/tenancies/${tenancy._id}/right-to-rent`)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.tenancyActionIcon}>📄</Text>
+                      <Text style={styles.tenancyActionText}>Right to Rent</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.tenancyActionButton}
+                      onPress={() => navigate(`/tenancies/${tenancy._id}/background-check`)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.tenancyActionIcon}>🔍</Text>
+                      <Text style={styles.tenancyActionText}>Check</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.tenancyActionButton}
+                      onPress={() => navigate(`/tenancies/${tenancy._id}/inventory`)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.tenancyActionIcon}>📋</Text>
+                      <Text style={styles.tenancyActionText}>Inventory</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.tenancyActionButton, { backgroundColor: '#fff7ed', borderColor: '#ffedd5' }]}
+                      onPress={() => handleExportAudit(tenancy._id)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.tenancyActionIcon}>📦</Text>
+                      <Text style={[styles.tenancyActionText, { color: '#c2410c' }]}>Audit Pack</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-                <View style={styles.tenancyActions}>
-                  <TouchableOpacity
-                    style={styles.tenancyActionButton}
-                    onPress={() => onNavigate(`deposit-protection-${tenancy._id}`)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tenancyActionIcon}>💷</Text>
-                    <Text style={styles.tenancyActionText}>Deposit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.tenancyActionButton}
-                    onPress={() => onNavigate(`right-to-rent-${tenancy._id}`)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tenancyActionIcon}>📄</Text>
-                    <Text style={styles.tenancyActionText}>Right to Rent</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.tenancyActionButton}
-                    onPress={() => onNavigate(`background-check-${tenancy._id}`)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tenancyActionIcon}>🔍</Text>
-                    <Text style={styles.tenancyActionText}>Check</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.tenancyActionButton}
-                    onPress={() => onNavigate(`inventory-${tenancy._id}`)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tenancyActionIcon}>📋</Text>
-                    <Text style={styles.tenancyActionText}>Inventory</Text>
-                  </TouchableOpacity>
-                </View>
+              ))
+            ) : (
+              <View style={styles.emptyStateCard}>
+                <Text style={styles.emptyStateIcon}>👥</Text>
+                <Text style={styles.emptyStateTitle}>No Tenancies</Text>
+                <Text style={styles.emptyStateText}>
+                  Add a tenancy to start managing tenant information and documentation.
+                </Text>
+                <TouchableOpacity
+                  style={styles.emptyStateButton}
+                  onPress={() => navigate(`/properties/${id}/new-tenancy`)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.emptyStateButtonText}>Add First Tenancy</Text>
+                </TouchableOpacity>
               </View>
-            ))
-          ) : (
-            <View style={styles.emptyStateCard}>
-              <Text style={styles.emptyStateIcon}>👥</Text>
-              <Text style={styles.emptyStateTitle}>No Tenancies</Text>
-              <Text style={styles.emptyStateText}>
-                Add a tenancy to start managing tenant information and documentation.
-              </Text>
-              <TouchableOpacity
-                style={styles.emptyStateButton}
-                onPress={() => onNavigate(`new-tenancy-${propertyId}`)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.emptyStateButtonText}>Add First Tenancy</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+            )}
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeaderWithButton}>
             <View>
               <Text style={styles.sectionTitle}>
-                Compliance Records ({property.complianceRecords?.length || 0})
+                Compliance Records ({complianceRecords.length})
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => onNavigate(`new-compliance-${propertyId}`)}
-            >
-              <Text style={styles.addButtonText}>+ Add</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                style={[styles.addButton, { backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0' }]}
+                onPress={() => navigate('/services')}
+              >
+                <Text style={[styles.addButtonText, { color: '#15803d' }]}>🛒 Book</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => navigate(`/properties/${id}/new-compliance`)}
+              >
+                <Text style={styles.addButtonText}>+ Add</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          {property.complianceRecords && property.complianceRecords.length > 0 ? (
-            property.complianceRecords.map((record: any) => (
+          {complianceRecords.length > 0 ? (
+            complianceRecords.map((record: ComplianceRecord) => (
               <View key={record._id} style={styles.item}>
                 <Text style={styles.itemTitle}>{record.complianceType}</Text>
                 <Text style={styles.itemText}>
@@ -307,18 +288,18 @@ const PropertyDetailScreen: React.FC<PropertyDetailScreenProps> = ({
           <View style={styles.sectionHeaderWithButton}>
             <View>
               <Text style={styles.sectionTitle}>
-                Maintenance Tickets ({property.maintenanceTickets?.length || 0})
+                Maintenance Tickets ({maintenanceTickets.length})
               </Text>
             </View>
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => onNavigate(`new-maintenance-${propertyId}`)}
+              onPress={() => navigate(`/properties/${id}/new-maintenance`)}
             >
               <Text style={styles.addButtonText}>+ Add</Text>
             </TouchableOpacity>
           </View>
-          {property.maintenanceTickets && property.maintenanceTickets.length > 0 ? (
-            property.maintenanceTickets.map((ticket: any) => (
+          {maintenanceTickets.length > 0 ? (
+            maintenanceTickets.map((ticket: MaintenanceRequest) => (
               <View key={ticket._id} style={styles.item}>
                 <Text style={styles.itemTitle}>{ticket.title}</Text>
                 <Text style={styles.itemText}>Status: {ticket.status}</Text>

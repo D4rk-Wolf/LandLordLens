@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface Property {
     id: string;
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: 500,
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        //@ts-ignore
+        //@ts-expect-error
         backdropFilter: 'blur(16px)',
         borderRadius: 24,
         borderWidth: 1,
@@ -205,14 +205,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 3,
         borderColor: '#fff',
-        //@ts-ignore
+        //@ts-expect-error
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        //@ts-ignore
+        //@ts-expect-error
         transition: 'all 0.3s ease',
     },
     markerSelected: {
         transform: [{ scale: 1.2 }],
-        //@ts-ignore
+        //@ts-expect-error
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
         zIndex: 10,
     },
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 16,
         padding: 20,
-        //@ts-ignore
+        //@ts-expect-error
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
     },
     detailsHeader: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     },
     legend: {
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        //@ts-ignore
+        //@ts-expect-error
         backdropFilter: 'blur(16px)',
         borderRadius: 16,
         padding: 20,

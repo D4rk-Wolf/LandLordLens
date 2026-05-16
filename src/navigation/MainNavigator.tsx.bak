@@ -21,7 +21,10 @@ const TenantBackgroundCheckScreen = lazy(() => import('../screens/tenancies/Tena
 const InventoryScreen = lazy(() => import('../screens/tenancies/InventoryScreen'));
 const AdminScreen = lazy(() => import('../screens/admin/AdminScreen'));
 const SettingsScreen = lazy(() => import('../screens/settings/SettingsScreen'));
+
 const PricingScreen = lazy(() => import('../screens/pricing/PricingScreen'));
+const PortfolioScreen = lazy(() => import('../screens/analytics/PortfolioScreen'));
+const Section8Wizard = lazy(() => import('../screens/legal/Section8Wizard'));
 
 // Loading fallback component
 const LoadingFallback: React.FC = () => (
@@ -41,6 +44,8 @@ type Screen =
   | 'admin'
   | 'settings'
   | 'pricing'
+  | 'analytics'
+  | 'section-8-wizard'
   | string; // Allow dynamic screens like 'new-tenancy-{id}'
 
 interface MainNavigatorProps {
@@ -57,6 +62,8 @@ const mainNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'properties', label: 'Properties', icon: '🏠' },
   { id: 'compliance', label: 'Compliance', icon: '📋' },
+
+  { id: 'analytics', label: 'Analytics', icon: '📈' },
   { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
 ];
 
@@ -64,6 +71,7 @@ const systemNavItems: NavItem[] = [
   { id: 'inspections', label: 'Inspections', icon: '🔍' },
   { id: 'expenses', label: 'Expenses', icon: '💰' },
   { id: 'pricing', label: 'Pricing', icon: '💳' },
+  { id: 'section-8-wizard', label: 'Legal (Evictions)', icon: '⚖️' },
 ];
 
 const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboard' }) => {
@@ -252,6 +260,10 @@ const MainNavigator: React.FC<MainNavigatorProps> = ({ initialScreen = 'dashboar
         return <SettingsScreen onNavigate={navigate} />;
       case 'pricing':
         return <PricingScreen onNavigate={navigate} />;
+      case 'analytics':
+        return <PortfolioScreen onNavigate={navigate} />;
+      case 'section-8-wizard':
+        return <Section8Wizard onNavigate={navigate} />;
       default:
         return <DashboardScreen onNavigate={navigate} />;
     }

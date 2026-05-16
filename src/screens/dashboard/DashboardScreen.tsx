@@ -1,22 +1,34 @@
+/**
+ * DASHBOARD SCREEN
+ * The main landing page for authenticated users.
+ * Features:
+ * - KPI Statistics (Total Properties, Occupancy, etc.) using `stats` state.
+ * - Interactive Charts (using `recharts` wrapper components).
+ * - "Quick Actions" for common tasks.
+ * - Customizable Widget Layout (persisted to localStorage).
+ */
+
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PieChart, BarChart } from '../../components/ui/Charts';
 import { DocumentModal } from '../../components/ui/DocumentModal';
+import { Modal } from '../../components/ui/Modal';
 import PropertyMapView from '../../components/maps/PropertyMapView';
 import { useAuth } from '../../contexts/AuthContext';
-import { COMPLIANCE_EXPIRY_DAYS } from '../../utils/constants';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
 import PageHeader from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
+import { Card, CardContent } from '../../components/ui/Card';
+import { CountUp } from '../../components/ui/CountUp';
 
-interface DashboardScreenProps {
-  onNavigate: (screen: string) => void;
-}
-
-const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
+const DashboardScreen: React.FC = () => {
   const { token, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Dashboard State
   const [stats, setStats] = useState({
     totalProperties: 0,
     activeTenancies: 0,
@@ -24,9 +36,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
     expiringCompliance: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  // UI State
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [previewDoc, setPreviewDoc] = useState({ name: '', type: '' });
   const [isCustomizeVisible, setIsCustomizeVisible] = useState(false);
+
+  // Widget Visibility State (Persisted)
   const [visibleWidgets, setVisibleWidgets] = useState({
     stats: true,
     analytics: true,
@@ -52,71 +68,17 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
   };
 
   const fetchDashboardData = useCallback(async () => {
-    if (!token) return;
-
     try {
-      const propertiesData = await apiClient.get<{ properties: any[] }>(
-        '/properties',
+      const data = await apiClient.get<{ stats: any }>(
+        '/analytics/dashboard-stats',
         token || undefined,
-        { cache: true, cacheTTL: 2 * 60 * 1000 }
-      );
-      const properties = propertiesData.properties || [];
-
-      if (properties.length === 0) {
-        setStats({
-          totalProperties: 0,
-          activeTenancies: 0,
-          pendingMaintenance: 0,
-          expiringCompliance: 0,
-        });
-        setLoading(false);
-        return;
-      }
-
-      const now = new Date();
-      const expiryThreshold = new Date(now.getTime() + COMPLIANCE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
-
-      const propertyDetailRequests = properties.map((property) =>
-        () => apiClient.get<any>(`/properties/${property._id}`, token || undefined, {
-          cache: true,
-          cacheTTL: 2 * 60 * 1000,
-        }).catch((error) => {
-          return null;
-        })
+        { cache: true, cacheTTL: 60 * 1000 } // 1 minute cache
       );
 
-      const propertyDetails = await apiClient.parallel(propertyDetailRequests);
-
-      let activeTenancies = 0;
-      let expiringCompliance = 0;
-      let pendingMaintenance = 0;
-
-      propertyDetails.forEach((propertyDetail) => {
-        if (!propertyDetail) return;
-        activeTenancies += (propertyDetail.tenancies || []).filter(
-          (t: any) => t.status === 'active'
-        ).length;
-        expiringCompliance += (propertyDetail.complianceRecords || []).filter(
-          (r: any) => {
-            if (!r.expiryDate) return false;
-            try {
-              const expiry = new Date(r.expiryDate);
-              return expiry >= now && expiry <= expiryThreshold;
-            } catch {
-              return false;
-            }
-          }
-        ).length;
-      });
-
-      setStats({
-        totalProperties: properties.length,
-        activeTenancies,
-        pendingMaintenance,
-        expiringCompliance,
-      });
+      setStats(data.stats);
     } catch (error) {
       logger.error('Error fetching dashboard data', error);
+      // Fallback to zeros (or keep previous state) handled by initial state
     } finally {
       setLoading(false);
     }
@@ -133,7 +95,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
       icon: '🏢',
       color: 'var(--primary-600)',
       bg: 'var(--primary-50)',
-      action: () => onNavigate('properties'),
+      action: () => navigate('/properties'),
     },
     {
       label: 'Active Tenancies',
@@ -141,7 +103,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
       icon: '👥',
       color: 'var(--success-text)',
       bg: 'var(--success-bg)',
-      action: () => onNavigate('properties'),
+      action: () => navigate('/properties'),
     },
     {
       label: 'Maintenance',
@@ -149,7 +111,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
       icon: '🔧',
       color: 'var(--warning-text)',
       bg: 'var(--warning-bg)',
-      action: () => onNavigate('maintenance'),
+      action: () => navigate('/maintenance'),
     },
     {
       label: 'Compliance Alert',
@@ -157,36 +119,42 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
       icon: '⚠️',
       color: 'var(--danger-text)',
       bg: 'var(--danger-bg)',
-      action: () => onNavigate('compliance'),
+      action: () => navigate('/compliance'),
     },
-  ], [stats, onNavigate]);
+  ], [stats, navigate]);
 
   const quickActions = useMemo(() => [
     {
       label: 'Add Property',
       icon: '🏠',
       description: 'Register a new unit',
-      action: () => onNavigate('new-property'),
+      action: () => navigate('/properties/new'),
     },
     {
       label: 'Log Expense',
       icon: '💸',
       description: 'Track outgoing costs',
-      action: () => onNavigate('expenses'),
+      action: () => navigate('/expenses'),
     },
     {
       label: 'New Inspection',
       icon: '📋',
       description: 'Schedule a check',
-      action: () => onNavigate('inspections'),
+      action: () => navigate('/inspections'),
     },
     {
       label: 'Report Issue',
       icon: '🔧',
       description: 'Maintenance request',
-      action: () => onNavigate('new-maintenance'),
+      action: () => navigate('/maintenance/new'),
     },
-  ], [onNavigate]);
+    {
+      label: 'Find Services',
+      icon: '🛒',
+      description: 'Insurance & Trades',
+      action: () => navigate('/services'),
+    },
+  ], [navigate]);
 
   if (loading) {
     return (
@@ -221,11 +189,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <div style={{ animation: 'fadeIn 0.5s ease' }}>
+        <View style={styles.contentWrapper}>
           <View style={styles.welcomeSection}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <Text style={styles.greeting}>Overview</Text>
+                {/* <Text style={styles.greeting}>Overview</Text> Remove redundant label */}
                 <Text style={styles.subtitle}>Welcome back, {user?.name || 'Landlord'}</Text>
               </View>
               {stats.totalProperties === 0 && (
@@ -249,112 +217,110 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
               )}
             </View>
           </View>
-        </div>
+        </View>
 
         <View style={styles.contentWrapper}>
           {visibleWidgets.stats && (
-            <div style={{ animation: 'fadeIn 0.5s ease 0.1s backwards' }}>
-              <View style={styles.statsContainer}>
-                {statCards.map((card, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[styles.statCard, {
-                      backgroundColor: 'var(--bg-surface)',
-                      borderRadius: 12,
-                      padding: 20,
-                      borderWidth: 1,
-                      borderColor: 'var(--border-subtle)',
-                      boxShadow: 'var(--shadow-sm)',
-                    } as any]}
-                    onPress={card.action}
-                    activeOpacity={0.8}
-                  >
+            <View style={styles.statsContainer}>
+              {statCards.map((card, index) => (
+                <Card
+                  key={index}
+                  variant="interactive"
+                  style={styles.statCard}
+                  onPress={card.action}
+                >
+                  <View style={{ padding: 20 }}>
                     <View style={styles.statCardHeader}>
                       <View style={[styles.statIconContainer, { backgroundColor: card.bg }]}>
                         <Text style={[styles.statIcon, { color: card.color }]}>{card.icon}</Text>
                       </View>
                     </View>
-                    <Text style={styles.statNumber}>{card.value}</Text>
+                    <CountUp
+                      end={card.value}
+                      style={styles.statNumber}
+                    />
                     <Text style={styles.statLabel}>{card.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </div>
+                  </View>
+                </Card>
+              ))}
+            </View>
           )}
 
-          <div style={{ display: 'flex', gap: 24, flexDirection: 'row', flexWrap: 'wrap', animation: 'fadeIn 0.5s ease 0.2s backwards' }}>
+          <div style={{ display: 'flex', gap: 24, flexDirection: 'row', flexWrap: 'wrap' }}>
             {visibleWidgets.analytics && (
               <View style={{ flex: 2, minWidth: 350, gap: 24 }}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>Performance</Text>
                 </View>
-                <div className="saas-card" style={styles.chartContainer as any}>
-                  <View style={styles.portfolioSummaryContainer}>
-                    <View style={styles.portfolioHealthSection}>
-                      <View style={styles.healthRingContainer}>
-                        {/* Simple CSS-based circular progress simulation */}
-                        <View style={[styles.healthRing, {
-                          // @ts-ignore
-                          background: `conic-gradient(var(--primary-500) ${Math.round((stats.activeTenancies / (stats.totalProperties || 1)) * 360)}deg, var(--slate-200) 0deg)`
-                        }]}>
-                          <View style={styles.healthRingInner}>
-                            <Text style={styles.healthPercentage}>
-                              {stats.totalProperties > 0 ? Math.round((stats.activeTenancies / stats.totalProperties) * 100) : 0}%
-                            </Text>
-                            <Text style={styles.healthLabel}>Occupancy</Text>
+                <Card style={styles.chartContainer as any}>
+                  <CardContent style={{ padding: 24 }}>
+                    <View style={styles.portfolioSummaryContainer}>
+                      <View style={styles.portfolioHealthSection}>
+                        <View style={styles.healthRingContainer}>
+                          {/* Simple CSS-based circular progress simulation */}
+                          <View style={[styles.healthRing, {
+                            // @ts-ignore
+                            background: `conic-gradient(var(--primary-500) ${Math.round((stats.activeTenancies / (stats.totalProperties || 1)) * 360)}deg, var(--slate-200) 0deg)`
+                          }]}>
+                            <View style={styles.healthRingInner}>
+                              <Text style={styles.healthPercentage}>
+                                {stats.totalProperties > 0 ? Math.round((stats.activeTenancies / stats.totalProperties) * 100) : 0}%
+                              </Text>
+                              <Text style={styles.healthLabel}>Occupancy</Text>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={styles.healthTextContainer}>
+                          <Text style={styles.healthTitle}>Portfolio Health</Text>
+                          <Text style={styles.healthSubtitle}>
+                            {stats.pendingMaintenance === 0 && stats.expiringCompliance === 0
+                              ? 'Everything is running smoothly.'
+                              : `${stats.pendingMaintenance} issues require attention.`}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.portfolioStatsGrid}>
+                        <View style={styles.portfolioStatItem}>
+                          <View style={[styles.pStatIcon, { backgroundColor: 'var(--primary-50)' }]}>
+                            <Text style={{ fontSize: 18 }}>🏠</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.pStatLabel}>Total Units</Text>
+                            <Text style={styles.pStatValue}>{stats.totalProperties}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.portfolioStatItem}>
+                          <View style={[styles.pStatIcon, { backgroundColor: 'var(--success-bg)' }]}>
+                            <Text style={{ fontSize: 18 }}>👥</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.pStatLabel}>Occupied</Text>
+                            <Text style={[styles.pStatValue, { color: 'var(--success-text)' }]}>{stats.activeTenancies}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.portfolioStatItem}>
+                          <View style={[styles.pStatIcon, { backgroundColor: 'var(--warning-bg)' }]}>
+                            <Text style={{ fontSize: 18 }}>🔧</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.pStatLabel}>Maintenance</Text>
+                            <Text style={[styles.pStatValue, { color: 'var(--warning-text)' }]}>{stats.pendingMaintenance}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.portfolioStatItem}>
+                          <View style={[styles.pStatIcon, { backgroundColor: 'var(--danger-bg)' }]}>
+                            <Text style={{ fontSize: 18 }}>⚠️</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.pStatLabel}>Compliance</Text>
+                            <Text style={[styles.pStatValue, { color: 'var(--danger-text)' }]}>{stats.expiringCompliance}</Text>
                           </View>
                         </View>
                       </View>
-                      <View style={styles.healthTextContainer}>
-                        <Text style={styles.healthTitle}>Portfolio Health</Text>
-                        <Text style={styles.healthSubtitle}>
-                          {stats.pendingMaintenance === 0 && stats.expiringCompliance === 0
-                            ? 'Everything is running smoothly.'
-                            : `${stats.pendingMaintenance} issues require attention.`}
-                        </Text>
-                      </View>
                     </View>
-
-                    <View style={styles.portfolioStatsGrid}>
-                      <View style={styles.portfolioStatItem}>
-                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--primary-50)' }]}>
-                          <Text style={{ fontSize: 18 }}>🏠</Text>
-                        </View>
-                        <View>
-                          <Text style={styles.pStatLabel}>Total Units</Text>
-                          <Text style={styles.pStatValue}>{stats.totalProperties}</Text>
-                        </View>
-                      </View>
-                      <View style={styles.portfolioStatItem}>
-                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--success-bg)' }]}>
-                          <Text style={{ fontSize: 18 }}>👥</Text>
-                        </View>
-                        <View>
-                          <Text style={styles.pStatLabel}>Occupied</Text>
-                          <Text style={[styles.pStatValue, { color: 'var(--success-text)' }]}>{stats.activeTenancies}</Text>
-                        </View>
-                      </View>
-                      <View style={styles.portfolioStatItem}>
-                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--warning-bg)' }]}>
-                          <Text style={{ fontSize: 18 }}>🔧</Text>
-                        </View>
-                        <View>
-                          <Text style={styles.pStatLabel}>Maintenance</Text>
-                          <Text style={[styles.pStatValue, { color: 'var(--warning-text)' }]}>{stats.pendingMaintenance}</Text>
-                        </View>
-                      </View>
-                      <View style={styles.portfolioStatItem}>
-                        <View style={[styles.pStatIcon, { backgroundColor: 'var(--danger-bg)' }]}>
-                          <Text style={{ fontSize: 18 }}>⚠️</Text>
-                        </View>
-                        <View>
-                          <Text style={styles.pStatLabel}>Compliance</Text>
-                          <Text style={[styles.pStatValue, { color: 'var(--danger-text)' }]}>{stats.expiringCompliance}</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </div>
+                  </CardContent>
+                </Card>
               </View>
             )}
 
@@ -365,25 +331,20 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
                 </View>
                 <View style={styles.quickActionsGrid}>
                   {quickActions.map((action, index) => (
-                    <TouchableOpacity
+                    <Card
                       key={index}
-                      style={[styles.actionCard, {
-                        backgroundColor: 'var(--bg-surface)',
-                        borderRadius: 12,
-                        padding: 16,
-                        borderWidth: 1,
-                        borderColor: 'var(--border-subtle)',
-                        boxShadow: 'var(--shadow-sm)',
-                      } as any]}
+                      variant="interactive"
+                      style={styles.actionCard}
                       onPress={action.action}
-                      activeOpacity={0.7}
                     >
-                      <Text style={[styles.actionIcon, { fontSize: 24, marginBottom: 8 }]}>{action.icon}</Text>
-                      <View>
-                        <Text style={styles.actionLabel}>{action.label}</Text>
-                        <Text style={styles.actionDescription}>{action.description}</Text>
+                      <View style={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                        <Text style={[styles.actionIcon, { fontSize: 24 }]}>{action.icon}</Text>
+                        <View>
+                          <Text style={styles.actionLabel}>{action.label}</Text>
+                          <Text style={styles.actionDescription}>{action.description}</Text>
+                        </View>
                       </View>
-                    </TouchableOpacity>
+                    </Card>
                   ))}
                 </View>
               </View>
@@ -399,25 +360,36 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
         documentType={previewDoc.type}
       />
 
-      <DocumentModal
+
+
+      <Modal
         isVisible={isCustomizeVisible}
         onClose={() => setIsCustomizeVisible(false)}
-        documentName="Customize View"
-        documentType="Settings"
+        title="Dashboard Layout"
+        width={500}
       >
         <View style={styles.customizeModalContent}>
-          <Text style={styles.customizeModalTitle}>Dashboard Layout</Text>
-          <Text style={styles.customizeModalSubtitle}>Select which sections to display.</Text>
+          <Text style={styles.customizeModalSubtitle}>Select which sections to display on your dashboard.</Text>
           <View style={styles.customizeList}>
+            {/* ... (existing toggles map) */}
             {(Object.keys(visibleWidgets) as Array<keyof typeof visibleWidgets>).map((key) => (
               <TouchableOpacity
                 key={key}
                 style={styles.customizeItem}
                 onPress={() => toggleWidget(key)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.customizeItemLabel}>
-                  {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                </Text>
+                <View>
+                  <Text style={styles.customizeItemLabel}>
+                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                  </Text>
+                  <Text style={styles.customizeItemDesc}>
+                    {key === 'stats' && 'Key metrics overview'}
+                    {key === 'analytics' && 'Charts and health indicators'}
+                    {key === 'quickActions' && 'Shortcuts to common tasks'}
+                    {key === 'insights' && 'AI-driven recommendations'}
+                  </Text>
+                </View>
                 <View style={[styles.toggleSwitch, visibleWidgets[key] && styles.toggleSwitchActive]}>
                   <View style={[styles.toggleThumb, visibleWidgets[key] && styles.toggleThumbActive]} />
                 </View>
@@ -425,7 +397,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
             ))}
           </View>
         </View>
-      </DocumentModal>
+      </Modal>
     </View>
   );
 };
@@ -571,6 +543,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: 'var(--slate-700)',
+  },
+  customizeItemDesc: {
+    fontSize: 12,
+    color: 'var(--slate-500)',
+    marginTop: 2,
   },
   toggleSwitch: {
     width: 44,

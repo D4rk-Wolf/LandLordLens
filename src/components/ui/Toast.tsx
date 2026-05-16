@@ -26,7 +26,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
                 useNativeDriver: true,
             }),
         ]).start();
-    }, []);
+    }, [fadeAnim, slideAnim]);
 
     const handleDismiss = () => {
         // Exit animation
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         borderRadius: 12,
         minHeight: 60,
-        //@ts-ignore
+
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
         elevation: 8,
     },

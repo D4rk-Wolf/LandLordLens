@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity, PanResponder } from 'react-native';
 
 interface Notification {
@@ -50,15 +50,15 @@ export const useNotification = () => {
 };
 
 const Toast: React.FC<Notification & { onClose: () => void }> = ({ message, type, title, onClose }) => {
-    const opacity = useRef(new Animated.Value(0)).current;
-    const translateY = useRef(new Animated.Value(-20)).current;
+    const [opacity] = useState(() => new Animated.Value(0));
+    const [translateY] = useState(() => new Animated.Value(-20));
 
     useEffect(() => {
         Animated.parallel([
             Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
             Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
         ]).start();
-    }, []);
+    }, [opacity, translateY]);
 
     const handleDismiss = () => {
         Animated.parallel([

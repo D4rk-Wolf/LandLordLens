@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/ui/PageHeader';
 
-interface PricingScreenProps {
-    onNavigate: (screen: string) => void;
-}
-
-const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate }) => {
+const PricingScreen: React.FC = () => {
+    const navigate = useNavigate();
 
 
     return (
@@ -14,7 +12,7 @@ const PricingScreen: React.FC<PricingScreenProps> = ({ onNavigate }) => {
             <PageHeader
                 title="Pricing"
                 breadcrumbs={[
-                    { label: 'Dashboard', onPress: () => onNavigate('dashboard') },
+                    { label: 'Dashboard', onPress: () => navigate('/') },
                     { label: 'Pricing' },
                 ]}
             />

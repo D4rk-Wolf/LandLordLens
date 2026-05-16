@@ -1,14 +1,21 @@
+/**
+ * PROPERTY ROUTES
+ * This file handles all CRUD (Create, Read, Update, Delete) operations for properties.
+ * It strictly enforces subscription limits (e.g., Free tier can only have 3 properties).
+ */
+
 const express = require('express');
-const { authenticateToken } = require('./auth');
+const { authenticateToken } = require('./auth'); // Middleware to ensure login
 const Property = require('../../models/tenant/Property');
 const Tenancy = require('../../models/tenant/Tenancy');
 const ComplianceRecord = require('../../models/tenant/ComplianceRecord');
 const MaintenanceTicket = require('../../models/tenant/MaintenanceTicket');
 const User = require('../../models/User');
-const { 
-  canAddProperty, 
-  validateSubscriptionForProperties, 
-  getRequiredTier, 
+// Helper functions to check subscription limits
+const {
+  canAddProperty,
+  validateSubscriptionForProperties,
+  getRequiredTier,
   getFormattedPrice,
   getMaxProperties,
 } = require('../../lib/subscription');
@@ -29,11 +36,12 @@ router.get('/', async (req, res) => {
     }
 
     const properties = await Property.find({ userId: req.user.userId })
-      .sort({ createdAt: -1 });
-    
+      .sort({ createdAt: -1 }); // Newest first
+
+    // Calculate stats for the frontend dashboard
     const propertyCount = properties.length;
     const userSubscription = user.subscription || 'free';
-    
+
     const subscriptionInfo = {
       currentTier: userSubscription,
       propertyCount: propertyCount,
@@ -42,7 +50,7 @@ router.get('/', async (req, res) => {
       validation: validateSubscriptionForProperties(userSubscription, propertyCount),
     };
 
-    res.json({ 
+    res.json({
       properties,
       subscription: subscriptionInfo,
     });
@@ -51,9 +59,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single property
+// Get single property details along with related data (tenancies, defects, etc.)
 router.get('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
   try {
+    // Ensure the property belongs to the logged-in user
     const property = await Property.findOne({
       _id: req.params.id,
       userId: req.user.userId,
@@ -63,7 +72,7 @@ router.get('/:id', validateObjectId('id'), handleValidationErrors, async (req, r
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    // Get related data
+    // Get related data in parallel for performance
     const [tenancies, complianceRecords, maintenanceTickets] = await Promise.all([
       Tenancy.find({ propertyId: property._id }),
       ComplianceRecord.find({ propertyId: property._id }),
@@ -84,7 +93,7 @@ router.get('/:id', validateObjectId('id'), handleValidationErrors, async (req, r
 // Create property
 router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
   try {
-    // Check subscription limits
+    // 1. Fetch user to check subscription status
     const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -93,11 +102,12 @@ router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
     const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
     const userSubscription = user.subscription || 'free';
 
-    // Check if user can add more properties
+    // 2. ENFORCE SUBSCRIPTION LIMITS
+    // If user has reached their limit, block creation and suggest an upgrade
     if (!canAddProperty(userSubscription, currentPropertyCount)) {
       const requiredTier = getRequiredTier(currentPropertyCount + 1);
       const validation = validateSubscriptionForProperties(userSubscription, currentPropertyCount + 1);
-      
+
       return res.status(403).json({
         error: 'Subscription limit reached',
         message: validation.message,
@@ -112,15 +122,16 @@ router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
       });
     }
 
+    // 3. Create the property
     const { complianceRecords, ...propertyData } = req.body;
-    
+
     const property = new Property({
       ...propertyData,
       userId: req.user.userId,
     });
     await property.save();
 
-    // Create compliance records if provided
+    // 4. Create compliance records if provided (e.g. Gas Safety Cert uploaded during creation)
     const createdComplianceRecords = [];
     if (complianceRecords && Array.isArray(complianceRecords) && complianceRecords.length > 0) {
       for (const complianceData of complianceRecords) {
@@ -134,7 +145,7 @@ router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
       }
     }
 
-    res.status(201).json({ 
+    res.status(201).json({
       property,
       complianceRecords: createdComplianceRecords,
     });

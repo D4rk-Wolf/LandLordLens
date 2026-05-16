@@ -1,15 +1,23 @@
+/**
+ * PAYMENT ROUTES
+ * This file handles the user-facing side of payments (initiating checkout, portals).
+ * It acts as the bridge between the React frontend and the Stripe library.
+ */
+
 const express = require('express');
 const { authenticateToken } = require('./auth');
 const User = require('../../models/User');
 const Payment = require('../../models/Payment');
 const Property = require('../../models/tenant/Property');
 const logger = require('../../lib/logger');
+// Helper functions for validating subscription logic
 const {
   getSubscriptionTier,
   getMaxProperties,
   getRequiredTier,
   validateSubscriptionForProperties,
 } = require('../../lib/subscription');
+// Stripe helpers
 const {
   createCheckoutSession,
   createPortalSession,
@@ -25,7 +33,12 @@ router.use(authenticateToken);
 
 /**
  * POST /api/payments/create-checkout
- * Create Stripe checkout session for subscription
+ * Initiates a Stripe Checkout session.
+ * 
+ * 1. Validates the requested tier/period.
+ * 2. Checks if user already has an active subscription to prevent double-billing.
+ * 3. Calls Stripe to create a session.
+ * 4. Returns the session URL (frontend will redirect user there).
  */
 router.post('/create-checkout', async (req, res) => {
   try {
@@ -35,6 +48,7 @@ router.post('/create-checkout', async (req, res) => {
       return res.status(400).json({ error: 'Subscription tier is required' });
     }
 
+    // Validate tier selection
     const validTiers = ['basic', 'premium'];
     if (!validTiers.includes(tier)) {
       return res.status(400).json({
@@ -56,7 +70,7 @@ router.post('/create-checkout', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if user already has an active paid subscription
+    // Prevent double-subscription
     if (user.subscriptionStatus === 'active' && user.subscription !== 'free') {
       return res.status(400).json({
         error: 'Active subscription exists',
@@ -68,7 +82,7 @@ router.post('/create-checkout', async (req, res) => {
 
     res.json({
       sessionId: session.id,
-      url: session.url,
+      url: session.url, // Redirect URL for frontend
     });
   } catch (error) {
     logger.error('Error creating checkout session', error);

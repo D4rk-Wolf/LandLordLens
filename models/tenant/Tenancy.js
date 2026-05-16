@@ -103,4 +103,9 @@ const tenancySchema = new mongoose.Schema({
   },
 });
 
+// Indexes for frequent lookups
+tenancySchema.index({ userId: 1 });
+tenancySchema.index({ propertyId: 1 });
+tenancySchema.index({ status: 1 });
+
 module.exports = mongoose.model('Tenancy', tenancySchema);

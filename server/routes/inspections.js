@@ -1,3 +1,9 @@
+/**
+ * INSPECTIONS ROUTES
+ * Standard CRUD for Property Inspections (Mid-term, Check-in, Check-out).
+ * Linked to both Property and Tenancy models.
+ */
+
 const express = require('express');
 const { authenticateToken } = require('./auth');
 const PropertyInspection = require('../../models/tenant/PropertyInspection');
@@ -9,11 +15,12 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Get all inspections for the user
+// Supports filtering by propertyId or status via query params
 router.get('/', async (req, res) => {
   try {
     const { propertyId, status } = req.query;
     const query = { userId: req.user.userId };
-    
+
     if (propertyId) query.propertyId = propertyId;
     if (status) query.status = status;
 
@@ -21,7 +28,7 @@ router.get('/', async (req, res) => {
       .populate('propertyId')
       .populate('tenancyId')
       .sort({ scheduledDate: -1 });
-    
+
     res.json({ inspections });
   } catch (error) {
     res.status(500).json({ error: error.message });

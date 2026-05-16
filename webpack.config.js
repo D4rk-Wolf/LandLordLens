@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 require('dotenv').config();
 
 const CompressionPlugin = require('compression-webpack-plugin');
@@ -80,7 +81,7 @@ module.exports = (env, argv) => {
       }),
       ...(isProduction
         ? [
-          // new webpack.optimize.ModuleConcatenationPlugin(),
+          new webpack.optimize.ModuleConcatenationPlugin(),
           new CompressionPlugin({
             algorithm: 'gzip',
             test: /\.(js|css|html|svg)$/,
@@ -92,6 +93,24 @@ module.exports = (env, argv) => {
     ],
     optimization: {
       minimize: isProduction,
+      minimizer: isProduction
+        ? [
+          new TerserPlugin({
+            terserOptions: {
+              compress: {
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: ['console.log', 'console.info'],
+              },
+              mangle: true,
+              format: {
+                comments: false,
+              },
+            },
+            extractComments: false,
+          }),
+        ]
+        : [],
       splitChunks: {
         chunks: 'all',
         maxInitialRequests: 25,
@@ -107,9 +126,17 @@ module.exports = (env, argv) => {
             chunks: 'all',
             enforce: true,
           },
+          // Extract React Query separately for better caching
+          reactQuery: {
+            test: /[\\/]node_modules[\\/](@tanstack[\\/]react-query)[\\/]/,
+            name: 'react-query',
+            priority: 35,
+            chunks: 'all',
+            enforce: true,
+          },
           // Extract Navigation libs
           navigation: {
-            test: /[\\/]node_modules[\\/](@react-navigation)[\\/]/,
+            test: /[\\/]node_modules[\\/](@react-navigation|react-router-dom)[\\/]/,
             name: 'navigation',
             priority: 30,
             chunks: 'all',
@@ -134,11 +161,12 @@ module.exports = (env, argv) => {
           },
         },
       },
-      // runtimeChunk: {
-      //   name: 'runtime',
-      // },
+      runtimeChunk: {
+        name: 'runtime',
+      },
       usedExports: true,
       sideEffects: true, // Allow tree shaking
+      moduleIds: 'deterministic',
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map',
     devServer: {
