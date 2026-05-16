@@ -1,18 +1,60 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
 build/
+dist/server/
+
+# Environment files - NEVER commit real secrets
 .env
 .env.local
 .env.*.local
+
+# Stripe key files - contain real API credentials
+STRIPE_ENV.md
+
+# Logs
 *.log
+logs/
+server/debug_error.log
+
+# Debug / scratch files
+debug_sentry.js
+debug_*.js
+
+# Backup files
+*.bak
+*.orig
+*.backup
+
+# Compiled TypeScript outputs that live beside source files
+lib/*.js
+lib/middleware/*.js
+
+# OS artefacts
 .DS_Store
+Thumbs.db
+
+# Editor directories
 .vscode/
 .idea/
+
+# Vim swap files
 *.swp
 *.swo
 *~
-.cache/
+
+# Test coverage
 coverage/
 .nyc_output/
 
+# Caches
+.cache/
+*.tsbuildinfo
+
+# Source maps (generated at build time)
+*.map
+
+# Miscellaneous generated
 /generated/prisma

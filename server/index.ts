@@ -53,10 +53,9 @@ Sentry.init({
         // If expressIntegration is not available in imports (it was in the list), we use it.
         // Default integrations often cover this, but let's stick to base init first to avoid conflicts.
     ],
-    // Tracing
-    tracesSampleRate: 1.0, //  Capture 100% of the transactions
-    // Set sampling rate for profiling - this is relative to tracesSampleRate
-    profilesSampleRate: 1.0,
+    // Capture 10% of transactions in production; 100% in dev for easier debugging
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 });
 
 // Note: Sentry v8 moves away from Handlers.requestHandler()
@@ -71,10 +70,10 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            // Allow scripts from self, and Stripe
-            // TODO: Replace unsafe-inline with nonce for stricter security
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'", "https://js.stripe.com"],
+            // unsafe-inline required for style-loader (runtime CSS injection); revisit if migrating to MiniCssExtractPlugin
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "blob:", "https://*.stripe.com"],
             connectSrc: ["'self'", "https://api.stripe.com"],
             frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
@@ -144,8 +143,10 @@ app.use('/api/legal', require('./routes/legal'));
 app.use('/api/services', require('./routes/services'));
 app.use('/api/webhooks', webhooksRoutes);
 
-// Database Seeding
-app.use('/api/seed', require('./routes/seed'));
+// Database Seeding — development only, never exposed in production
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/api/seed', require('./routes/seed'));
+}
 
 // --- API DOCUMENTATION ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec as any, {
