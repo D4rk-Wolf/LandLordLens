@@ -5,9 +5,9 @@
  * displays a styled form with specific attention to "Premium" aesthetics (gradients, glassmorphism).
  */
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const SignInScreen: React.FC = () => {
@@ -15,20 +15,32 @@ const SignInScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+  const { signIn, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/';
+
+  // Navigate once Supabase onAuthStateChange fires and isAuthenticated becomes true
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setErrorMsg('Please fill in all fields');
       return;
     }
 
+    setErrorMsg('');
     setLoading(true);
     try {
       await signIn(email, password);
+      // Navigation handled by useEffect above once auth state updates
     } catch (error: any) {
-      Alert.alert('Sign In Failed', error.message || 'An error occurred');
+      setErrorMsg(error.message || 'Sign in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -97,6 +109,12 @@ const SignInScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {errorMsg ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        ) : null}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -341,6 +359,19 @@ const styles = StyleSheet.create({
   linkTextBold: {
     color: 'var(--primary)',
     fontWeight: '700',
+  },
+  errorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 

@@ -3,13 +3,11 @@
  * Runs before all tests
  */
 
-// Set test environment variables
-// Set test environment variables
 process.env.NODE_ENV = 'test';
-process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
-process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/landlordlens-test';
 process.env.STRIPE_SECRET_KEY = 'sk_test_mock_key';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_mock_secret';
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'https://jjpsessttexydvjithdl.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key';
 
 // Suppress console logs during tests unless DEBUG is set
 if (!process.env.DEBUG) {

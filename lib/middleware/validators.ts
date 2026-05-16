@@ -40,12 +40,9 @@ export const validateName = (fieldName: string = 'name'): ValidationChain => {
         .withMessage('Name can only contain letters, spaces, hyphens, and apostrophes');
 };
 
-/**
- * MongoDB ObjectId validation
- */
-export const validateObjectId = (fieldName: string = 'id'): ValidationChain => {
+export const validateUUID = (fieldName: string = 'id'): ValidationChain => {
     return param(fieldName)
-        .isMongoId()
+        .isUUID()
         .withMessage('Invalid ID format');
 };
 
@@ -128,7 +125,7 @@ export default {
     validateEmail,
     validatePassword,
     validateName,
-    validateObjectId,
+    validateUUID,
     validateSignup,
     validateSignin,
     validateProperty,

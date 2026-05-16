@@ -1,16 +1,12 @@
 /**
- * SEED ROUTE
- * Helper generic route to populate specific users with sample data (Demo Mode).
- * Creates a Property, Tenancy, Maintenance Ticket, and Compliance Record.
- * ONLY runs if the user has no existing properties (safety check).
+ * SEED ROUTE — development only, never exposed in production.
+ * Populates the authenticated user's account with sample demo data.
+ * Skipped if the user already has properties.
  */
 
 const express = require('express');
 const { authenticateToken } = require('./auth');
-const Property = require('../../models/tenant/Property');
-const Tenancy = require('../../models/tenant/Tenancy');
-const MaintenanceTicket = require('../../models/tenant/MaintenanceTicket');
-const ComplianceRecord = require('../../models/tenant/ComplianceRecord');
+const supabaseAdmin = require('../../lib/supabase').default;
 
 const router = express.Router();
 
@@ -18,67 +14,66 @@ router.post('/data', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        // Check if user already has properties
-        const existingCount = await Property.countDocuments({ userId: userId });
-        if (existingCount > 0) {
+        const { count } = await supabaseAdmin
+            .from('properties')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+
+        if (count > 0) {
             return res.status(400).json({ error: 'User already has data. Cannot seed.' });
         }
 
-        // 1. Create Sample Property
-        const property = new Property({
-            userId: userId,
-            address: {
-                line1: '123 Baker Street',
-                city: 'London',
-                postcode: 'NW1 6XE',
-                country: 'UK'
-            },
-            propertyType: 'apartment',
-            bedrooms: 2,
-            bathrooms: 1,
-            status: 'occupied',
-            rentAmount: 1800,
+        // 1. Create sample property
+        const { data: property, error: propErr } = await supabaseAdmin
+            .from('properties')
+            .insert({
+                user_id: userId,
+                address: { line1: '123 Baker Street', city: 'London', postcode: 'NW1 6XE', country: 'UK' },
+                property_type: 'apartment',
+                bedrooms: 2,
+                bathrooms: 1,
+                status: 'occupied',
+                rent_amount: 1800,
+                compliance: {},
+                financials: {},
+            })
+            .select()
+            .single();
 
-        });
-        await property.save();
+        if (propErr) throw propErr;
 
-        // 2. Create Sample Tenancy
-        const tenancy = new Tenancy({
-            propertyId: property._id,
-            userId: userId,
-            tenantName: 'John Watson',
-            tenantEmail: 'john.watson@example.com',
-            startDate: new Date('2024-01-01'),
-            endDate: new Date('2025-01-01'),
-            monthlyRent: 1800,
-            deposit: 2000,
-            depositProtected: true,
-            status: 'active'
-        });
-        await tenancy.save();
+        // 2. Create sample tenancy
+        const { error: tenErr } = await supabaseAdmin
+            .from('tenancies')
+            .insert({
+                property_id: property.id,
+                user_id: userId,
+                tenant_name: 'John Watson',
+                tenant_email: 'john.watson@example.com',
+                start_date: '2024-01-01',
+                end_date: '2025-01-01',
+                monthly_rent: 1800,
+                deposit: 2000,
+                deposit_protected: true,
+                status: 'active',
+            });
 
-        // 3. Create Sample Maintenance Ticket
-        const ticket = new MaintenanceTicket({
-            propertyId: property._id,
-            userId: userId,
-            title: 'Leaking tap in kitchen',
-            description: 'The hot water tap is dripping constantly.',
-            priority: 'low',
-            status: 'open',
-            // category: 'plumbing' // Removing as it's not in the Mongoose schema I viewed
-        });
-        await ticket.save();
+        if (tenErr) throw tenErr;
 
-        // 4. Create Compliance Record
-        const compliance = new ComplianceRecord({
-            propertyId: property._id,
-            userId: userId,
-            complianceType: 'gas_safety',
-            issueDate: new Date('2024-06-01'),
-            expiryDate: new Date('2025-06-01'),
-            notes: 'Passed with no issues.'
-        });
-        await compliance.save();
+        // 3. Create sample inspection
+        const { error: inspErr } = await supabaseAdmin
+            .from('property_inspections')
+            .insert({
+                property_id: property.id,
+                user_id: userId,
+                inspection_date: new Date().toISOString().split('T')[0],
+                inspector_name: 'Demo Inspector',
+                overall_condition: 'good',
+                notes: 'Sample inspection created by demo seed.',
+                items: [],
+            });
+
+        if (inspErr) throw inspErr;
 
         res.json({ message: 'Sample data seeded successfully!' });
     } catch (error) {
