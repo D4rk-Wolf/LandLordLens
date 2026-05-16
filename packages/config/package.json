@@ -1,0 +1,11 @@
+{
+  "name": "@landlordlens/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./tsconfig": "./tsconfig.base.json",
+    "./tsconfig/nextjs": "./tsconfig.nextjs.json",
+    "./eslint": "./eslint.config.js",
+    "./prettier": "./prettier.config.js"
+  }
+}
