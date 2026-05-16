@@ -1,8 +1,10 @@
 import * as Sentry from '@sentry/react';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  // DSN is a public value — safe to hardcode. Override via SENTRY_DSN env var if needed.
+  dsn: process.env.SENTRY_DSN || 'https://b53a33de4d809cff5ffae9c642897883@o4510669168181248.ingest.us.sentry.io/4511400968454144',
   environment: process.env.NODE_ENV,
+  sendDefaultPii: true,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({

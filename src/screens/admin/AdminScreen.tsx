@@ -1,8 +1,49 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import * as Sentry from '@sentry/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { logger } from '../../utils/logger';
 import { apiClient } from '../../utils/api-client';
+
+// SENTRY VERIFICATION — remove this component once Sentry is confirmed working
+function SentryTestButton() {
+  return (
+    <div style={{
+      marginBottom: 24,
+      padding: '16px 20px',
+      background: '#fef3c7',
+      border: '1px solid #f59e0b',
+      borderRadius: 8,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16,
+    }}>
+      <span style={{ fontSize: 14, color: '#92400e', fontWeight: 500 }}>
+        Sentry verification — remove after confirming events appear in your dashboard:
+      </span>
+      <button
+        onClick={() => {
+          Sentry.logger.info('User triggered Sentry test', { action: 'test_error_button_click' });
+          Sentry.metrics.count('test_counter', 1);
+          throw new Error('This is your first error!');
+        }}
+        style={{
+          background: '#dc2626',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 6,
+          padding: '8px 16px',
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Break the world
+      </button>
+    </div>
+  );
+}
 
 interface User {
   _id: string;
@@ -149,8 +190,9 @@ const AdminScreen: React.FC = () => {
     <div className="saas-content-scroll">
       <div className="saas-header" style={{ paddingLeft: 0, paddingRight: 0, marginBottom: 24, background: 'transparent', borderBottom: 'none' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Admin Dashboard</h1>
-
       </div>
+
+      <SentryTestButton />
 
       {loading ? (
         <div className="saas-loading-container" style={{ height: 300, background: 'transparent' }}>
