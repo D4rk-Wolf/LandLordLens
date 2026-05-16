@@ -1,139 +1,90 @@
-# LandlordLens
+# LandLordLens
 
-A modern property management and compliance tracking system for UK landlords, built with React Native Web.
+UK property management and compliance SaaS for landlords. Compliance-first — built to reduce risk for accidental landlords managing 1–50 properties.
 
-## 🚀 Quick Start
+## Stack
 
-### For Non-Technical Users
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 15 (App Router) |
+| Monorepo | Turborepo + pnpm workspaces |
+| API | tRPC |
+| Database | Supabase Postgres + Drizzle ORM |
+| Auth | Supabase Auth |
+| Payments | Stripe |
+| Email | Resend + React Email |
+| Styling | Tailwind CSS + shadcn/ui |
+| Testing | Vitest + Playwright |
+| Deployment | Vercel |
+| Monitoring | Sentry |
 
-Run the simple setup script:
+## Monorepo Structure
 
-```bash
-./setup-simple.sh
+```text
+apps/
+  web/          Next.js 15 App Router
+  email/        React Email templates (Resend)
+packages/
+  db/           Drizzle schema + migrations
+  api/          tRPC router + all procedures
+  auth/         Supabase auth helpers + middleware
+  billing/      Stripe + subscription tier logic
+  ui/           shadcn/ui + custom components
+  config/       Shared TS / ESLint / Tailwind config
 ```
 
-This will guide you through the entire setup process step by step.
-
-### For Technical Users
-
-Run the full setup script with GUI support:
-
-```bash
-./setup.sh
-```
-
-Or with debug mode:
-
-```bash
-./setup.sh --debug
-```
-
-## 📋 Prerequisites
-
-- Node.js 18+ and npm
-- MongoDB 6.0+ (local or cloud instance)
-- (Optional) GUI tools (zenity/kdialog) for better setup experience
-
-## 🏗️ Architecture
-
-This application uses a **multi-tenant database architecture** where each user gets their own dedicated PostgreSQL database. See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
-
-The frontend is built with **React Native Web**, allowing the same codebase to run on web, iOS, and Android platforms.
-
-## 🎯 Features
-
-### Core Features
-- **Dashboard**: Overview of properties, compliance, and maintenance
-- **Property Management**: Add and manage properties with UK-specific compliance fields
-- **Compliance Tracking**: Track UK compliance requirements (Gas Safety, EPC, HMO, etc.)
-- **Maintenance Tickets**: Manage property maintenance requests
-- **Admin Dashboard**: Manage users, payments, and deploy updates
-- **Multi-Tenant**: Each user has their own isolated database
-
-### New UK Landlord Compliance Features
-- **Deposit Protection**: Track deposits in government-approved schemes (DPS, MyDeposits, TDS)
-- **Right to Rent Checks**: Mandatory tenant verification for England
-- **EPC Management**: Track Energy Performance Certificates with rating and expiry
-- **Fire Safety**: Monitor smoke and carbon monoxide alarm installation/testing
-- **HMO License Tracking**: Manage Houses in Multiple Occupation licenses
-- **Legionella Risk Assessments**: Track water safety assessments
-- **Inventory Management**: Comprehensive check-in/check-out inventories with photos
-- **Tenant Background Checks**: Credit checks, employment verification, landlord references
-- **Property Inspections**: Schedule and track routine and compliance inspections
-- **Expense & Tax Tracking**: Categorize expenses for HMRC reporting with automatic tax year calculation
-- **Rent Management**: Track rent increases, Section 13 notices, and rent reviews
-- **Regional Compliance**: Support for England, Wales, Scotland, and Northern Ireland requirements
-
-See [FEATURES_ADDED.md](./FEATURES_ADDED.md) for detailed information about all new features.
-
-## 📁 Project Structure
-
-```
-├── src/                   # React Native source code
-│   ├── screens/          # Screen components
-│   ├── navigation/      # Navigation setup
-│   ├── contexts/        # React contexts (Auth, etc.)
-│   └── styles/          # Global styles
-├── server/              # Express API server
-│   ├── routes/         # API route handlers
-│   └── index.js       # Server entry point
-├── lib/                 # Utilities and helpers
-│   ├── mongodb.js      # MongoDB connection
-│   ├── logger.js       # Server-side logging utility
-│   ├── stripe.js       # Stripe payment integration
-│   └── subscription.js # Subscription tier management
-├── models/              # Mongoose models
-│   ├── User.js        # User model
-│   ├── Payment.js     # Payment model
-│   └── tenant/       # Tenant-specific models
-│       ├── Property.js
-│       ├── Tenancy.js
-│       └── ...
-└── setup-simple.sh     # Simple setup script
-```
-
-## 🛠️ Development
+## Getting Started
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
-# Run development server (web + API)
-npm run dev
+# Set up environment variables
+cp .env.example .env.local
 
-# Run web only
-npm run web
+# Start local Supabase
+pnpm supabase start
 
-# Run API server only
-npm run server
+# Run database migrations
+pnpm db:migrate
 
-# Build for production
-npm run build
+# Start development server
+pnpm dev
 ```
 
+## Subscription Tiers
 
-## 🧪 Testing
+| Tier | Properties | Price |
+| --- | --- | --- |
+| Free | 2 | £0 |
+| Professional | 10 | £12/mo · £120/yr |
+| Business | 50 | £29/mo · £290/yr |
+| Enterprise | Unlimited | £99/mo · £990/yr |
+
+## UK Compliance Features
+
+- EPC certificate tracking and expiry alerts
+- Gas Safety certificate management
+- HMO licensing
+- Right to Rent verification
+- Deposit protection scheme tracking
+- Section 8 notice wizard
+- Fire safety compliance
+- Legionella risk assessment tracking
+- Regional compliance (England, Wales, Scotland, Northern Ireland)
+
+## Testing
 
 ```bash
-# Run all tests
-npm test
-
-# Run backend tests
-npm test tests/server
-
-# Run frontend tests
-npm test tests/screens
+pnpm test              # Unit tests (all packages, parallel)
+pnpm test:integration  # Integration tests (requires local Supabase)
+pnpm test:e2e          # Playwright E2E tests
 ```
 
-## 📚 Documentation
+## Design Spec
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and database design
-- **[SETUP.md](./SETUP.md)** - Detailed setup instructions
+Full rebuild design documented at [`docs/superpowers/specs/2026-05-16-landlordlens-rebuild-design.md`](docs/superpowers/specs/2026-05-16-landlordlens-rebuild-design.md).
 
-## 🔐 Admin Access
+## License
 
-After setup, access the admin dashboard using your admin account credentials.
-
-## 📝 License
-
-Private - All rights reserved
+Private — All rights reserved
