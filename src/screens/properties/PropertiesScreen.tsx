@@ -25,7 +25,7 @@ import { useProperties } from '../../hooks/queries/useProperties';
 import { Property } from '../../types/models';
 
 const PropertiesScreen: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   // Using custom hook for data fetching (Separation of Concerns)
   const { data: properties = [], isLoading: loading, refetch } = useProperties();
@@ -85,7 +85,7 @@ const PropertiesScreen: React.FC = () => {
   const deleteProperty = useCallback(async (id: string) => {
     if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
       try {
-        await apiClient.delete(`/properties/${id}`, token || undefined);
+        await apiClient.delete(`/properties/${id}`);
         showToast('Property deleted successfully', 'success');
         refetch(); // Refetch after delete
       } catch (error) {
@@ -93,7 +93,7 @@ const PropertiesScreen: React.FC = () => {
         showToast('Failed to delete property', 'error');
       }
     }
-  }, [token, refetch]);
+  }, [refetch]);
 
   const getStatusConfig = useCallback((status: string) => {
     const configs: Record<string, { label: string; badge: string }> = {

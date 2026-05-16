@@ -11,7 +11,6 @@ import { TenantBackgroundCheck } from '../../types/models';
 const TenantBackgroundCheckScreen: React.FC = () => {
   const { tenancyId } = useParams<{ tenancyId: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
   const backgroundCheck = data?.backgroundCheck;
 
@@ -78,7 +77,7 @@ const TenantBackgroundCheckScreen: React.FC = () => {
       await apiClient.post(
         `/tenancies/${tenancyId}/background-check`,
         formData,
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Background check saved');

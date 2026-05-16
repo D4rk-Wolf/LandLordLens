@@ -11,7 +11,6 @@ import { Inventory } from '../../types/models';
 const InventoryScreen: React.FC = () => {
   const { tenancyId } = useParams<{ tenancyId: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
   const inventories: Inventory[] = data?.inventories || [];
 
@@ -35,7 +34,7 @@ const InventoryScreen: React.FC = () => {
           ...formData,
           date: new Date(formData.date),
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Inventory record saved');

@@ -13,7 +13,6 @@ interface ExpensesScreenProps {
 const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropertyId }) => {
   const { propertyId: paramPropertyId } = useParams<{ propertyId: string }>();
   const propertyId = propPropertyId || paramPropertyId;
-  const { token } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +36,6 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropert
       const endpoint = propertyId ? `/expenses?propertyId=${propertyId}` : '/expenses';
       const data = await apiClient.get<{ expenses: any[] }>(
         endpoint,
-        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setExpenses(data.expenses || []);
@@ -46,20 +44,19 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropert
     } finally {
       setLoading(false);
     }
-  }, [token, propertyId]);
+  }, [propertyId]);
 
   const fetchSummary = useCallback(async () => {
     try {
       const data = await apiClient.get<{ summary: any }>(
         '/expenses/summary',
-        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setSummary(data.summary);
     } catch (error) {
       logger.error('Error fetching summary', error);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchExpenses();
@@ -75,18 +72,10 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropert
       const data = new FormData();
       data.append('receipt', file);
 
-      // Using raw fetch for FormData handling
-      const response = await fetch('/api/expenses/scan', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: data
-      });
 
-      if (!response.ok) throw new Error('Scan failed');
 
-      const result = await response.json();
+
+      const result = await apiClient.post<any>('/expenses/scan', data);
 
       setFormData({
         ...formData,
@@ -118,7 +107,7 @@ const ExpensesScreen: React.FC<ExpensesScreenProps> = ({ propertyId: propPropert
           date: new Date(formData.date),
           propertyId: formData.propertyId || undefined,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Expense saved');

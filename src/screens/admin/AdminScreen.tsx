@@ -68,7 +68,6 @@ const TIER_LABELS: Record<Tier, string> = {
 };
 
 const AdminScreen: React.FC = () => {
-  const { token } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +80,6 @@ const AdminScreen: React.FC = () => {
     try {
       const data = await apiClient.get<{ stats: any }>(
         '/admin/stats',
-        token || undefined,
         { cache: true, cacheTTL: 5 * 60 * 1000 }
       );
       setStats(data.stats);
@@ -90,7 +88,7 @@ const AdminScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
@@ -99,7 +97,6 @@ const AdminScreen: React.FC = () => {
     try {
       const data = await apiClient.get<{ users: User[] }>(
         '/admin/users',
-        token || undefined,
         { cache: false }
       );
       setUsers(data.users);
@@ -109,7 +106,7 @@ const AdminScreen: React.FC = () => {
     } finally {
       setUsersLoading(false);
     }
-  }, [token]);
+  }, []);
 
   const updateUserTier = useCallback(async (userId: string, tier: Tier) => {
     setUpdatingUsers((prev) => new Set(prev).add(userId));
@@ -120,7 +117,6 @@ const AdminScreen: React.FC = () => {
       await apiClient.put<{ user: User; message: string }>(
         `/admin/users/${userId}/subscription`,
         { tier },
-        token || undefined,
         { cache: false }
       );
 
@@ -145,7 +141,7 @@ const AdminScreen: React.FC = () => {
         return next;
       });
     }
-  }, [token, fetchStats]);
+  }, [fetchStats]);
 
   useEffect(() => {
     fetchStats();

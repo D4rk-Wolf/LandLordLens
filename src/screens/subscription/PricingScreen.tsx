@@ -18,7 +18,6 @@ interface UseSubscription {
 }
 
 const PricingScreen: React.FC = () => {
-    const { token } = useAuth(); // Assuming useAuth provides token
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
     const [loading, setLoading] = useState(false);
 
@@ -56,7 +55,7 @@ const PricingScreen: React.FC = () => {
             const { url } = await apiClient.post<{ url: string }>(
                 '/subscription/create-checkout-session',
                 { tier: tierId, period },
-                token || undefined
+                undefined
             );
 
             if (url) {

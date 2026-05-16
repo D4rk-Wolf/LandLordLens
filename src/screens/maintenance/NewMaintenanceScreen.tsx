@@ -18,7 +18,6 @@ interface Property {
 const NewMaintenanceScreen: React.FC = () => {
   const { id: propertyIdParam } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
@@ -34,7 +33,6 @@ const NewMaintenanceScreen: React.FC = () => {
     try {
       const data = await apiClient.get<{ properties: Property[] }>(
         '/properties',
-        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setProperties(data.properties || []);
@@ -46,7 +44,7 @@ const NewMaintenanceScreen: React.FC = () => {
     } finally {
       setLoadingProperties(false);
     }
-  }, [token, propertyIdParam, formData.propertyId]);
+  }, [propertyIdParam, formData.propertyId]);
 
   useEffect(() => {
     fetchProperties();
@@ -73,7 +71,7 @@ const NewMaintenanceScreen: React.FC = () => {
           priority: formData.priority,
           reportedBy: formData.reportedBy || undefined,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Maintenance ticket created successfully', [

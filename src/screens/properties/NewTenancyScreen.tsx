@@ -9,7 +9,6 @@ import PageHeader from '../../components/ui/PageHeader';
 const NewTenancyScreen: React.FC = () => {
   const { id: propertyId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     tenantName: '',
@@ -45,7 +44,7 @@ const NewTenancyScreen: React.FC = () => {
         endDate: string;
         monthlyRent: number;
         deposit: number;
-      }>('/tenancies/parse-lease', formData, token || undefined);
+      }>('/tenancies/parse-lease', formData);
 
       const { tenantName, startDate, endDate, monthlyRent, deposit } = response;
 
@@ -89,7 +88,7 @@ const NewTenancyScreen: React.FC = () => {
           deposit: formData.deposit ? parseFloat(formData.deposit) : undefined,
           notes: formData.notes || undefined,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Tenancy created successfully', [

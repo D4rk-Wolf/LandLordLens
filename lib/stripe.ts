@@ -4,21 +4,24 @@
 
 import Stripe from 'stripe';
 import logger from './logger';
-import { IUser } from '../models/User';
+
+interface StripeUser {
+    _id: string;
+    email: string;
+    name?: string;
+    stripeCustomerId?: string;
+}
 
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY environment variable is required. Please set it in your .env file.');
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-12-18.acacia' as any, // Using 'any' to bypass strict version check if needed, or update to latest supported
+    apiVersion: '2024-12-18.acacia' as any,
     typescript: true,
 });
 
-/**
- * Create or retrieve Stripe customer
- */
-export async function getOrCreateCustomer(user: IUser): Promise<Stripe.Customer> {
+export async function getOrCreateCustomer(user: StripeUser): Promise<Stripe.Customer> {
     try {
         if (user.stripeCustomerId) {
             const customer = await stripe.customers.retrieve(user.stripeCustomerId);
@@ -27,30 +30,18 @@ export async function getOrCreateCustomer(user: IUser): Promise<Stripe.Customer>
             }
         }
 
-        // Create new customer
-        const customer = await stripe.customers.create({
+        return await stripe.customers.create({
             email: user.email,
             name: user.name,
-            metadata: {
-                userId: user._id.toString(),
-            },
+            metadata: { userId: user._id.toString() },
         });
-
-        // Update user with customer ID
-        user.stripeCustomerId = customer.id;
-        await user.save();
-
-        return customer;
     } catch (error) {
         logger.error('Error creating/retrieving Stripe customer', error);
         throw error;
     }
 }
 
-/**
- * Create checkout session for subscription
- */
-export async function createCheckoutSession(user: IUser, tier: string, period: 'monthly' | 'yearly' = 'monthly'): Promise<Stripe.Checkout.Session> {
+export async function createCheckoutSession(user: StripeUser, tier: string, period: 'monthly' | 'yearly' = 'monthly'): Promise<Stripe.Checkout.Session> {
     try {
         const customer = await getOrCreateCustomer(user);
 

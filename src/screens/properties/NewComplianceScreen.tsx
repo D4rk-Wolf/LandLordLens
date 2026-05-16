@@ -9,7 +9,6 @@ import PageHeader from '../../components/ui/PageHeader';
 const NewComplianceScreen: React.FC = () => {
   const { id: propertyId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     complianceType: 'gas_safety',
@@ -47,7 +46,7 @@ const NewComplianceScreen: React.FC = () => {
           issuer: formData.issuer || undefined,
           notes: formData.notes || undefined,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Compliance record created successfully', [

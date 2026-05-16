@@ -22,14 +22,13 @@ interface ComplianceSummary {
 
 const ComplianceScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [summary, setSummary] = useState<ComplianceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const data = await apiClient.get<ComplianceSummary>('/compliance/summary', token || undefined);
+        const data = await apiClient.get<ComplianceSummary>('/compliance/summary');
         setSummary(data);
       } catch (error) {
         console.error('Failed to fetch summary', error);
@@ -38,10 +37,10 @@ const ComplianceScreen: React.FC = () => {
       }
     };
 
-    if (token) {
+    {
       fetchSummary();
     }
-  }, [token]);
+  }, []);
 
   if (loading) {
     return (

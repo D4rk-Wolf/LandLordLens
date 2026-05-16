@@ -22,7 +22,7 @@ import EmptyState from '../../components/ui/EmptyState';
 
 const MaintenanceScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<MaintenanceTicket[]>([]);
   const [loading, setLoading] = useState(true);
 

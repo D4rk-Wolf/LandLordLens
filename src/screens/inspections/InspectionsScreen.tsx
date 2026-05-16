@@ -13,7 +13,6 @@ interface InspectionsScreenProps {
 const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ propertyId: propPropertyId }) => {
   const { propertyId: paramPropertyId } = useParams<{ propertyId: string }>();
   const propertyId = propPropertyId || paramPropertyId;
-  const { token } = useAuth();
   const [inspections, setInspections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -29,7 +28,6 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ propertyId: propP
       const endpoint = propertyId ? `/inspections?propertyId=${propertyId}` : '/inspections';
       const data = await apiClient.get<{ inspections: any[] }>(
         endpoint,
-        token || undefined,
         { cache: true, cacheTTL: 2 * 60 * 1000 }
       );
       setInspections(data.inspections || []);
@@ -38,7 +36,7 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ propertyId: propP
     } finally {
       setLoading(false);
     }
-  }, [token, propertyId]);
+  }, [propertyId]);
 
   useEffect(() => {
     fetchInspections();
@@ -52,7 +50,7 @@ const InspectionsScreen: React.FC<InspectionsScreenProps> = ({ propertyId: propP
           ...formData,
           scheduledDate: new Date(formData.scheduledDate),
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Inspection scheduled');

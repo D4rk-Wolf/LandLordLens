@@ -18,7 +18,6 @@ interface Service {
 const ServicesMarketplaceScreen: React.FC = () => {
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
-    const { token } = useAuth(); // Assuming useAuth provides token, though apiClient might handle it
 
     useEffect(() => {
         fetchServices();
@@ -28,7 +27,6 @@ const ServicesMarketplaceScreen: React.FC = () => {
         try {
             // Use apiClient or fetch directly if apiClient doesn't support this yet
             const response = await fetch('/api/services/catalog', {
-                headers: { Authorization: `Bearer ${token}` }
             });
             if (response.ok) {
                 const data = await response.json();
@@ -48,7 +46,6 @@ const ServicesMarketplaceScreen: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ context: { source: 'marketplace' } })
             });

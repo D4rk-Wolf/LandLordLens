@@ -9,7 +9,6 @@ import { useTenancy } from '../../hooks/queries/useTenancy';
 const DepositProtectionScreen: React.FC = () => {
   const { tenancyId } = useParams<{ tenancyId: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
   const depositProtection = data?.depositProtection;
 
@@ -46,7 +45,7 @@ const DepositProtectionScreen: React.FC = () => {
           depositAmount: parseFloat(formData.depositAmount),
           protectedDate: new Date(formData.protectedDate),
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Deposit protection record saved');

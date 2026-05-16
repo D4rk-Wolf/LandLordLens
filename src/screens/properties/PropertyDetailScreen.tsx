@@ -12,7 +12,6 @@ import { Tenancy, MaintenanceRequest, ComplianceRecord } from '../../types/model
 const PropertyDetailScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { data, isLoading: loading, isError } = useProperty(id);
 
   // Destructure data for easier access, handling undefined during loading
@@ -58,7 +57,6 @@ const PropertyDetailScreen: React.FC = () => {
     try {
       const response = await fetch(`/api/compliance/export-audit/${tenancyId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
         }
       });
 

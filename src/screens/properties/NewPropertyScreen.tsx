@@ -16,7 +16,6 @@ interface ComplianceRecord {
 }
 
 const NewPropertyScreen: React.FC = () => {
-  const { token } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -98,7 +97,7 @@ const NewPropertyScreen: React.FC = () => {
     }
 
     try {
-      const data = await apiClient.get<any>(`/services/epc-lookup?postcode=${formData.address.postcode}`, token || undefined);
+      const data = await apiClient.get<any>(`/services/epc-lookup?postcode=${formData.address.postcode}`);
 
       // Auto-populate EPC compliance record
       const epcRecord: ComplianceRecord = {
@@ -132,7 +131,7 @@ const NewPropertyScreen: React.FC = () => {
         postcode: formData.address.postcode,
         bedrooms: parseInt(formData.bedrooms),
         propertyType: formData.propertyType
-      }, token || undefined);
+      });
 
       setRentEstimate(data);
       if (data.estimatedRent) {
@@ -212,7 +211,7 @@ const NewPropertyScreen: React.FC = () => {
             };
           }) : undefined,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Property created successfully', [

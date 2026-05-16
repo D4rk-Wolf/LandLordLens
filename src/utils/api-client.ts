@@ -47,7 +47,7 @@ class APIClient {
     return requestPromise;
   }
 
-  async get<T>(endpoint: string, _token?: string, config: RequestConfig = {}): Promise<T> {
+  async get<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     const authHeaders = await getAuthHeaders();
     const options: RequestInit = {
@@ -57,7 +57,7 @@ class APIClient {
     return this.fetchAndDeduplicate<T>(url, options);
   }
 
-  async post<T>(endpoint: string, data: unknown, _token?: string, config: RequestConfig = {}): Promise<T> {
+  async post<T>(endpoint: string, data: unknown, config: RequestConfig = {}): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     const isFormData = data instanceof FormData;
     const authHeaders = await getAuthHeaders();
@@ -79,7 +79,7 @@ class APIClient {
     });
   }
 
-  async put<T>(endpoint: string, data: unknown, _token?: string, config: RequestConfig = {}): Promise<T> {
+  async put<T>(endpoint: string, data: unknown, config: RequestConfig = {}): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     const authHeaders = await getAuthHeaders();
     const options: RequestInit = {
@@ -96,7 +96,7 @@ class APIClient {
     });
   }
 
-  async delete<T>(endpoint: string, _token?: string, config: RequestConfig = {}): Promise<T> {
+  async delete<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     const authHeaders = await getAuthHeaders();
     const options: RequestInit = {

@@ -11,7 +11,6 @@ import { RightToRentCheck } from '../../types/models';
 const RightToRentScreen: React.FC = () => {
   const { tenancyId } = useParams<{ tenancyId: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
   const { data, isLoading: loading, refetch } = useTenancy(tenancyId);
   const checks: RightToRentCheck[] = data?.rightToRent || [];
 
@@ -37,7 +36,7 @@ const RightToRentScreen: React.FC = () => {
           tenantDateOfBirth: new Date(formData.tenantDateOfBirth),
           expiryDate: formData.expiryDate ? new Date(formData.expiryDate) : null,
         },
-        token || undefined
+        undefined
       );
 
       Alert.alert('Success', 'Right to rent check saved');

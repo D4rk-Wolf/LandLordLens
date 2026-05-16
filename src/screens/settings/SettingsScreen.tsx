@@ -8,7 +8,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const SettingsScreen: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { theme, toggleTheme, isDark, themeMode, setThemeMode } = useTheme();
   const { showNotification } = useNotification();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -47,7 +47,7 @@ const SettingsScreen: React.FC = () => {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         },
-        token || undefined
+        undefined
       );
 
       showNotification('Security credentials updated.', 'success');

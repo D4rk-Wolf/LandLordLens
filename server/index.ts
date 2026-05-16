@@ -15,7 +15,6 @@ import compression from 'compression';
 
 import swaggerUi from 'swagger-ui-express';
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import logger from '../lib/logger';
 import { sanitizeInput } from '../lib/middleware/sanitize';
@@ -45,16 +44,7 @@ const app = express();
 // Initialize Sentry
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    integrations: [
-        nodeProfilingIntegration(),
-        // Add Express integration for tracing
-        // Note: In v8, standard integrations are sometimes auto-added, but explicit is safe if needed.
-        // If expressIntegration is not available in imports (it was in the list), we use it.
-        // Default integrations often cover this, but let's stick to base init first to avoid conflicts.
-    ],
-    // Capture 10% of transactions in production; 100% in dev for easier debugging
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 });
 
 // Note: Sentry v8 moves away from Handlers.requestHandler()

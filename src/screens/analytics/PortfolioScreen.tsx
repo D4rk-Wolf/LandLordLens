@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../utils/api-client';
 
 interface AnalyticsData {
     valuation: {
@@ -18,18 +18,13 @@ interface AnalyticsData {
 }
 
 const PortfolioScreen: React.FC = () => {
-    const { token } = useAuth();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const fetchAnalytics = React.useCallback(async () => {
         try {
-            const response = await fetch('/api/analytics/portfolio', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error('Failed to fetch analytics');
-            const json = await response.json();
+            const json = await apiClient.get<AnalyticsData>('/analytics/portfolio');
             setData(json);
         } catch (err) {
             setError('Could not load portfolio data');
@@ -37,7 +32,7 @@ const PortfolioScreen: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, []);
 
     useEffect(() => {
         fetchAnalytics();

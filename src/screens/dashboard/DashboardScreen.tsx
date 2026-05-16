@@ -25,7 +25,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { CountUp } from '../../components/ui/CountUp';
 
 const DashboardScreen: React.FC = () => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Dashboard State
@@ -71,7 +71,6 @@ const DashboardScreen: React.FC = () => {
     try {
       const data = await apiClient.get<{ stats: any }>(
         '/analytics/dashboard-stats',
-        token || undefined,
         { cache: true, cacheTTL: 60 * 1000 } // 1 minute cache
       );
 
@@ -82,7 +81,7 @@ const DashboardScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
@@ -203,7 +202,7 @@ const DashboardScreen: React.FC = () => {
                     onPress={async () => {
                       try {
                         setLoading(true);
-                        await apiClient.post('/seed/data', {}, token || undefined);
+                        await apiClient.post('/seed/data', {});
                         window.location.reload();
                       } catch (error) {
                         logger.error('Failed to seed data', error);

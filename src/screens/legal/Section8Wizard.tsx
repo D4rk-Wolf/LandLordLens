@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../utils/api-client';
 
 // Mock Tenancy Selector for MVP (In real app, pass tenancyId as prop or select from list)
 // For this screen, we'll assume we are passed a tenancyId via params, or let user pick.
@@ -14,7 +14,6 @@ const GROUNDS = [
 ];
 
 const Section8Wizard: React.FC<{ onNavigate: (screen: string) => void }> = ({ onNavigate }) => {
-    const { token } = useAuth();
     const [step, setStep] = useState(1);
     const [tenancies, setTenancies] = useState<any[]>([]);
     const [selectedTenancyId, setSelectedTenancyId] = useState<string>('');
@@ -29,13 +28,10 @@ const Section8Wizard: React.FC<{ onNavigate: (screen: string) => void }> = ({ on
 
     const fetchTenancies = async () => {
         try {
-            const response = await fetch('/api/tenancies', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const data = await response.json();
+            const data = await apiClient.get<{ tenancies: any[] }>('/tenancies');
             if (data.tenancies && data.tenancies.length > 0) {
                 setTenancies(data.tenancies);
-                setSelectedTenancyId(data.tenancies[0]._id);
+                setSelectedTenancyId(data.tenancies[0].id);
             }
         } catch (err) {
             console.error('Failed to load tenancies');
@@ -60,15 +56,7 @@ const Section8Wizard: React.FC<{ onNavigate: (screen: string) => void }> = ({ on
 
         setValidating(true);
         try {
-            const response = await fetch('/api/legal/section8/validate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ tenancyId: selectedTenancyId, grounds: selectedGrounds })
-            });
-            const result = await response.json();
+            const result = await apiClient.post<any>('/legal/section8/validate', { tenancyId: selectedTenancyId, grounds: selectedGrounds });
             setValidationResult(result);
             setStep(3);
         } catch (err) {
