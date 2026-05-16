@@ -52,6 +52,7 @@ coverage/
 # Caches
 .cache/
 *.tsbuildinfo
+.turbo/
 
 # Source maps (generated at build time)
 *.map
