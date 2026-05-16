@@ -80,6 +80,8 @@ module.exports = (env, argv) => {
         'process.env.STRIPE_PRICING_TABLE_ID': JSON.stringify(process.env.STRIPE_PRICING_TABLE_ID),
         'process.env.STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
         'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN || ''),
+        'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
+        'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY || ''),
       }),
       ...(isProduction
         ? [

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback, ReactNode } from 'react';
-import { apiClient } from '../utils/api-client';
+import { supabase } from '../lib/supabase';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 interface User {
   id: string;
@@ -11,98 +12,84 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function toUser(supabaseUser: SupabaseUser, profile?: any): User {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email ?? '',
+    name: profile?.name ?? supabaseUser.user_metadata?.name ?? '',
+    role: profile?.role ?? 'landlord',
+    subscription: profile?.subscription ?? 'free',
+  };
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  // Token is now managed by httpOnly cookie, so we don't store it in client state
-  // We keep the isAuthenticated logic based on user presence
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const data = await apiClient.get<{ user: User }>('/auth/me');
-        setUser(data.user);
-      } catch (error) {
-        // Not authenticated or session expired
-        setUser(null);
-      } finally {
-        setLoading(false);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        setUser(toUser(session.user, profile));
       }
-    };
+      setLoading(false);
+    });
 
-    checkAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      if (session?.user) {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        setUser(toUser(session.user, profile));
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    try {
-      const data = await apiClient.post<{ user: User }>(
-        '/auth/signin',
-        { email, password }
-      );
-
-      setUser(data.user);
-    } catch (error) {
-      throw error;
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, name: string) => {
-    try {
-      const data = await apiClient.post<{ user: User }>(
-        '/auth/signup',
-        { email, password, name }
-      );
-
-      setUser(data.user);
-    } catch (error) {
-      throw error;
-    }
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+    if (error) throw new Error(error.message);
   }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await apiClient.post('/auth/signout', {});
-    } catch (error) {
-      console.error('Sign out error', error);
-    } finally {
-      setUser(null);
-    }
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   }, []);
 
   const value = useMemo(
-    () => ({
-      user,
-      token: null, // Token is HTTP-only
-      loading,
-      signIn,
-      signUp,
-      signOut,
-      isAuthenticated: !!user,
-    }),
-    [user, loading, signIn, signUp, signOut]
+    () => ({ user, session, loading, signIn, signUp, signOut, isAuthenticated: !!user }),
+    [user, session, loading, signIn, signUp, signOut]
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

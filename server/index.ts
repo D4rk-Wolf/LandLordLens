@@ -18,7 +18,6 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import logger from '../lib/logger';
-import { connectToMongoDB } from '../lib/mongodb';
 import { sanitizeInput } from '../lib/middleware/sanitize';
 import { generalLimiter, authLimiter } from '../lib/middleware/rateLimiter';
 import swaggerSpec from '../lib/swagger';
@@ -174,7 +173,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // --- SERVER STARTUP ---
 async function startServer() {
     try {
-        await connectToMongoDB();
+        logger.info('Using Supabase Postgres — no local DB connection needed.');
 
         const server = app.listen(PORT, () => {
             logger.info(`Server running on http://localhost:${PORT}`);

@@ -1,269 +1,120 @@
-/**
- * PROPERTY ROUTES
- * This file handles all CRUD (Create, Read, Update, Delete) operations for properties.
- * It strictly enforces subscription limits (e.g., Free tier can only have 3 properties).
- */
-
 const express = require('express');
-const { authenticateToken } = require('./auth'); // Middleware to ensure login
-const Property = require('../../models/tenant/Property');
-const Tenancy = require('../../models/tenant/Tenancy');
-const ComplianceRecord = require('../../models/tenant/ComplianceRecord');
-const MaintenanceTicket = require('../../models/tenant/MaintenanceTicket');
-const User = require('../../models/User');
-// Helper functions to check subscription limits
-const {
-  canAddProperty,
-  validateSubscriptionForProperties,
-  getRequiredTier,
-  getFormattedPrice,
-  getMaxProperties,
-} = require('../../lib/subscription');
-const { validateProperty, validateObjectId } = require('../../lib/middleware/validators');
-const { handleValidationErrors } = require('../../lib/middleware/sanitize');
+const { authenticateToken } = require('./auth');
+const supabaseAdmin = require('../../lib/supabase').default;
+const { canAddProperty, getMaxProperties, validateSubscriptionForProperties } = require('../../lib/subscription');
 
 const router = express.Router();
-
-// All routes require authentication
 router.use(authenticateToken);
 
-// Get all properties for the user
 router.get('/', async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    try {
+        const { data: properties, error } = await supabaseAdmin
+            .from('properties')
+            .select('*')
+            .eq('user_id', req.user.userId)
+            .order('created_at', { ascending: false });
 
-    const properties = await Property.find({ userId: req.user.userId })
-      .sort({ createdAt: -1 }); // Newest first
+        if (error) throw error;
 
-    // Calculate stats for the frontend dashboard
-    const propertyCount = properties.length;
-    const userSubscription = user.subscription || 'free';
-
-    const subscriptionInfo = {
-      currentTier: userSubscription,
-      propertyCount: propertyCount,
-      maxProperties: getMaxProperties(userSubscription),
-      canAddMore: canAddProperty(userSubscription, propertyCount),
-      validation: validateSubscriptionForProperties(userSubscription, propertyCount),
-    };
-
-    res.json({
-      properties,
-      subscription: subscriptionInfo,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get single property details along with related data (tenancies, defects, etc.)
-router.get('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
-  try {
-    // Ensure the property belongs to the logged-in user
-    const property = await Property.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
-
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-
-    // Get related data in parallel for performance
-    const [tenancies, complianceRecords, maintenanceTickets] = await Promise.all([
-      Tenancy.find({ propertyId: property._id }),
-      ComplianceRecord.find({ propertyId: property._id }),
-      MaintenanceTicket.find({ propertyId: property._id }),
-    ]);
-
-    res.json({
-      property,
-      tenancies,
-      complianceRecords,
-      maintenanceTickets,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Create property
-router.post('/', validateProperty, handleValidationErrors, async (req, res) => {
-  try {
-    // 1. Fetch user to check subscription status
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
-    const userSubscription = user.subscription || 'free';
-
-    // 2. ENFORCE SUBSCRIPTION LIMITS
-    // If user has reached their limit, block creation and suggest an upgrade
-    if (!canAddProperty(userSubscription, currentPropertyCount)) {
-      const requiredTier = getRequiredTier(currentPropertyCount + 1);
-      const validation = validateSubscriptionForProperties(userSubscription, currentPropertyCount + 1);
-
-      return res.status(403).json({
-        error: 'Subscription limit reached',
-        message: validation.message,
-        currentTier: userSubscription,
-        currentPropertyCount: currentPropertyCount,
-        maxProperties: currentPropertyCount, // Already at limit
-        requiredTier: requiredTier,
-        requiredTierPrice: {
-          monthly: getFormattedPrice(requiredTier, 'monthly'),
-          yearly: getFormattedPrice(requiredTier, 'yearly'),
-        },
-      });
-    }
-
-    // 3. Create the property
-    const { complianceRecords, ...propertyData } = req.body;
-
-    const property = new Property({
-      ...propertyData,
-      userId: req.user.userId,
-    });
-    await property.save();
-
-    // 4. Create compliance records if provided (e.g. Gas Safety Cert uploaded during creation)
-    const createdComplianceRecords = [];
-    if (complianceRecords && Array.isArray(complianceRecords) && complianceRecords.length > 0) {
-      for (const complianceData of complianceRecords) {
-        const complianceRecord = new ComplianceRecord({
-          ...complianceData,
-          propertyId: property._id,
-          userId: req.user.userId,
+        const count = properties.length;
+        const tier = req.user.subscription;
+        res.json({
+            properties,
+            subscription: {
+                currentTier: tier,
+                propertyCount: count,
+                maxProperties: getMaxProperties(tier),
+                canAddMore: canAddProperty(tier, count),
+                validation: validateSubscriptionForProperties(tier, count),
+            },
         });
-        await complianceRecord.save();
-        createdComplianceRecords.push(complianceRecord);
-      }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    res.status(201).json({
-      property,
-      complianceRecords: createdComplianceRecords,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-// Update property
-router.put('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
-  try {
-    const property = await Property.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.userId },
-      { ...req.body, updatedAt: Date.now() },
-      { new: true, runValidators: true }
-    );
+router.get('/:id', async (req, res) => {
+    try {
+        const { data: property, error } = await supabaseAdmin
+            .from('properties')
+            .select('*')
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.userId)
+            .single();
 
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
+        if (error || !property) return res.status(404).json({ error: 'Property not found' });
+
+        const [tenancies, compliance, maintenance] = await Promise.all([
+            supabaseAdmin.from('tenancies').select('*').eq('property_id', req.params.id),
+            supabaseAdmin.from('compliance_records').select('*').eq('property_id', req.params.id),
+            supabaseAdmin.from('maintenance_tickets').select('*').eq('property_id', req.params.id),
+        ]);
+
+        res.json({
+            property,
+            tenancies: tenancies.data ?? [],
+            complianceRecords: compliance.data ?? [],
+            maintenanceTickets: maintenance.data ?? [],
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    res.json({ property });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-// Delete property
-router.delete('/:id', validateObjectId('id'), handleValidationErrors, async (req, res) => {
-  try {
-    const property = await Property.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+router.post('/', async (req, res) => {
+    try {
+        const { data: existing } = await supabaseAdmin
+            .from('properties')
+            .select('id')
+            .eq('user_id', req.user.userId);
 
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
+        if (!canAddProperty(req.user.subscription, existing?.length ?? 0)) {
+            return res.status(403).json({ error: 'Property limit reached. Please upgrade your subscription.' });
+        }
+
+        const { data: property, error } = await supabaseAdmin
+            .from('properties')
+            .insert({ ...req.body, user_id: req.user.userId })
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.status(201).json({ property });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    res.json({ message: 'Property deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-// Create tenancy
-router.post('/:id/tenancies', async (req, res) => {
-  try {
-    const property = await Property.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+router.put('/:id', async (req, res) => {
+    try {
+        const { data: property, error } = await supabaseAdmin
+            .from('properties')
+            .update({ ...req.body, updated_at: new Date().toISOString() })
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.userId)
+            .select()
+            .single();
 
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
+        if (error || !property) return res.status(404).json({ error: 'Property not found' });
+        res.json({ property });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    const tenancy = new Tenancy({
-      ...req.body,
-      propertyId: property._id,
-      userId: req.user.userId,
-    });
-
-    await tenancy.save();
-    res.status(201).json({ tenancy });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
-// Create compliance record
-router.post('/:id/compliance', async (req, res) => {
-  try {
-    const property = await Property.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+router.delete('/:id', async (req, res) => {
+    try {
+        const { error } = await supabaseAdmin
+            .from('properties')
+            .delete()
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.userId);
 
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
+        if (error) throw error;
+        res.json({ message: 'Property deleted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    const complianceRecord = new ComplianceRecord({
-      ...req.body,
-      propertyId: property._id,
-      userId: req.user.userId,
-    });
-
-    await complianceRecord.save();
-    res.status(201).json({ complianceRecord });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Create maintenance ticket
-router.post('/:id/maintenance', async (req, res) => {
-  try {
-    const property = await Property.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
-
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-
-    const ticket = new MaintenanceTicket({
-      ...req.body,
-      propertyId: property._id,
-      userId: req.user.userId,
-    });
-
-    await ticket.save();
-    res.status(201).json({ ticket });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 module.exports = router;

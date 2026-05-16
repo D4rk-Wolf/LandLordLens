@@ -1,247 +1,126 @@
-/**
- * PAYMENT ROUTES
- * This file handles the user-facing side of payments (initiating checkout, portals).
- * It acts as the bridge between the React frontend and the Stripe library.
- */
-
 const express = require('express');
 const { authenticateToken } = require('./auth');
-const User = require('../../models/User');
-const Payment = require('../../models/Payment');
-const Property = require('../../models/tenant/Property');
+const supabaseAdmin = require('../../lib/supabase').default;
 const logger = require('../../lib/logger');
-// Helper functions for validating subscription logic
 const {
   getSubscriptionTier,
   getMaxProperties,
-  getRequiredTier,
   validateSubscriptionForProperties,
 } = require('../../lib/subscription');
-// Stripe helpers
 const {
   createCheckoutSession,
   createPortalSession,
   cancelSubscription,
   getSubscription,
-  getOrCreateCustomer,
 } = require('../../lib/stripe');
 
 const router = express.Router();
-
-// All routes require authentication
 router.use(authenticateToken);
 
-/**
- * POST /api/payments/create-checkout
- * Initiates a Stripe Checkout session.
- * 
- * 1. Validates the requested tier/period.
- * 2. Checks if user already has an active subscription to prevent double-billing.
- * 3. Calls Stripe to create a session.
- * 4. Returns the session URL (frontend will redirect user there).
- */
 router.post('/create-checkout', async (req, res) => {
   try {
     const { tier, period = 'monthly' } = req.body;
+    if (!tier) return res.status(400).json({ error: 'Subscription tier is required' });
 
-    if (!tier) {
-      return res.status(400).json({ error: 'Subscription tier is required' });
+    const { data: profile } = await supabaseAdmin.from('profiles').select('*').eq('id', req.user.userId).single();
+    if (!profile) return res.status(404).json({ error: 'User not found' });
+
+    if (profile.subscription_status === 'active' && profile.subscription !== 'free') {
+      return res.status(400).json({ error: 'Active subscription exists. Use the portal to manage it.' });
     }
 
-    // Validate tier selection
-    const validTiers = ['basic', 'premium'];
-    if (!validTiers.includes(tier)) {
-      return res.status(400).json({
-        error: 'Invalid subscription tier',
-        message: 'Free tier does not require payment. Use basic or premium.',
-      });
-    }
-
-    const validPeriods = ['monthly', 'yearly'];
-    if (!validPeriods.includes(period)) {
-      return res.status(400).json({
-        error: 'Invalid subscription period',
-        validPeriods: validPeriods,
-      });
-    }
-
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Prevent double-subscription
-    if (user.subscriptionStatus === 'active' && user.subscription !== 'free') {
-      return res.status(400).json({
-        error: 'Active subscription exists',
-        message: 'You already have an active subscription. Use the portal to manage it.',
-      });
-    }
-
-    const session = await createCheckoutSession(user, tier, period);
-
-    res.json({
-      sessionId: session.id,
-      url: session.url, // Redirect URL for frontend
-    });
+    const session = await createCheckoutSession(
+      { _id: req.user.userId, email: req.user.email, stripeCustomerId: profile.stripe_customer_id },
+      tier,
+      period
+    );
+    res.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     logger.error('Error creating checkout session', error);
-    res.status(500).json({
-      error: 'Failed to create checkout session',
-      message: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 });
 
-/**
- * POST /api/payments/create-portal
- * Create Stripe customer portal session
- */
 router.post('/create-portal', async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    if (!user.stripeCustomerId) {
-      return res.status(400).json({
-        error: 'No active subscription',
-        message: 'You do not have an active subscription to manage.',
-      });
-    }
+    const { data: profile } = await supabaseAdmin.from('profiles').select('stripe_customer_id').eq('id', req.user.userId).single();
+    if (!profile?.stripe_customer_id) return res.status(400).json({ error: 'No active subscription to manage.' });
 
     const returnUrl = req.body.returnUrl || `${process.env.FRONTEND_URL || 'http://localhost:3000'}/settings/billing`;
-    const session = await createPortalSession(user.stripeCustomerId, returnUrl);
-
-    res.json({
-      url: session.url,
-    });
+    const session = await createPortalSession(profile.stripe_customer_id, returnUrl);
+    res.json({ url: session.url });
   } catch (error) {
     logger.error('Error creating portal session', error);
-    res.status(500).json({
-      error: 'Failed to create portal session',
-      message: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 });
 
-/**
- * POST /api/payments/cancel-subscription
- * Cancel user's subscription
- */
 router.post('/cancel-subscription', async (req, res) => {
   try {
     const { immediately = false } = req.body;
+    const { data: profile } = await supabaseAdmin.from('profiles').select('stripe_subscription_id').eq('id', req.user.userId).single();
 
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (!profile?.stripe_subscription_id) return res.status(400).json({ error: 'No active subscription to cancel.' });
 
-    if (!user.stripeSubscriptionId) {
-      return res.status(400).json({
-        error: 'No active subscription',
-        message: 'You do not have an active subscription to cancel.',
-      });
-    }
+    await cancelSubscription(profile.stripe_subscription_id, immediately);
 
-    await cancelSubscription(user.stripeSubscriptionId, immediately);
+    const updates = { subscription_status: 'canceled', subscription_canceled_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    if (immediately) { updates.subscription = 'free'; updates.subscription_end_date = new Date().toISOString(); }
 
-    // Update user subscription status
-    user.subscriptionStatus = 'canceled';
-    user.subscriptionCanceledAt = new Date();
-    if (immediately) {
-      // Downgrade to free tier if canceling immediately
-      user.subscription = 'free';
-      user.subscriptionEndDate = new Date();
-    }
-    user.updatedAt = new Date();
-    await user.save();
-
-    res.json({
-      message: immediately
-        ? 'Subscription canceled immediately'
-        : 'Subscription will be canceled at the end of the billing period',
-    });
+    await supabaseAdmin.from('profiles').update(updates).eq('id', req.user.userId);
+    res.json({ message: immediately ? 'Subscription canceled immediately' : 'Subscription will be canceled at end of billing period' });
   } catch (error) {
-    logger.error('Error canceling subscription:', error);
-    res.status(500).json({
-      error: 'Failed to cancel subscription',
-      message: error.message,
-    });
+    logger.error('Error canceling subscription', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
-/**
- * GET /api/payments/history
- * Get user's payment history
- */
 router.get('/history', async (req, res) => {
   try {
-    const payments = await Payment.find({ userId: req.user.userId })
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    res.json({ payments });
+    const { data, error } = await supabaseAdmin.from('payments').select('*').eq('user_id', req.user.userId).order('created_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    res.json({ payments: data });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-/**
- * GET /api/payments/subscription-status
- * Get current subscription and payment status
- */
 router.get('/subscription-status', async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const { data: profile } = await supabaseAdmin.from('profiles').select('*').eq('id', req.user.userId).single();
+    if (!profile) return res.status(404).json({ error: 'User not found' });
+
+    const { count: propertyCount } = await supabaseAdmin.from('properties').select('id', { count: 'exact', head: true }).eq('user_id', req.user.userId);
 
     let stripeSubscription = null;
-    if (user.stripeSubscriptionId) {
-      try {
-        stripeSubscription = await getSubscription(user.stripeSubscriptionId);
-      } catch (error) {
-        logger.error('Error fetching Stripe subscription', error);
-      }
+    if (profile.stripe_subscription_id) {
+      try { stripeSubscription = await getSubscription(profile.stripe_subscription_id); } catch (e) { /* ignore */ }
     }
-
-    const currentPropertyCount = await Property.countDocuments({ userId: req.user.userId });
-    const subscriptionTier = getSubscriptionTier(user.subscription);
 
     res.json({
       subscription: {
-        tier: user.subscription,
-        status: user.subscriptionStatus,
-        period: user.subscriptionPeriod,
-        startDate: user.subscriptionStartDate,
-        endDate: user.subscriptionEndDate,
-        canceledAt: user.subscriptionCanceledAt,
-        stripeCustomerId: user.stripeCustomerId,
-        stripeSubscriptionId: user.stripeSubscriptionId,
+        tier: profile.subscription,
+        status: profile.subscription_status,
+        period: profile.subscription_period,
+        startDate: profile.subscription_start_date,
+        endDate: profile.subscription_end_date,
+        canceledAt: profile.subscription_canceled_at,
+        stripeCustomerId: profile.stripe_customer_id,
+        stripeSubscriptionId: profile.stripe_subscription_id,
       },
-      stripeSubscription: stripeSubscription
-        ? {
-          id: stripeSubscription.id,
-          status: stripeSubscription.status,
-          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-          cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-        }
-        : null,
+      stripeSubscription: stripeSubscription ? {
+        id: stripeSubscription.id,
+        status: stripeSubscription.status,
+        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      } : null,
       usage: {
-        propertyCount: currentPropertyCount,
-        maxProperties: getMaxProperties(user.subscription),
-        validation: validateSubscriptionForProperties(user.subscription, currentPropertyCount),
+        propertyCount: propertyCount ?? 0,
+        maxProperties: getMaxProperties(profile.subscription),
+        validation: validateSubscriptionForProperties(profile.subscription, propertyCount ?? 0),
       },
-      tierDetails: {
-        name: subscriptionTier.name,
-        maxProperties: subscriptionTier.maxProperties,
-        description: subscriptionTier.description,
-      },
+      tierDetails: getSubscriptionTier(profile.subscription),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
