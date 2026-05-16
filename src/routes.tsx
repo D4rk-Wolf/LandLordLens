@@ -11,6 +11,9 @@
 
 import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
+
+const sentryCreateBrowserRouter = Sentry.wrapCreateBrowserRouterV7(createBrowserRouter);
 import DashboardLayout from './layouts/DashboardLayout';
 import { RequireAuth } from './components/auth/RequireAuth';
 import SignInScreen from './screens/auth/SignInScreen';
@@ -41,7 +44,7 @@ const PortfolioScreen = lazy(() => import('./screens/analytics/PortfolioScreen')
 const Section8Wizard = lazy(() => import('./screens/legal/Section8Wizard'));
 const ServicesMarketplaceScreen = lazy(() => import('./screens/services/ServicesMarketplaceScreen'));
 
-export const router = createBrowserRouter([
+export const router = sentryCreateBrowserRouter([
     {
         path: '/auth',
         children: [

@@ -5,6 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 require('dotenv').config();
 
 const CompressionPlugin = require('compression-webpack-plugin');
+const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -78,6 +79,7 @@ module.exports = (env, argv) => {
         ),
         'process.env.STRIPE_PRICING_TABLE_ID': JSON.stringify(process.env.STRIPE_PRICING_TABLE_ID),
         'process.env.STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
+        'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN || ''),
       }),
       ...(isProduction
         ? [
@@ -88,6 +90,19 @@ module.exports = (env, argv) => {
             threshold: 10240,
             minRatio: 0.8,
           }),
+          // Upload source maps to Sentry then delete them from the dist folder
+          // so they are never served to users. Requires SENTRY_AUTH_TOKEN, SENTRY_ORG,
+          // SENTRY_PROJECT to be set in the build environment.
+          ...(process.env.SENTRY_AUTH_TOKEN
+            ? [sentryWebpackPlugin({
+                org: process.env.SENTRY_ORG,
+                project: process.env.SENTRY_PROJECT,
+                authToken: process.env.SENTRY_AUTH_TOKEN,
+                sourcemaps: {
+                  filesToDeleteAfterUpload: ['./dist/**/*.map'],
+                },
+              })]
+            : []),
         ]
         : []),
     ],
@@ -168,7 +183,9 @@ module.exports = (env, argv) => {
       sideEffects: true, // Allow tree shaking
       moduleIds: 'deterministic',
     },
-    devtool: isProduction ? 'source-map' : 'eval-source-map',
+    // hidden-source-map generates maps for Sentry upload but omits the sourceMappingURL
+    // comment from bundles, so maps are never exposed to end users
+    devtool: isProduction ? 'hidden-source-map' : 'eval-source-map',
     devServer: {
       static: {
         directory: path.join(__dirname, 'public'),
