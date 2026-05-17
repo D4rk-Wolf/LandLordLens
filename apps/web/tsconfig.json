@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "src/cn": ["../../packages/ui/src/cn.ts"]
     },
     "plugins": [{ "name": "next" }]
   },
