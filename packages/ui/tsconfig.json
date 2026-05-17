@@ -1,0 +1,13 @@
+{
+  "extends": "@landlordlens/config/tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "lib": ["ES2022", "dom"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "src/cn": ["./src/cn.ts"]
+    }
+  },
+  "include": ["src"]
+}
