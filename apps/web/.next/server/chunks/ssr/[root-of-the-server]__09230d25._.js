@@ -766,7 +766,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$D4rkWolf$2f$Bus
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is not set');
 const client = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$D4rkWolf$2f$Business__software$2f$Software$2f$LandLordLens$2f$node_modules$2f2e$pnpm$2f$postgres$40$3$2e$4$2e$9$2f$node_modules$2f$postgres$2f$src$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"])(connectionString, {
-    prepare: false
+    prepare: false,
+    ssl: 'require'
 });
 const db = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$D4rkWolf$2f$Business__software$2f$Software$2f$LandLordLens$2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$38$2e$4_$40$types$2b$react$40$19$2e$2$2e$14_postgres$40$3$2e$4$2e$9_react$40$19$2e$2$2e$6$2f$node_modules$2f$drizzle$2d$orm$2f$postgres$2d$js$2f$driver$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["drizzle"])(client, {
     schema: __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$D4rkWolf$2f$Business__software$2f$Software$2f$LandLordLens$2f$packages$2f$db$2f$src$2f$schema$2f$index$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__
