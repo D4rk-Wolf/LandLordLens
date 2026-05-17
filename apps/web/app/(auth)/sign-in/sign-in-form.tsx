@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createBrowserClient } from '@landlordlens/auth'
+import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 export function SignInForm() {
   const router = useRouter()

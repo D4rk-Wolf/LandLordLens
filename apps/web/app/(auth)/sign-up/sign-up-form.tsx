@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { createBrowserClient } from '@landlordlens/auth'
+import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 export function SignUpForm() {
   const [email, setEmail] = useState('')

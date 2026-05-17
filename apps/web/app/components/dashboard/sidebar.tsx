@@ -12,7 +12,7 @@ import {
   Scale,
 } from 'lucide-react'
 import { cn } from '@landlordlens/ui'
-import { createBrowserClient } from '@landlordlens/auth'
+import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home, exact: true },

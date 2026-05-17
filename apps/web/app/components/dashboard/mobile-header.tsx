@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, Home, Building2, ShieldCheck, BarChart3, Settings, Wrench, Scale } from 'lucide-react'
 import { cn } from '@landlordlens/ui'
-import { createBrowserClient } from '@landlordlens/auth'
+import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home, exact: true },
