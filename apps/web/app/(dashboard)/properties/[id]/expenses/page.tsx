@@ -19,7 +19,7 @@ export default async function PropertyExpensesPage({
     notFound()
   }
 
-  const total = expenseList.reduce((sum, e) => sum + Number(e.amount), 0)
+  const total = Math.round(expenseList.reduce((sum, e) => sum + Number(e.amount), 0) * 100) / 100
 
   return (
     <div className="space-y-4 mt-6">
