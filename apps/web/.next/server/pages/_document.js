@@ -1,5 +1,1 @@
-var R=require("../chunks/ssr/[turbopack]_runtime.js")("server/pages/_document.js")
-R.c("server/chunks/ssr/3c713__pnpm_6a623abf._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__e6a4d965._.js")
-R.m("[project]/Documents/D4rkWolf/Business software/Software/LandLordLens/node_modules/.pnpm/next@15.5.18_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/document.js [ssr] (ecmascript)")
-module.exports=R.m("[project]/Documents/D4rkWolf/Business software/Software/LandLordLens/node_modules/.pnpm/next@15.5.18_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/document.js [ssr] (ecmascript)").exports
+"use strict";(()=>{var a={};a.id=839,a.ids=[839],a.modules={8732:a=>{a.exports=require("react/jsx-runtime")},33873:a=>{a.exports=require("path")},40361:a=>{a.exports=require("next/dist/compiled/next-server/pages.runtime.prod.js")},82015:a=>{a.exports=require("react")}};var b=require("../webpack-runtime.js");b.C(a);var c=b.X(0,[555],()=>b(b.s=9555));module.exports=c})();

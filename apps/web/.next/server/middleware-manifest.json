@@ -3,13 +3,8 @@
   "middleware": {
     "/": {
       "files": [
-        "server/edge/chunks/Documents_D4rkWolf_Business software_Software_LandLordLens_12b128e7._.js",
-        "server/edge/chunks/a366a_@supabase_postgrest-js_dist_index_mjs_46d79a8c._.js",
-        "server/edge/chunks/82120_@supabase_realtime-js_dist_module_5dd92809._.js",
-        "server/edge/chunks/53b1d_@supabase_auth-js_dist_module_f41520d0._.js",
-        "server/edge/chunks/3c713__pnpm_e541d92c._.js",
-        "server/edge/chunks/[root-of-the-server]__804f7416._.js",
-        "server/edge/chunks/358b3_D4rkWolf_Business software_Software_LandLordLens_apps_web_edge-wrapper_d337b794.js"
+        "server/edge-runtime-webpack.js",
+        "server/middleware.js"
       ],
       "name": "middleware",
       "page": "/",
@@ -22,16 +17,16 @@
       "wasm": [],
       "assets": [],
       "env": {
-        "__NEXT_BUILD_ID": "development",
+        "__NEXT_BUILD_ID": "Y9_L3xdW-OGRsda7o3Wye",
         "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "S3JzAdxkzQYkEmUAUtuloKHJWfmNyEZ48rBM5sdHg4I=",
-        "__NEXT_PREVIEW_MODE_ID": "c9bc09b7bb4d66061669833b16578a24",
-        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "0fa4acb65aa1af44b678c4e4457635427d036e0766e03ac94cb56abbbf00390d",
-        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "96295b5ce711324a2ea4ddc5a7ea6a980320ab3d47e32b5829661bed4ede52c2"
+        "__NEXT_PREVIEW_MODE_ID": "ca6d18aff89da672c0ca3f049154a2e1",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "b69520b725c45c0b4c7f0b76ad791931147c51dbc852e7c7bf05dc4ca9650e6c",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "5fb0102870a8004e3e2f8dccecbba808ae0d49b40ce675eac46e34f9b1c01757"
       }
     }
   },
+  "functions": {},
   "sortedMiddleware": [
     "/"
-  ],
-  "functions": {}
+  ]
 }
