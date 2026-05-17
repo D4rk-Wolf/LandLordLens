@@ -1,0 +1,27 @@
+{
+  "name": "@landlordlens/email",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "dev": "email dev --dir src/templates --port 3001",
+    "build": "email build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.30",
+    "react-email": "^3.0.0",
+    "resend": "^4.0.0"
+  },
+  "devDependencies": {
+    "@landlordlens/config": "workspace:*",
+    "typescript": "^5.7.0",
+    "react": "^19.0.0",
+    "@types/react": "^19.0.0"
+  }
+}

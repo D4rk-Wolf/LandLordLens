@@ -1,0 +1,7 @@
+{
+  "extends": "@landlordlens/config/tsconfig/nextjs",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
