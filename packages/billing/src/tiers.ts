@@ -26,7 +26,7 @@ export const TIERS: Record<SubscriptionTier, TierConfig> = {
     monthlyPriceGbp: 12,
     yearlyPriceGbp: 120,
     monthlyPriceId: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY ?? '',
-    yearlyPriceId: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY ?? '',
+    yearlyPriceId: process.env.STRIPE_PRICE_PROFESSIONAL_ANNUAL ?? '',
     features: ['10 properties', 'Everything in Free', 'Expense tracking', 'Analytics'],
   },
   business: {
@@ -35,7 +35,7 @@ export const TIERS: Record<SubscriptionTier, TierConfig> = {
     monthlyPriceGbp: 29,
     yearlyPriceGbp: 290,
     monthlyPriceId: process.env.STRIPE_PRICE_BUSINESS_MONTHLY ?? '',
-    yearlyPriceId: process.env.STRIPE_PRICE_BUSINESS_YEARLY ?? '',
+    yearlyPriceId: process.env.STRIPE_PRICE_BUSINESS_ANNUAL ?? '',
     features: ['50 properties', 'Everything in Professional', 'Section 8 wizard', 'Priority support'],
   },
   enterprise: {
@@ -44,7 +44,7 @@ export const TIERS: Record<SubscriptionTier, TierConfig> = {
     monthlyPriceGbp: 99,
     yearlyPriceGbp: 990,
     monthlyPriceId: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY ?? '',
-    yearlyPriceId: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY ?? '',
+    yearlyPriceId: process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL ?? '',
     features: ['Unlimited properties', 'Everything in Business', 'Dedicated support', 'Custom integrations'],
   },
 }

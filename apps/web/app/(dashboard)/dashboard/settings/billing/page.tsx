@@ -1,15 +1,19 @@
-import { getCurrentUser } from '@landlordlens/auth'
+import { createServerCaller } from '@/lib/trpc/server'
 import { getTierConfig } from '@landlordlens/billing'
 import type { SubscriptionTier } from '@landlordlens/billing'
 import { Card, CardContent, CardHeader, CardTitle } from '@landlordlens/ui'
+import { CheckoutButtons, ManageSubscriptionButton } from '@/app/components/billing/billing-actions'
 
 export const dynamic = 'force-dynamic'
 
 const tierOrder: SubscriptionTier[] = ['free', 'professional', 'business', 'enterprise']
 
-export default async function BillingPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
+  const caller = await createServerCaller()
+  const subscription = await caller.billing.subscription()
+  const { success } = await searchParams
+
+  const currentTierConfig = getTierConfig(subscription.tier)
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -18,13 +22,40 @@ export default async function BillingPage() {
         <p className="text-sm text-gray-500 mt-1">Manage your subscription</p>
       </div>
 
+      {success && (
+        <div className="p-4 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
+          Subscription updated successfully.
+        </div>
+      )}
+
+      <div className="p-4 bg-white border border-gray-200 rounded-md flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-900">Current plan: {currentTierConfig.name}</p>
+          {subscription.endDate && (
+            <p className="text-xs text-gray-500 mt-0.5">
+              Renews {new Date(subscription.endDate).toLocaleDateString('en-GB')}
+            </p>
+          )}
+        </div>
+        {subscription.hasStripeCustomer && <ManageSubscriptionButton />}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {tierOrder.map((tier) => {
           const config = getTierConfig(tier)
+          const isCurrent = subscription.tier === tier
+
           return (
-            <Card key={tier} className="relative">
+            <Card key={tier} className={isCurrent ? 'ring-2 ring-indigo-500' : ''}>
               <CardHeader>
-                <CardTitle className="text-base">{config.name}</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">{config.name}</CardTitle>
+                  {isCurrent && (
+                    <span className="text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
+                      Current
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
@@ -42,15 +73,14 @@ export default async function BillingPage() {
                     </li>
                   ))}
                 </ul>
+                {!isCurrent && tier !== 'free' && (
+                  <CheckoutButtons tier={tier as Exclude<SubscriptionTier, 'free'>} />
+                )}
               </CardContent>
             </Card>
           )
         })}
       </div>
-
-      <p className="text-sm text-gray-500">
-        To upgrade or manage your subscription, contact support or use the Stripe customer portal when available.
-      </p>
     </div>
   )
 }

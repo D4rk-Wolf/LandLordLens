@@ -1,14 +1,10 @@
 'use client'
+import '@/sentry.client.config'
 import { type ReactNode, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { httpBatchLink } from '@trpc/client'
 import superjson from 'superjson'
 import { trpc } from '@/lib/trpc/client'
-import * as Sentry from '@sentry/react'
-
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-});
 
 function makeQueryClient() {
   return new QueryClient({
