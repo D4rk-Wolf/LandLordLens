@@ -1,0 +1,33 @@
+{
+  "name": "@landlordlens/billing",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./tiers": {
+      "types": "./src/tiers.ts",
+      "default": "./src/tiers.ts"
+    },
+    "./guards": {
+      "types": "./src/guards.ts",
+      "default": "./src/guards.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@landlordlens/db": "workspace:*",
+    "drizzle-orm": "^0.38.0",
+    "stripe": "^17.0.0"
+  },
+  "devDependencies": {
+    "@landlordlens/config": "workspace:*",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
