@@ -22,8 +22,10 @@
   "devDependencies": {
     "@landlordlens/config": "workspace:*",
     "@types/node": "^25.8.0",
+    "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0",
     "postgres": "^3.4.9",
     "typescript": "^6.0.3"
   }
