@@ -3,7 +3,6 @@ import { StatCard } from '@/app/components/dashboard/stat-card'
 import { ComplianceAlertList } from '@/app/components/dashboard/compliance-alert-list'
 import { Card, CardContent, CardHeader, CardTitle } from '@landlordlens/ui'
 import Link from 'next/link'
-import { ErrorButton } from '@/app/components/sentry-error-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +71,6 @@ export default async function DashboardPage() {
               View analytics
               <span className="text-gray-400">→</span>
             </Link>
-            <ErrorButton />
           </CardContent>
         </Card>
       </div>
