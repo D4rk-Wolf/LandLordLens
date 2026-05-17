@@ -1,5 +1,7 @@
 # LandLordLens
 
+[![Repository](https://img.shields.io/badge/GitHub-D4rk--Wolf%2FLandLordLens-blue?logo=github)](https://github.com/D4rk-Wolf/LandLordLens)
+
 UK property management and compliance SaaS for landlords. Compliance-first — built to reduce risk for accidental landlords managing 1–50 properties.
 
 ## Stack
@@ -82,6 +84,10 @@ pnpm test:e2e          # Playwright E2E tests
 
 Full rebuild design documented at [`docs/superpowers/specs/2026-05-16-landlordlens-rebuild-design.md`](docs/superpowers/specs/2026-05-16-landlordlens-rebuild-design.md).
 
+## Security
+
+Please see our [Security Policy](security.md) for details on supported versions and how to report vulnerabilities securely.
+
 ## License
 
-Private — All rights reserved
+Please see the [License](license.md) file for full details. Copyright (c) 2026 D4rk-Wolf. All Rights Reserved.
