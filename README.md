@@ -6,7 +6,7 @@ UK property management and compliance SaaS for landlords. Compliance-first — b
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Monorepo | Turborepo + pnpm workspaces |
 | API | tRPC |
 | Database | Supabase Postgres + Drizzle ORM |
@@ -22,7 +22,7 @@ UK property management and compliance SaaS for landlords. Compliance-first — b
 
 ```text
 apps/
-  web/          Next.js 15 App Router
+  web/          Next.js 16 App Router
   email/        React Email templates (Resend)
 packages/
   db/           Drizzle schema + migrations
@@ -39,11 +39,8 @@ packages/
 # Install dependencies
 pnpm install
 
-# Set up environment variables
-cp .env.example .env.local
-
-# Start local Supabase
-pnpm supabase start
+# Set up environment variables (fill in Supabase, Stripe, and Sentry credentials)
+cp apps/web/.env.example apps/web/.env.local
 
 # Run database migrations
 pnpm db:migrate
