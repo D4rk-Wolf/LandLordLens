@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme inline {
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-syne);
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -24,49 +27,73 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Content area — warm light */
+    --background: 40 18% 97%;
+    --foreground: 240 10% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 238 84% 67%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 238 84% 67%;
+    --popover-foreground: 240 10% 8%;
+    --primary: 38 88% 48%;
+    --primary-foreground: 240 10% 8%;
+    --secondary: 40 12% 93%;
+    --secondary-foreground: 240 10% 25%;
+    --muted: 40 12% 93%;
+    --muted-foreground: 240 5% 48%;
+    --accent: 40 12% 93%;
+    --accent-foreground: 240 10% 25%;
+    --destructive: 0 84% 58%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 12% 87%;
+    --input: 40 12% 87%;
+    --ring: 38 88% 48%;
     --radius: 0.5rem;
-  }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 238 84% 67%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 238 84% 67%;
+    /* Dark shell */
+    --shell-bg: #0B0B0D;
+    --shell-surface: #131316;
+    --shell-elevated: #1C1C21;
+    --shell-border: #26262F;
+    --shell-border-subtle: #1E1E24;
+    --shell-text: #EDEBE6;
+    --shell-text-muted: #7C7A88;
+    --shell-text-faint: #3E3C4A;
+    --shell-accent: #E09A1A;
+    --shell-accent-dim: rgba(224, 154, 26, 0.10);
+    --shell-accent-glow: rgba(224, 154, 26, 0.22);
   }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulseAmber {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
 @layer base {
@@ -75,5 +102,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-outfit, system-ui), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

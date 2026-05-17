@@ -1,5 +1,4 @@
 'use client'
-import '@/sentry.client.config'
 import { type ReactNode, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { httpBatchLink } from '@trpc/client'

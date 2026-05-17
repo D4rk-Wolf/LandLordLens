@@ -8,11 +8,33 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/sign-in')
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: 'var(--shell-bg)',
+      }}
+    >
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          background: 'hsl(var(--background))',
+          borderLeft: '1px solid var(--shell-border-subtle)',
+        }}
+      >
         <MobileHeader />
-        <main className="flex-1 p-6 md:p-8">{children}</main>
+        <main
+          style={{
+            flex: 1,
+            padding: '28px 32px',
+          }}
+        >
+          {children}
+        </main>
       </div>
     </div>
   )

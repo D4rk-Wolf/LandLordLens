@@ -3,12 +3,36 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
+const inputStyle: React.CSSProperties = {
+  display: 'block',
+  width: '100%',
+  borderRadius: 6,
+  border: '1px solid var(--shell-border)',
+  background: 'var(--shell-elevated)',
+  color: 'var(--shell-text)',
+  padding: '9px 12px',
+  fontSize: 13.5,
+  outline: 'none',
+  transition: 'border-color 0.15s',
+  boxSizing: 'border-box',
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--shell-text-muted)',
+  marginBottom: 6,
+  letterSpacing: '0.01em',
+}
+
 export function SignUpForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [focused, setFocused] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -34,13 +58,41 @@ export function SignUpForm() {
 
   if (success) {
     return (
-      <div className="text-center space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Check your email</h2>
-        <p className="text-gray-600 text-sm">
-          We sent a verification link to <strong>{email}</strong>. Click it to activate your
-          account.
+      <div style={{ textAlign: 'center', fontFamily: 'var(--font-outfit, system-ui), sans-serif' }}>
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            background: 'var(--shell-accent-dim)',
+            border: '1px solid rgba(224,154,26,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            fontSize: 20,
+          }}
+        >
+          ✓
+        </div>
+        <h2
+          style={{
+            fontFamily: 'var(--font-syne, system-ui)',
+            fontSize: 18,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: 'var(--shell-text)',
+            marginBottom: 8,
+          }}
+        >
+          Check your inbox
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--shell-text-muted)', lineHeight: 1.6 }}>
+          We sent a verification link to{' '}
+          <span style={{ color: 'var(--shell-text)', fontWeight: 500 }}>{email}</span>.
+          Click it to activate your account.
         </p>
-        <p className="text-xs text-gray-400">
+        <p style={{ fontSize: 11.5, color: 'var(--shell-text-faint)', marginTop: 12 }}>
           Didn&apos;t receive it? Check your spam folder.
         </p>
       </div>
@@ -48,19 +100,41 @@ export function SignUpForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-900">Create account</h2>
+    <form onSubmit={handleSubmit} style={{ fontFamily: 'var(--font-outfit, system-ui), sans-serif' }}>
+      <h2
+        style={{
+          fontFamily: 'var(--font-syne, system-ui)',
+          fontSize: 20,
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          color: 'var(--shell-text)',
+          marginBottom: 4,
+        }}
+      >
+        Create an account
+      </h2>
+      <p style={{ fontSize: 13, color: 'var(--shell-text-muted)', marginBottom: 24 }}>
+        Start managing your portfolio for free
+      </p>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+        <div
+          style={{
+            fontSize: 12.5,
+            color: '#f87171',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.25)',
+            borderRadius: 6,
+            padding: '9px 12px',
+            marginBottom: 16,
+          }}
+        >
           {error}
-        </p>
+        </div>
       )}
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address
-        </label>
+      <div style={{ marginBottom: 14 }}>
+        <label htmlFor="email" style={labelStyle}>Email address</label>
         <input
           id="email"
           type="email"
@@ -68,14 +142,17 @@ export function SignUpForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          onFocus={() => setFocused('email')}
+          onBlur={() => setFocused(null)}
+          style={{
+            ...inputStyle,
+            borderColor: focused === 'email' ? 'var(--shell-accent)' : 'var(--shell-border)',
+          }}
         />
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
+      <div style={{ marginBottom: 20 }}>
+        <label htmlFor="password" style={labelStyle}>Password</label>
         <input
           id="password"
           type="password"
@@ -84,22 +161,41 @@ export function SignUpForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          onFocus={() => setFocused('password')}
+          onBlur={() => setFocused(null)}
+          style={{
+            ...inputStyle,
+            borderColor: focused === 'password' ? 'var(--shell-accent)' : 'var(--shell-border)',
+          }}
         />
-        <p className="mt-1 text-xs text-gray-400">Minimum 8 characters</p>
+        <p style={{ fontSize: 11, color: 'var(--shell-text-faint)', marginTop: 5 }}>
+          Minimum 8 characters
+        </p>
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          width: '100%',
+          padding: '10px 16px',
+          borderRadius: 7,
+          border: 'none',
+          background: loading ? 'rgba(224,154,26,0.5)' : 'var(--shell-accent)',
+          color: '#0B0B0D',
+          fontWeight: 600,
+          fontSize: 13.5,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          letterSpacing: '-0.01em',
+          fontFamily: 'var(--font-outfit, system-ui)',
+        }}
       >
-        {loading ? 'Creating account…' : 'Create account'}
+        {loading ? 'Creating account…' : 'Create free account'}
       </button>
 
-      <p className="text-center text-sm text-gray-500">
+      <p style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--shell-text-muted)', marginTop: 20 }}>
         Already have an account?{' '}
-        <Link href="/sign-in" className="text-indigo-600 hover:underline">
+        <Link href="/sign-in" style={{ color: 'var(--shell-accent)', textDecoration: 'none', fontWeight: 500 }}>
           Sign in
         </Link>
       </p>

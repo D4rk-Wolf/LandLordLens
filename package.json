@@ -18,6 +18,7 @@
     "email:dev": "turbo run dev --filter=@landlordlens/email"
   },
   "devDependencies": {
+    "@sentry/nextjs": "^10",
     "turbo": "^2.9.14"
   }
 }

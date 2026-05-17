@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
 }
 
 export default withSentryConfig(nextConfig, {
-  silent: true,
-  telemetry: false,
+  org: 'd4rkwolf-o6',
+  project: 'landlordlens',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+  },
 })

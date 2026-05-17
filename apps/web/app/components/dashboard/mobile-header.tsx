@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, Home, Building2, ShieldCheck, BarChart3, Settings, Wrench, Scale } from 'lucide-react'
-import { cn } from '@landlordlens/ui'
+import { Menu, X, Home, Building2, ShieldCheck, BarChart3, Settings, Wrench, Scale, LogOut } from 'lucide-react'
 import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 const navItems = [
@@ -34,40 +33,124 @@ export function MobileHeader() {
   }
 
   return (
-    <header className="md:hidden sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-lg font-bold text-gray-900">LandLordLens</span>
-        <button onClick={() => setOpen(!open)} className="p-1 text-gray-600">
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-
-      {open && (
-        <nav className="border-t border-gray-200 p-4 space-y-1 bg-white">
-          {navItems.map(({ href, label, icon: Icon, exact }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium',
-                isActive(href, exact)
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-50',
-              )}
+    <>
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: 'var(--shell-bg)',
+          borderBottom: '1px solid var(--shell-border-subtle)',
+          fontFamily: 'var(--font-outfit, system-ui), sans-serif',
+        }}
+        className="mobile-header-bar"
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 16px',
+            height: 52,
+          }}
+        >
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-syne, system-ui)',
+                fontWeight: 800,
+                fontSize: 16,
+                letterSpacing: '-0.02em',
+                color: 'var(--shell-text)',
+              }}
             >
-              <Icon className="h-4 w-4" />
-              {label}
-            </Link>
-          ))}
+              LandLord<span style={{ color: 'var(--shell-accent)' }}>Lens</span>
+            </span>
+          </Link>
           <button
-            onClick={handleSignOut}
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 w-full"
+            onClick={() => setOpen(!open)}
+            style={{
+              padding: 6,
+              borderRadius: 6,
+              border: '1px solid var(--shell-border)',
+              background: 'var(--shell-surface)',
+              color: 'var(--shell-text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+            }}
           >
-            Sign out
+            {open ? <X size={16} /> : <Menu size={16} />}
           </button>
-        </nav>
-      )}
-    </header>
+        </div>
+
+        {open && (
+          <nav
+            style={{
+              borderTop: '1px solid var(--shell-border-subtle)',
+              background: 'var(--shell-surface)',
+              padding: '8px 10px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            {navItems.map(({ href, label, icon: Icon, exact }) => {
+              const active = isActive(href, exact)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '8px 10px',
+                    borderRadius: 6,
+                    textDecoration: 'none',
+                    fontSize: 13.5,
+                    fontWeight: active ? 600 : 400,
+                    color: active ? 'var(--shell-accent)' : 'var(--shell-text-muted)',
+                    background: active ? 'var(--shell-accent-dim)' : 'transparent',
+                    borderLeft: active ? '2px solid var(--shell-accent)' : '2px solid transparent',
+                  }}
+                >
+                  <Icon size={14} style={{ flexShrink: 0 }} />
+                  {label}
+                </Link>
+              )
+            })}
+            <button
+              onClick={handleSignOut}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 9,
+                padding: '8px 10px',
+                borderRadius: 6,
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--shell-text-faint)',
+                fontSize: 13.5,
+                cursor: 'pointer',
+                width: '100%',
+                marginTop: 4,
+                fontFamily: 'var(--font-outfit, system-ui)',
+              }}
+            >
+              <LogOut size={14} />
+              Sign out
+            </button>
+          </nav>
+        )}
+      </header>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .mobile-header-bar { display: none !important; }
+        }
+      `}</style>
+    </>
   )
 }

@@ -61,3 +61,6 @@ coverage/
 # Miscellaneous generated
 /generated/prisma
 .superpowers/
+
+# Sentry Config File
+.env.sentry-build-plugin

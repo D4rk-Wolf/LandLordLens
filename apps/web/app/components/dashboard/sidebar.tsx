@@ -11,7 +11,6 @@ import {
   Wrench,
   Scale,
 } from 'lucide-react'
-import { cn } from '@landlordlens/ui'
 import { createClient as createBrowserClient } from '@landlordlens/auth/browser'
 
 const navItems = [
@@ -41,38 +40,159 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r border-gray-200 bg-white h-screen sticky top-0">
-      <div className="p-6 border-b border-gray-200">
-        <span className="text-xl font-bold text-gray-900">LandLordLens</span>
+    <aside
+      style={{
+        display: 'none',
+        width: 220,
+        flexShrink: 0,
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
+        background: 'var(--shell-bg)',
+        borderRight: '1px solid var(--shell-border-subtle)',
+        flexDirection: 'column',
+        fontFamily: 'var(--font-outfit, system-ui), sans-serif',
+      }}
+      className="sidebar-desktop"
+    >
+      {/* Logo */}
+      <div
+        style={{
+          padding: '20px 20px 16px',
+          borderBottom: '1px solid var(--shell-border-subtle)',
+        }}
+      >
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-syne, system-ui)',
+              fontWeight: 800,
+              fontSize: 16,
+              letterSpacing: '-0.02em',
+              color: 'var(--shell-text)',
+            }}
+          >
+            LandLord<span style={{ color: 'var(--shell-accent)' }}>Lens</span>
+          </div>
+          <div
+            style={{
+              fontSize: 9.5,
+              fontWeight: 500,
+              letterSpacing: '0.07em',
+              textTransform: 'uppercase' as const,
+              color: 'var(--shell-text-faint)',
+              marginTop: 2,
+            }}
+          >
+            by D4rkWolf Studios
+          </div>
+        </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon, exact }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-              isActive(href, exact)
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-            )}
-          >
-            <Icon className="h-4 w-4 flex-shrink-0" />
-            {label}
-          </Link>
-        ))}
+      {/* Nav */}
+      <nav
+        style={{
+          flex: 1,
+          padding: '12px 10px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 9.5,
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase' as const,
+            color: 'var(--shell-text-faint)',
+            padding: '4px 10px 8px',
+          }}
+        >
+          Navigation
+        </p>
+        {navItems.map(({ href, label, icon: Icon, exact }) => {
+          const active = isActive(href, exact)
+          return (
+            <Link
+              key={href}
+              href={href}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 9,
+                padding: '7px 10px',
+                borderRadius: 6,
+                textDecoration: 'none',
+                fontSize: 13,
+                fontWeight: active ? 600 : 400,
+                color: active ? 'var(--shell-accent)' : 'var(--shell-text-muted)',
+                background: active ? 'var(--shell-accent-dim)' : 'transparent',
+                borderLeft: active ? '2px solid var(--shell-accent)' : '2px solid transparent',
+                transition: 'color 0.15s, background 0.15s',
+                letterSpacing: '-0.005em',
+              }}
+            >
+              <Icon
+                size={14}
+                style={{
+                  flexShrink: 0,
+                  color: active ? 'var(--shell-accent)' : 'var(--shell-text-faint)',
+                }}
+              />
+              {label}
+            </Link>
+          )
+        })}
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      {/* Sign out */}
+      <div
+        style={{
+          padding: '10px',
+          borderTop: '1px solid var(--shell-border-subtle)',
+        }}
+      >
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full transition-colors"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 9,
+            padding: '7px 10px',
+            borderRadius: 6,
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--shell-text-faint)',
+            fontSize: 13,
+            fontWeight: 400,
+            cursor: 'pointer',
+            width: '100%',
+            transition: 'color 0.15s, background 0.15s',
+            fontFamily: 'var(--font-outfit, system-ui)',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget
+            el.style.color = 'var(--shell-text-muted)'
+            el.style.background = 'var(--shell-surface)'
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget
+            el.style.color = 'var(--shell-text-faint)'
+            el.style.background = 'transparent'
+          }}
         >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
+          <LogOut size={13} style={{ flexShrink: 0 }} />
           Sign out
         </button>
       </div>
+
+      <style>{`
+        @media (min-width: 768px) {
+          .sidebar-desktop { display: flex !important; }
+        }
+      `}</style>
     </aside>
   )
 }
