@@ -19,7 +19,8 @@ export async function handleWebhookEvent(event: Stripe.Event, db: DB): Promise<v
       const subscription = event.data.object as Stripe.Subscription
       const tier = (subscription.metadata['tier'] ?? 'free') as SubscriptionTier
       const customerId = subscription.customer as string
-      const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+      const item = subscription.items.data[0]
+      const currentPeriodEnd = new Date((item?.current_period_end ?? 0) * 1000)
 
       await db
         .update(profiles)

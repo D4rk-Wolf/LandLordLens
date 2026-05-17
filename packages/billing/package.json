@@ -20,14 +20,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "dependencies": {
-    "@landlordlens/db": "workspace:*",
-    "drizzle-orm": "^0.38.0",
-    "stripe": "^17.0.0"
-  },
   "devDependencies": {
     "@landlordlens/config": "workspace:*",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "@landlordlens/db": "workspace:*",
+    "@types/node": "^25.8.0",
+    "drizzle-orm": "^0.45.2",
+    "stripe": "^22.1.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   }
 }

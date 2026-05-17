@@ -18,6 +18,6 @@
     "email:dev": "turbo run dev --filter=@landlordlens/email"
   },
   "devDependencies": {
-    "turbo": "^2.5.0"
+    "turbo": "^2.9.14"
   }
 }

@@ -19,13 +19,12 @@
     "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "drizzle-orm": "^0.38.0",
-    "postgres": "^3.4.5"
-  },
   "devDependencies": {
     "@landlordlens/config": "workspace:*",
-    "drizzle-kit": "^0.29.0",
-    "typescript": "^5.7.0"
+    "@types/node": "^25.8.0",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
+    "typescript": "^6.0.3"
   }
 }

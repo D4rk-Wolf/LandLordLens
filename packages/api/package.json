@@ -16,20 +16,18 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "dependencies": {
-    "@trpc/server": "^11.0.0",
-    "@landlordlens/db": "workspace:*",
+  "devDependencies": {
     "@landlordlens/auth": "workspace:*",
     "@landlordlens/billing": "workspace:*",
-    "@supabase/supabase-js": "^2.49.0",
-    "drizzle-orm": "^0.38.0",
-    "superjson": "^2.2.1",
-    "zod": "^3.23.0"
-  },
-  "devDependencies": {
     "@landlordlens/config": "workspace:*",
-    "next": "^15.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "@landlordlens/db": "workspace:*",
+    "@supabase/supabase-js": "^2.105.4",
+    "@trpc/server": "^11.17.0",
+    "drizzle-orm": "^0.45.2",
+    "next": "^16.2.6",
+    "superjson": "^2.2.6",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6",
+    "zod": "^4.4.3"
   }
 }
