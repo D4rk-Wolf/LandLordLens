@@ -1,33 +1,26 @@
 {
-  "polyfillFiles": [
-    "static/chunks/polyfills-42372ed130431b0a.js"
-  ],
+  "pages": {
+    "/_app": []
+  },
   "devFiles": [],
   "ampDevFiles": [],
+  "polyfillFiles": [
+    "static/chunks/dfd32_next_dist_build_polyfills_polyfill-nomodule.js"
+  ],
   "lowPriorityFiles": [
-    "static/Y9_L3xdW-OGRsda7o3Wye/_buildManifest.js",
-    "static/Y9_L3xdW-OGRsda7o3Wye/_ssgManifest.js"
+    "static/development/_ssgManifest.js",
+    "static/development/_buildManifest.js"
   ],
   "rootMainFiles": [
-    "static/chunks/webpack-3668ac8f75ba6ab5.js",
-    "static/chunks/1403cfaa-6db8521358bcd91a.js",
-    "static/chunks/159-2398f495578bc26c.js",
-    "static/chunks/main-app-3f3f69d3f423dde3.js"
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_b3e5b063._.js",
+    "static/chunks/dfd32_next_dist_compiled_react-dom_f82830a6._.js",
+    "static/chunks/dfd32_next_dist_compiled_next-devtools_index_e690b805.js",
+    "static/chunks/dfd32_next_dist_compiled_441956ff._.js",
+    "static/chunks/dfd32_next_dist_client_6ca00a67._.js",
+    "static/chunks/dfd32_next_dist_9e2b21d9._.js",
+    "static/chunks/fe02b_@swc_helpers_cjs_b1ff7422._.js",
+    "static/chunks/Documents_D4rkWolf_Business software_Software_LandLordLens_apps_web_a0ff3932._.js",
+    "static/chunks/358b3_D4rkWolf_Business software_Software_LandLordLens_apps_web_3857d0b7._.js"
   ],
-  "rootMainFilesTree": {},
-  "pages": {
-    "/_app": [
-      "static/chunks/webpack-3668ac8f75ba6ab5.js",
-      "static/chunks/framework-36fdc7d8f35ef658.js",
-      "static/chunks/main-1bfc20618db66929.js",
-      "static/chunks/pages/_app-c29bd852ea78b7d0.js"
-    ],
-    "/_error": [
-      "static/chunks/webpack-3668ac8f75ba6ab5.js",
-      "static/chunks/framework-36fdc7d8f35ef658.js",
-      "static/chunks/main-1bfc20618db66929.js",
-      "static/chunks/pages/_error-5d4135090fb54e41.js"
-    ]
-  },
   "ampFirstPages": []
 }
