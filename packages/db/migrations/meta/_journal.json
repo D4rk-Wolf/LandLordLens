@@ -29,6 +29,13 @@
       "when": 1779094363896,
       "tag": "0003_daffy_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779094506911,
+      "tag": "0004_steady_thundra",
+      "breakpoints": true
     }
   ]
 }
