@@ -566,7 +566,7 @@ export default async function LandingPage() {
                 color: 'var(--shell-text-faint)',
               }}
             >
-              © {new Date().getFullYear()} D4rkWolf Studios. All rights reserved.
+              © <span suppressHydrationWarning>{new Date().getFullYear()}</span> D4rkWolf Studios. All rights reserved.
             </span>
           </div>
           <div style={{ display: 'flex', gap: 20 }}>

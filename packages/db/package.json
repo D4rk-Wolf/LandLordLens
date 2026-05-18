@@ -17,6 +17,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:introspect": "drizzle-kit introspect",
     "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0",
     "postgres": "^3.4.9",
+    "tsx": "^4.22.1",
     "typescript": "^6.0.3"
   }
 }
