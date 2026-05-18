@@ -1,6 +1,6 @@
-import { eq, count, sum } from 'drizzle-orm'
+import { eq, count, sum, and } from 'drizzle-orm'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
-import { properties, complianceRecords, expenses } from '@landlordlens/db/schema'
+import { properties, complianceRecords, expenses, tenancies } from '@landlordlens/db/schema'
 
 export const analyticsRouter = createTRPCRouter({
   portfolioStats: protectedProcedure.query(async ({ ctx }) => {
@@ -26,5 +26,54 @@ export const analyticsRouter = createTRPCRouter({
       .from(expenses)
       .where(eq(expenses.userId, ctx.user.id))
       .groupBy(expenses.category)
+  }),
+
+  portfolioKPIs: protectedProcedure.query(async ({ ctx }) => {
+    const [props, exps, activeTenancies] = await Promise.all([
+      ctx.db.select().from(properties).where(eq(properties.userId, ctx.user.id)),
+      ctx.db.select().from(expenses).where(eq(expenses.userId, ctx.user.id)),
+      ctx.db.select().from(tenancies).where(and(
+        eq(tenancies.userId, ctx.user.id),
+        eq(tenancies.status, 'active')
+      )),
+    ])
+
+    const annualRentalIncome = activeTenancies.reduce(
+      (s, t) => s + parseFloat(t.monthlyRent ?? '0'), 0
+    ) * 12
+
+    const annualOperatingExpenses = exps
+      .filter(e => e.type === 'expense')
+      .reduce((s, e) => s + parseFloat(e.amount ?? '0'), 0)
+
+    const noi = annualRentalIncome - annualOperatingExpenses
+
+    const totalCurrentValue = props.reduce((s, p) => s + parseFloat((p as any).currentValue ?? '0'), 0)
+    const totalMortgageBalance = props.reduce((s, p) => s + parseFloat((p as any).mortgageBalance ?? '0'), 0)
+    const annualMortgagePayments = props.reduce(
+      (s, p) => s + parseFloat((p as any).mortgageMonthlyPayment ?? '0'), 0
+    ) * 12
+
+    const grossYield = totalCurrentValue > 0 ? (annualRentalIncome / totalCurrentValue) * 100 : null
+    const netYield = totalCurrentValue > 0 ? (noi / totalCurrentValue) * 100 : null
+    const equity = totalCurrentValue - totalMortgageBalance
+    const annualCashFlow = noi - annualMortgagePayments
+    const totalPurchasePrice = props.reduce((s, p) => s + parseFloat(p.purchasePrice ?? '0'), 0)
+    const cashOnCash = totalPurchasePrice > 0 ? (annualCashFlow / totalPurchasePrice) * 100 : null
+
+    return {
+      annualRentalIncome,
+      annualOperatingExpenses,
+      noi,
+      grossYield,
+      netYield,
+      equity,
+      annualCashFlow,
+      cashOnCash,
+      totalCurrentValue,
+      totalMortgageBalance,
+      propertyCount: props.length,
+      occupiedCount: activeTenancies.length,
+    }
   }),
 })
