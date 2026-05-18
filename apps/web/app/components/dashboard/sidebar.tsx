@@ -17,6 +17,7 @@ const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home, exact: true },
   { href: '/dashboard/properties', label: 'Properties', icon: Building2 },
   { href: '/dashboard/compliance', label: 'Compliance', icon: ShieldCheck },
+  { href: '/dashboard/compliance/prs-readiness', label: 'PRS Readiness', icon: ShieldCheck },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/services', label: 'Services', icon: Wrench },
   { href: '/dashboard/legal/section-8', label: 'Legal', icon: Scale },
