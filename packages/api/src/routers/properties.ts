@@ -22,6 +22,15 @@ const createPropertySchema = z.object({
   bathrooms: z.number().int().min(0).default(1),
   rentAmount: z.string().optional(),
   region: z.enum(['england', 'wales', 'scotland', 'northern_ireland']).default('england'),
+  epcRating: z.enum(['A','B','C','D','E','F','G']).optional(),
+  epcExpiryDate: z.string().optional(),
+  currentValue: z.string().optional(),
+  mortgageBalance: z.string().optional(),
+  mortgageRate: z.string().optional(),
+  mortgageMonthlyPayment: z.string().optional(),
+  prsRegistrationNumber: z.string().optional(),
+  hmoLicenseNumber: z.string().optional(),
+  hmoLicenseExpiry: z.string().optional(),
   notes: z.string().optional(),
 })
 
