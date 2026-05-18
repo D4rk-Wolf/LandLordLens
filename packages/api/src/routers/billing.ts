@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { TRPCError } from '@trpc/server'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
 import {
   createCheckoutSession,
@@ -58,7 +59,7 @@ export const billingRouter = createTRPCRouter({
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
     if (!profile.stripeCustomerId) {
-      throw new Error('No Stripe customer found — upgrade to a paid plan first')
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'No Stripe customer found — upgrade to a paid plan first' })
     }
 
     const session = await createCustomerPortalSession(

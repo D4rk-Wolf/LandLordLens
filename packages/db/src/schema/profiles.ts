@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, boolean, timestamp } from 'drizzle-orm/pg-core'
 
 export type UserRole = 'landlord' | 'admin' | 'tenant'
-export type SubscriptionTier = 'free' | 'starter' | 'professional' | 'business' | 'enterprise'
+export type SubscriptionTier = 'free' | 'professional' | 'business' | 'enterprise'
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete'
 export type SubscriptionPeriod = 'monthly' | 'yearly'
 

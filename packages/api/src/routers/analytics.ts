@@ -49,10 +49,10 @@ export const analyticsRouter = createTRPCRouter({
 
     const noi = annualRentalIncome - annualOperatingExpenses
 
-    const totalCurrentValue = props.reduce((s, p) => s + parseFloat((p as any).currentValue ?? '0'), 0)
-    const totalMortgageBalance = props.reduce((s, p) => s + parseFloat((p as any).mortgageBalance ?? '0'), 0)
+    const totalCurrentValue = props.reduce((s, p) => s + parseFloat(p.currentValue ?? '0'), 0)
+    const totalMortgageBalance = props.reduce((s, p) => s + parseFloat(p.mortgageBalance ?? '0'), 0)
     const annualMortgagePayments = props.reduce(
-      (s, p) => s + parseFloat((p as any).mortgageMonthlyPayment ?? '0'), 0
+      (s, p) => s + parseFloat(p.mortgageMonthlyPayment ?? '0'), 0
     ) * 12
 
     const grossYield = totalCurrentValue > 0 ? (annualRentalIncome / totalCurrentValue) * 100 : null
@@ -93,13 +93,13 @@ export const analyticsRouter = createTRPCRouter({
       const expensesByHmrcCategory = exps
         .filter(e => e.type === 'expense')
         .reduce((acc, e) => {
-          const cat = (e as any).hmrcCategory ?? 'not_categorised'
+          const cat = e.hmrcCategory ?? 'not_categorised'
           acc[cat] = (acc[cat] ?? 0) + parseFloat(e.amount ?? '0')
           return acc
         }, {} as Record<string, number>)
 
       const uncategorisedCount = exps.filter(
-        e => e.type === 'expense' && (e as any).hmrcCategory === 'not_categorised'
+        e => e.type === 'expense' && e.hmrcCategory === 'not_categorised'
       ).length
 
       return {

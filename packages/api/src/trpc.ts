@@ -60,8 +60,7 @@ export const protectedProcedure = t.procedure.use(enforceUserIsAuthed)
 
 const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
   if (!ctx.user || !ctx.profile) throw new TRPCError({ code: 'UNAUTHORIZED' })
-  const isAdmin = ctx.user.app_metadata?.['role'] === 'admin'
-  if (!isAdmin) throw new TRPCError({ code: 'FORBIDDEN' })
+  if (ctx.profile.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' })
   return next({ ctx: { ...ctx, user: ctx.user, profile: ctx.profile } })
 })
 

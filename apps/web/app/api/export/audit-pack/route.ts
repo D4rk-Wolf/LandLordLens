@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@landlordlens/auth/server'
 import { db } from '@landlordlens/db'
 import { tenancies, depositProtections, maintenanceTickets, maintenanceEvents, complianceRecords } from '@landlordlens/db/schema'
-import { eq, and, gte } from 'drizzle-orm'
+import { eq, and, gte, inArray } from 'drizzle-orm'
 
 export async function GET(req: NextRequest) {
   const tenancyId = new URL(req.url).searchParams.get('tenancyId')
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const twelveMonthsAgo = new Date()
   twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1)
 
-  const [deposits, compliance, maintenance, events] = await Promise.all([
+  const [deposits, compliance, maintenance] = await Promise.all([
     db.select().from(depositProtections).where(and(eq(depositProtections.tenancyId, tenancyId), eq(depositProtections.userId, user.id))),
     db.select().from(complianceRecords)
       .where(and(eq(complianceRecords.propertyId, tenancy.propertyId), eq(complianceRecords.userId, user.id))),
@@ -31,12 +31,11 @@ export async function GET(req: NextRequest) {
         eq(maintenanceTickets.userId, user.id),
         gte(maintenanceTickets.createdAt, twelveMonthsAgo)
       )),
-    db.select().from(maintenanceEvents).where(eq(maintenanceEvents.userId, user.id)),
   ])
 
   const ticketIds = maintenance.map(t => t.id)
   const scopedEvents = ticketIds.length > 0
-    ? events.filter(e => ticketIds.includes(e.ticketId))
+    ? await db.select().from(maintenanceEvents).where(inArray(maintenanceEvents.ticketId, ticketIds))
     : []
 
   const payload = {
