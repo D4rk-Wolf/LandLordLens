@@ -1,9 +1,17 @@
+/**
+ * @module routers/documents
+ * tRPC router for managing document metadata records linked to Supabase Storage.
+ * File upload/download is handled directly by the client via the Storage API;
+ * this router manages the database metadata only.
+ */
+
 import { z } from 'zod'
 import { eq, and, desc } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { documents } from '@landlordlens/db/schema'
 
+/** Input schema for registering a document that has already been uploaded to Supabase Storage. */
 const createDocumentSchema = z.object({
   propertyId: z.string().uuid().optional(),
   name: z.string().min(1),

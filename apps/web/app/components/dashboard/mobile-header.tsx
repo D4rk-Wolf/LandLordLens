@@ -1,3 +1,18 @@
+/**
+ * MobileHeader — collapsible top navigation bar for small screens.
+ *
+ * Visible only on screens < 768 px wide (hidden on desktop where `Sidebar` is
+ * shown instead).  A hamburger / close toggle reveals a full-height nav drawer
+ * with the same links as the sidebar.
+ *
+ * Mirrors the active-route logic from `Sidebar`: exact matching for routes that
+ * would otherwise greedily match child paths (e.g. `/dashboard` and
+ * `/dashboard/analytics`), prefix matching for section roots.
+ *
+ * Clicking any nav link closes the drawer (`setOpen(false)`) to restore the
+ * page content view immediately.  Sign-out follows the same pattern as the
+ * sidebar: Supabase browser client sign-out followed by redirect to `/sign-in`.
+ */
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -27,6 +42,7 @@ export function MobileHeader() {
     return pathname.startsWith(href)
   }
 
+  /** Signs the user out and redirects to the sign-in page. */
   async function handleSignOut() {
     const supabase = createBrowserClient()
     await supabase.auth.signOut()

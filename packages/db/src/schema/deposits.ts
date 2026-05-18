@@ -1,3 +1,16 @@
+/**
+ * @module schema/deposits
+ * Tenancy deposit protection records.
+ *
+ * UK law (Housing Act 2004) requires deposits to be protected in a government-
+ * approved scheme within 30 days of receipt, and prescribed information served
+ * to the tenant within the same window.  Failure to comply is a defence against
+ * Section 8 Ground 11 and blocks the landlord from serving a Section 21 notice
+ * (though Section 21 is now abolished under the Renters' Rights Act 2026).
+ *
+ * `protectionDeadline` and `prescribedInfoServingDeadline` are stored so the
+ * compliance dashboard can alert landlords approaching or past these deadlines.
+ */
 import { pgTable, uuid, text, date, numeric, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { tenancies } from './tenancies'
 import { profiles } from './profiles'

@@ -1,3 +1,12 @@
+/**
+ * @module schema/audit
+ * Platform-level audit log for admin observability.
+ *
+ * Records significant user actions (e.g. subscription changes, property deletion,
+ * admin operations) for support and compliance purposes.  Surfaced in the admin
+ * dashboard via `admin.getAuditLog`.  Not the same as `maintenanceEvents` which
+ * is a per-ticket status-change log included in the Ombudsman export.
+ */
 import { pgTable, uuid, text, timestamp, jsonb } from 'drizzle-orm/pg-core'
 
 export const auditLog = pgTable('audit_log', {

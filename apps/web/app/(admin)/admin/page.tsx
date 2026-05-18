@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser, isAdmin } from '@landlordlens/auth'
+import { getCurrentUser } from '@landlordlens/auth'
 import { createServerCaller } from '@/lib/trpc/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@landlordlens/ui'
 
@@ -8,9 +8,6 @@ export const dynamic = 'force-dynamic'
 export default async function AdminPage() {
   const user = await getCurrentUser()
   if (!user) redirect('/sign-in')
-
-  const role = user.user_metadata?.['role'] as string | undefined
-  if (!isAdmin(role as Parameters<typeof isAdmin>[0])) redirect('/dashboard')
 
   const caller = await createServerCaller()
   const [users, auditLog] = await Promise.all([
