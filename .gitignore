@@ -66,4 +66,4 @@ coverage/
 .env.sentry-build-plugin
 
 # Research files
-researches/
+research/
