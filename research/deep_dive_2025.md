@@ -52,19 +52,43 @@ To monetize the "Freemium" model, we will integrate high-value service APIs.
 
 ## 3. Making Tax Digital (MTD) for ITSA
 
-*   **Mandatory**: April 2026 (Income > £50k).
-*   **Requirement**: Submit **quarterly updates** of digital records.
-*   **Technical Spec**:
-    *   Updates are **cumulative totals** of income/expense categories.
-    *   No accounting adjustments needed quarterly.
-    *   Sandbox: `https://test-api.service.hmrc.gov.uk` available.
-*   **Software Opportunity**:
-    *   **Expense Categorization**: We must force users to map expenses to HMRC categories (e.g., "Property repairs", "Loan interest").
-    *   **Quarterly Snapshots**: Generate a JSON/CSV report that matches MTD schema.
-    *   **Future**: Direct submission via HMRC API.
+> ⚠️ **UPDATE (May 2026)**: MTD ITSA Phase 1 is **now live** (6 April 2026). A third threshold phase (£20k) has since been confirmed.
 
-## Strategic Recommendations for Next Phase
+| Phase | Date | Threshold |
+|-------|------|-----------|
+| Phase 1 | **6 April 2026** (live) | Combined gross income > £50,000 |
+| Phase 2 | April 2027 | Combined gross income > £30,000 |
+| Phase 3 | April 2028 | Combined gross income > £20,000 |
 
-1.  **Build "Ombudsman Vault"**: Enhance the Document storage to be tenancy-aware and exportable.
-2.  **Upgrade Maintenance**: Add "Audit Log" to maintenance tickets (who said what, when).
-3.  **Prepare for MTD**: Implement "HMRC Categories" for expenses immediately.
+*Thresholds apply to combined property + trading income (not per-source).*
+
+- **Requirement**: Submit **quarterly updates** of digital income/expense records, plus an End-of-Period Statement and Final Declaration annually.
+- **Software must**: Connect to HMRC APIs, maintain digital records, submit quarterly updates.
+- **Technical Spec**:
+  - Updates are cumulative totals of income/expense categories.
+  - No accounting adjustments needed quarterly.
+  - Sandbox: `https://test-api.service.hmrc.gov.uk` available.
+- **Software Opportunity**:
+  - **Expense Categorisation**: Force users to map expenses to HMRC categories (e.g., "Property repairs", "Loan interest").
+  - **Quarterly Snapshots**: Generate report matching MTD schema.
+  - **Direct Submission**: HMRC API integration — Hammock has already achieved HMRC recognition; this is now table stakes.
+
+## 4. PRS Database — Updated Timeline
+
+> **UPDATE (May 2026)**: Phase 1 of the RRA is live. PRS Database is Phase 2 (late 2026+).
+
+- Phase 1 (1 May 2026): Section 21 abolished, all tenancies become periodic. **Landlords can no longer operate without understanding Section 8.**
+- Phase 2 (late 2026+): PRS Database registration opens. Penalties: £5k–£30k + up to 24 months rent repayment orders.
+- Phase 3 (2028): Mandatory Ombudsman membership.
+
+Non-registration blocks: serving Section 8 notices, instructing letting agents, renewing HMO licences.
+
+See `rra_implementation_2026.md` for full detail.
+
+## Strategic Recommendations (Updated May 2026)
+
+1. **Build "Ombudsman Vault"**: Tenancy-aware document storage with one-click 12-month audit export. **Urgent — councils can request records now.**
+2. **Upgrade Maintenance**: Add audit log to maintenance tickets (who said what, when). **Now a legal compliance tool.**
+3. **MTD is live**: Implement HMRC expense categories immediately. Hammock has HMRC recognition — we need this too.
+4. **Section 8 Wizard**: Phase 1 is live. Landlords need guidance on all 37 grounds **right now**.
+5. **PRS Database Readiness**: Build a "registration readiness" checker flagging missing Gas/EICR/EPC data before the database launches late 2026.

@@ -3,13 +3,18 @@
 Based on valid UK market data, the following specific features are required to solve the top "burden" points for landlords.
 
 ## 1. Energy Efficiency (EPC) Manager
-*   **The Problem**: 47% of landlords have properties < D rating. 2028 deadline for 'C' rating is looming.
+
+> ⚠️ **CORRECTION (May 2026)**: The 2028 deadline has been scrapped. The new deadline is **1 October 2030** for all properties. Spending cap reduced from £15,000 to **£10,000** (capped at 10% of property value for low-value homes). ~52% of PRS properties are currently below EPC C (~2.9M homes). A new EPC measurement methodology (heat retention-based) becomes compulsory from 1 October 2029.
+
+*   **The Problem**: 52% of PRS properties are below EPC C. Landlords face a hard deadline of **1 October 2030** to reach C or register an exemption — or face being unable to let legally.
 *   **Feature Requirement**:
     *   **EPC Scraper**: Auto-fetch current rating from government register using address.
-    *   **Deadline Countdown**: Visual "Days until 2028 deadline" for properties below 'C'.
+    *   **Deadline Countdown**: Visual "Days until 1 Oct 2030 deadline" for properties below 'C'.
+    *   **Spending Cap Calculator**: Show landlord their property-specific cap (£10k or 10% of value).
     *   **Improvement Roadmap**: Checklist of suggested improvements (Insulation, Boiler, etc.).
-    *   ** Monetization**: "Get an EPC Assessment Quote" button (Lead Gen).
+    *   **Monetization**: "Get an EPC Assessment Quote" button (Lead Gen).
     *   **[Technical]**: Use *Open Data Communities API* for auto-fill.
+    *   **Note**: EPC methodology changes Oct 2029 — re-assessments will be needed before the 2030 deadline.
 
 ## 1b. Smart Market Data (New)
 *   **The Problem**: "Am I charging enough rent?"

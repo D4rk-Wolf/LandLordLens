@@ -35,6 +35,37 @@
     *   **Integration**: Connect to generic email/SMS output for trades, but track the *status* (Quote Received -> Job Booked -> Invoice Paid).
 
 ## 5. UI/UX "Polish" Features
-*   **Visuals**: Dark Mode (Deep Midnight), Glassmorphism cards.
-*   **Interactions**: "Swipe to action" on mobile lists.
-*   **AI**: "Lease Reader" - Drag & drop a PDF tenancy agreement, AI extracts start/end dates and rent amount (finetuned OCR).
+
+- **Visuals**: Dark mode now implemented (May 2026 redesign). Amber/gold accent system.
+- **Interactions**: "Swipe to action" on mobile lists.
+- **AI**: "Lease Reader" - Drag & drop a PDF tenancy agreement, AI extracts start/end dates and rent amount (finetuned OCR).
+
+---
+
+## 6. Competitive Gap vs Latch (New Entrant — Urgent)
+
+> **UPDATE (May 2026)**: Latch has emerged as the most capable new competitor. They lead on AI. We must lead on compliance depth.
+
+Latch's AI agent "Matt" handles: rent chasing, document analysis, compliance reminders, tenant comms. Landlords report 5–10 hrs/week saved. Pricing: Free (3 leases) / £20/mo Pro.
+
+**What Latch does NOT have (our differentiation):**
+- Section 8 wizard with ground validation and prerequisite checking
+- PRS Database readiness tracker
+- Ombudsman Vault (12-month audit pack export)
+- Deposit protection prescribed info generator
+- Right-to-Rent check tracking
+- Maintenance audit log (Ombudsman-defensible)
+
+**Action**: Prioritise all of the above before adding AI features. Compliance depth is the moat. Once those are built, layer in AI for document extraction and automated alerts.
+
+## 7. MTD Now Live — Hammock Has HMRC Recognition
+
+> **UPDATE (May 2026)**: MTD ITSA Phase 1 mandatory from 6 April 2026 (£50k+ income). Hammock is first HMRC-recognised landlord platform.
+
+**Gap**: LandLordLens needs HMRC API integration for direct quarterly submission. Current state generates reports but does not submit. Required steps:
+1. Register as MTD software vendor with HMRC.
+2. Implement OAuth 2.0 for landlord HMRC account authorisation.
+3. Build quarterly submission endpoint against HMRC sandbox, then production.
+4. Add End-of-Period Statement and Final Declaration flows.
+
+This is a 6–9 month engineering track but is now **urgent** given Phase 1 is live.

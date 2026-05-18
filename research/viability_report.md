@@ -11,17 +11,31 @@ UK landlords are facing a "perfect storm" of challenges:
 
 **Verdict**: The demand for *helper* software is high, especially software that specifically addresses *UK Compliance*.
 
-## Competitor Landscape
-| Competitor | Target Audience | Pricing | Strengths | Weaknesses |
-| :--- | :--- | :--- | :--- | :--- |
-| **Landlord Studio** | Small Landlords | Free (<3 units) then £12/m | Great Tax/Accounting features | Less focus on complex compliance legislation |
-| **Arthur Online** | Agencies / Large | High (£70+/m) | Extremely powerful, automated | Too complex/expensive for self-managers |
-| **Alphaletz** | Small-Mid | ~£10/m | Modern UI | Can get pricey as portfolio grows |
-| **Excel / Paper** | The Majority | Free | Flexible | No reminders, no automation, high risk of error |
+## Market Size (Updated May 2026)
 
-**Differentiation Strategy for Landlord Lens**:
-*   **"Compliance First"**: Market it not just as "management" but as "risk reduction". "The app that stops you getting fined."
-*   **Privacy/Ownership**: The self-hosted/local-first architecture (referenced in README) is a unique selling point for privacy-conscious landlords who don't want their financial data sold.
+- **4.7 million** PRS households in England (19% of all households) — English Housing Survey 2024–25
+- **2.3–2.8 million** private landlords in England
+- ~513,000 self-managing landlords (primary target market)
+- Average rent in England: **£1,434/month** (up 3.4% YoY, March 2026)
+- **52% of PRS properties** currently below EPC C (~2.9 million homes needing upgrades by 2030)
+
+## Competitor Landscape (Updated May 2026)
+
+| Competitor | Target | Pricing | MTD | AI | Strengths | Weaknesses |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Latch** *(new)* | Small-mid | Free / £20/mo | ✅ | ✅ "Matt" agent | AI-first, best 2026 all-rounder, Open Banking | New, weak on compliance depth |
+| **Landlord Studio** | Small | Free (<3) / $12–$28/mo | ✅ | ❌ | 100k+ users, best mobile app | USD pricing, less RRA focus |
+| **Hammock** | Small-mid | £8–£25/mo | ✅ HMRC recognised | ❌ | First HMRC-approved MTD platform | Property income only, weak compliance |
+| **Landlord Vision** | Tax-focused | ~£9/mo | ✅ | ❌ | Best accounting/tax tool | Weak on non-financial compliance |
+| **Arthur Online** | Agencies / Large | £70+/mo | ✅ | Partial | Extremely powerful, automated | Too complex/expensive for self-managers |
+| **Alphaletz** | Small-Mid | ~£10/mo | Partial | ❌ | Modern UI | Gets pricey at scale |
+| **Excel / Paper** | The Majority | Free | ❌ | ❌ | Flexible | No reminders, high compliance risk |
+
+**Differentiation Strategy for LandLordLens (Updated)**:
+- **"Compliance First, Post-RRA"**: Section 21 is gone. Every self-managing landlord now needs to understand 37 Section 8 grounds. We are the platform built for this world.
+- **PRS Database Ready**: We track Gas Safety, EICR, EPC — exactly the data required for mandatory PRS registration (late 2026). Users who are already on LandLordLens will be registration-ready on day one.
+- **Ombudsman Vault**: Councils can request 12 months of records. Our audit export feature is a direct response to a legal obligation no competitor has built for.
+- **MTD with compliance context**: Unlike Hammock (accounting-only) or Landlord Studio (US-centric), we combine MTD with the full compliance picture in one place.
 
 ## Income & Monetization Strategies
 To create an income for yourself, you should move beyond a simple "one-time sale" or "free" model.
