@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     await handleWebhookEvent(event, db)
     return NextResponse.json({ received: true })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 400 })
+    console.error('Stripe webhook error:', err)
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 400 })
   }
 }

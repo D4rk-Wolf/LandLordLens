@@ -5,7 +5,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getCurrentUser()
   if (!user) redirect('/sign-in')
 
-  const role = user.user_metadata?.['role'] as string | undefined
+  const role = user.app_metadata?.['role'] as string | undefined
   if (!isAdmin(role as Parameters<typeof isAdmin>[0])) redirect('/dashboard')
 
   return (
