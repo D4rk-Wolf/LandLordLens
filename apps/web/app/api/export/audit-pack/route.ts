@@ -34,6 +34,11 @@ export async function GET(req: NextRequest) {
     db.select().from(maintenanceEvents).where(eq(maintenanceEvents.userId, user.id)),
   ])
 
+  const ticketIds = maintenance.map(t => t.id)
+  const scopedEvents = ticketIds.length > 0
+    ? events.filter(e => ticketIds.includes(e.ticketId))
+    : []
+
   const payload = {
     exportDate: new Date().toISOString(),
     exportedBy: 'LandLordLens Ombudsman Vault',
@@ -52,7 +57,7 @@ export async function GET(req: NextRequest) {
     complianceCertificates: compliance,
     maintenanceRecords: maintenance.map(ticket => ({
       ...ticket,
-      auditLog: events.filter(e => e.ticketId === ticket.id),
+      auditLog: scopedEvents.filter(e => e.ticketId === ticket.id),
     })),
   }
 
