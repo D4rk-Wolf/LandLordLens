@@ -41,13 +41,20 @@ export default async function PropertyTenanciesPage({
                     {tenancy.startDate} → {tenancy.endDate ?? 'ongoing'}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-2">
                   <p className="font-semibold text-gray-900">
                     £{Number(tenancy.monthlyRent).toLocaleString()}/mo
                   </p>
-                  <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-1 capitalize ${tenancy.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                  <span className={`inline-block text-xs px-2 py-0.5 rounded-full capitalize ${tenancy.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {tenancy.status}
                   </span>
+                  <a
+                    href={`/api/export/audit-pack?tenancyId=${tenancy.id}`}
+                    download
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50 transition-colors"
+                  >
+                    Export audit pack
+                  </a>
                 </div>
               </CardContent>
             </Card>
