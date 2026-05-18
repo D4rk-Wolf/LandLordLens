@@ -1,0 +1,1 @@
+ALTER TABLE "compliance_records" ADD COLUMN "served_to_tenant_date" date;

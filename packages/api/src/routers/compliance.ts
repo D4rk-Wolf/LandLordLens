@@ -12,6 +12,7 @@ const createComplianceSchema = z.object({
   issueDate: z.string(),
   expiryDate: z.string(),
   issuer: z.string().optional(),
+  servedToTenantDate: z.string().optional(),
   notes: z.string().optional(),
 })
 
