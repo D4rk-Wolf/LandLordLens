@@ -1,3 +1,13 @@
+/**
+ * @module schema/expenses
+ * Income and expense records for HMRC self-assessment (SA105 property income).
+ *
+ * Despite the table name, `type` can be either `'expense'` or `'income'`, making
+ * this the single table for all financial transactions.  `hmrcCategory` maps to
+ * HMRC SA105 expense categories used in the quarterly MTD summary and annual
+ * self-assessment tax return.  Records with `hmrcCategory = 'not_categorised'`
+ * are flagged to the user in the MTD summary as requiring attention before filing.
+ */
 import { pgTable, uuid, text, date, numeric, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { properties } from './properties'
 import { tenancies } from './tenancies'

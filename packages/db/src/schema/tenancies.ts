@@ -1,3 +1,19 @@
+/**
+ * @module schema/tenancies
+ * Tenancy records linking a property to a tenant for a period of time.
+ *
+ * `tenancyType` defaults to `'periodic_assured'` following the Renters' Rights
+ * Act 2025 which abolished fixed-term assured shorthold tenancies for new lets
+ * from June 2025 and converted all existing ASTs to periodic tenancies on 1 May 2026.
+ *
+ * The boolean flags (`howToRentGuideProvided`, `rightToRentChecked`, `depositProtected`,
+ * `section13NoticeServed`) track prescribed information obligations that landlords must
+ * fulfil at the start of and during the tenancy.  These are checked in the Section 8
+ * wizard as prerequisites for certain grounds of possession.
+ *
+ * `lastRentIncrease` is stored as JSONB to preserve the history needed to verify the
+ * 2-month advance notice requirement under Section 13 rent increase procedure.
+ */
 import { pgTable, uuid, text, date, numeric, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { properties } from './properties'
 import { profiles } from './profiles'
