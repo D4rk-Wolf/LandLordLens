@@ -8,6 +8,13 @@
       "when": 1779027821573,
       "tag": "0000_narrow_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779092924521,
+      "tag": "0001_regular_santa_claus",
+      "breakpoints": true
     }
   ]
 }

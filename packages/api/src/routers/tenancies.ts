@@ -13,7 +13,7 @@ const createTenancySchema = z.object({
   endDate: z.string().optional(),
   monthlyRent: z.string(),
   deposit: z.string().optional(),
-  tenancyType: z.enum(['assured_shorthold', 'assured', 'short_assured', 'fixed_term', 'protected']).default('assured_shorthold'),
+  tenancyType: z.enum(['periodic_assured', 'assured', 'short_assured', 'fixed_term', 'protected']).default('periodic_assured'),
 })
 
 const updateTenancySchema = createTenancySchema.partial().extend({

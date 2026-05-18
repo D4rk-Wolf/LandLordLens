@@ -1,0 +1,1 @@
+ALTER TABLE "tenancies" ALTER COLUMN "tenancy_type" SET DEFAULT 'periodic_assured';
