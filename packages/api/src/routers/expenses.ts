@@ -13,6 +13,12 @@ const createExpenseSchema = z.object({
   description: z.string().min(1),
   supplier: z.string().optional(),
   isTaxDeductible: z.boolean().default(true),
+  hmrcCategory: z.enum([
+    'rent_and_other_income', 'premiums_of_lease_granted', 'premises_costs',
+    'repairs_and_maintenance', 'financial_costs', 'professional_fees',
+    'cost_of_services', 'travel_costs', 'other_allowable_expenses',
+    'capital_allowances', 'residential_finance_costs', 'not_categorised'
+  ]).default('not_categorised').optional(),
   taxYear: z.string().optional(),
 })
 

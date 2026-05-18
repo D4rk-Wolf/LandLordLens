@@ -10,6 +10,7 @@ import { analyticsRouter } from './routers/analytics'
 import { adminRouter } from './routers/admin'
 import { servicesRouter } from './routers/services'
 import { billingRouter } from './routers/billing'
+import { maintenanceEventsRouter } from './routers/maintenanceEvents'
 
 export const appRouter = createTRPCRouter({
   properties: propertiesRouter,
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
   admin: adminRouter,
   services: servicesRouter,
   billing: billingRouter,
+  maintenanceEvents: maintenanceEventsRouter,
 })
 
 export type AppRouter = typeof appRouter

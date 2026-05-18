@@ -10,6 +10,17 @@ function daysUntil(dateStr: string): number {
   return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
+function daysUntilEpcDeadline(): number {
+  const deadline = new Date('2030-10-01')
+  const now = new Date()
+  return Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+function needsServing(record: { complianceType: string; servedToTenantDate?: string | null }): boolean {
+  return (record.complianceType === 'gas_safety' || record.complianceType === 'electrical')
+    && !record.servedToTenantDate
+}
+
 function statusChip(days: number) {
   if (days < 0)
     return <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">Overdue {Math.abs(days)}d</span>
@@ -36,6 +47,16 @@ export default async function CompliancePage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Compliance</h1>
         <p className="text-sm text-gray-500 mt-1">All compliance records across your portfolio</p>
+      </div>
+
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+        <p className="text-sm font-semibold text-orange-800">
+          EPC &apos;C&apos; deadline: {daysUntilEpcDeadline().toLocaleString()} days remaining (1 Oct 2030)
+        </p>
+        <p className="text-xs text-orange-700 mt-1">
+          Properties below EPC &apos;C&apos; must reach that rating or register an exemption before 1 October 2030,
+          or cannot be legally let. 52% of PRS properties currently fail this target.
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -66,8 +87,13 @@ export default async function CompliancePage() {
               <Card key={record.id}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900 capitalize">
+                    <p className="font-medium text-gray-900 capitalize flex items-center">
                       {record.complianceType.replace(/_/g, ' ')}
+                      {needsServing(record as { complianceType: string; servedToTenantDate?: string | null }) && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                          Serve to tenant
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-gray-400">
                       Expires: {record.expiryDate}

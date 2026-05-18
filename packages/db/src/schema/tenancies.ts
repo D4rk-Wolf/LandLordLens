@@ -2,7 +2,7 @@ import { pgTable, uuid, text, date, numeric, boolean, jsonb, timestamp } from 'd
 import { properties } from './properties'
 import { profiles } from './profiles'
 
-export type TenancyType = 'assured_shorthold' | 'assured' | 'short_assured' | 'fixed_term' | 'protected'
+export type TenancyType = 'periodic_assured' | 'assured' | 'short_assured' | 'fixed_term' | 'protected'
 export type TenancyStatus = 'active' | 'ended' | 'pending'
 
 export const tenancies = pgTable('tenancies', {
@@ -17,7 +17,7 @@ export const tenancies = pgTable('tenancies', {
   monthlyRent: numeric('monthly_rent', { precision: 10, scale: 2 }).notNull(),
   deposit: numeric('deposit', { precision: 10, scale: 2 }),
   depositProtected: boolean('deposit_protected').default(false).notNull(),
-  tenancyType: text('tenancy_type').$type<TenancyType>().default('assured_shorthold').notNull(),
+  tenancyType: text('tenancy_type').$type<TenancyType>().default('periodic_assured').notNull(),
   status: text('status').$type<TenancyStatus>().default('active').notNull(),
   rentReviewDate: date('rent_review_date'),
   lastRentIncrease: jsonb('last_rent_increase'),

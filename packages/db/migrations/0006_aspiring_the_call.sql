@@ -1,0 +1,1 @@
+ALTER TABLE "expenses" ADD COLUMN "hmrc_category" text DEFAULT 'not_categorised' NOT NULL;

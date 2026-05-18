@@ -1,0 +1,218 @@
+export type GroundType = 'mandatory' | 'discretionary'
+
+export interface Section8Ground {
+  ground: string
+  type: GroundType
+  title: string
+  description: string
+  noticePeriod: string
+  prerequisites: string[]
+  notes?: string
+}
+
+export const SECTION_8_GROUNDS: Section8Ground[] = [
+  // MANDATORY GROUNDS
+  {
+    ground: 'Ground 1',
+    type: 'mandatory',
+    title: 'Owner-occupier or owner moving in',
+    description: 'Landlord previously lived in the property and wants it back, or now requires it as their principal home.',
+    noticePeriod: '4 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'EPC provided', 'Deposit protected', 'How to Rent guide provided'],
+    notes: 'Notice must have been given before the tenancy began that this ground may be used.',
+  },
+  {
+    ground: 'Ground 2',
+    type: 'mandatory',
+    title: 'Mortgage repossession',
+    description: 'The property is subject to a mortgage granted before the tenancy and the lender is entitled to exercise power of sale.',
+    noticePeriod: '4 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'EPC provided', 'Deposit protected'],
+    notes: 'Notice must have been given before or at start of tenancy that this ground may be used.',
+  },
+  {
+    ground: 'Ground 3',
+    type: 'mandatory',
+    title: 'Holiday let',
+    description: 'Tenancy was granted for a fixed term of no more than 8 months and the property was previously a holiday let.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+    notes: 'Previous holiday let must have ended within 12 months of tenancy start.',
+  },
+  {
+    ground: 'Ground 4',
+    type: 'mandatory',
+    title: 'Student accommodation',
+    description: 'Tenancy was granted for a fixed term and the property was previously let to students by an educational institution.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 4A',
+    type: 'mandatory',
+    title: 'Student lets (Renters Rights Act)',
+    description: 'Purpose-built or purpose-used student accommodation let to full-time students. Landlord can recover possession at end of the academic year.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected', 'Tenants are full-time students'],
+    notes: 'New ground introduced by the Renters Rights Act 2025.',
+  },
+  {
+    ground: 'Ground 5',
+    type: 'mandatory',
+    title: 'Minister of religion',
+    description: 'Property is held for occupation by a minister of religion and is required for that purpose.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 6',
+    type: 'mandatory',
+    title: 'Demolition or reconstruction',
+    description: 'The landlord intends to demolish or substantially reconstruct the property and cannot do so with the tenant in occupation.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+    notes: 'Landlord cannot use this ground if they bought the property after the tenancy began.',
+  },
+  {
+    ground: 'Ground 6A',
+    type: 'mandatory',
+    title: 'Inherited tenancy',
+    description: 'The property was inherited and the landlord did not grant the original tenancy.',
+    noticePeriod: '4 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+    notes: 'New ground introduced by the Renters Rights Act 2025.',
+  },
+  {
+    ground: 'Ground 7',
+    type: 'mandatory',
+    title: 'Death of periodic tenant',
+    description: 'The periodic tenancy has devolved on death and proceedings are begun within 12 months of death or landlord becoming aware.',
+    noticePeriod: '2 months',
+    prerequisites: ['Gas Safety certificate valid', 'EICR valid'],
+  },
+  {
+    ground: 'Ground 7A',
+    type: 'mandatory',
+    title: 'Serious anti-social behaviour (conviction)',
+    description: 'Tenant, resident, or visitor has been convicted of a serious offence or received a closure order.',
+    noticePeriod: '4 weeks',
+    prerequisites: ['Evidence of conviction or closure order'],
+    notes: 'Offence must be listed in Schedule 2A of the Housing Act 1988.',
+  },
+  {
+    ground: 'Ground 7B',
+    type: 'mandatory',
+    title: 'No Right to Rent',
+    description: 'The Home Office has given written notice that one or more tenants does not have the Right to Rent in the UK.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Home Office disqualification notice received'],
+  },
+  {
+    ground: 'Ground 8',
+    type: 'mandatory',
+    title: 'Substantial rent arrears',
+    description: 'At least 2 months rent (or 8 weeks if weekly) unpaid both at the date of service and at the hearing.',
+    noticePeriod: '4 weeks',
+    prerequisites: ['Arrears of at least 2 months at notice date', 'Gas Safety certificate valid', 'EICR valid', 'EPC provided', 'Deposit protected', 'How to Rent guide provided'],
+    notes: 'Tenant can defeat the claim by paying before the hearing. Consider Ground 10/11 as backup grounds.',
+  },
+  // DISCRETIONARY GROUNDS
+  {
+    ground: 'Ground 9',
+    type: 'discretionary',
+    title: 'Suitable alternative accommodation',
+    description: 'Suitable alternative accommodation is available or will be available when the order takes effect.',
+    noticePeriod: '2 months',
+    prerequisites: ['Suitable alternative accommodation identified', 'Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 10',
+    type: 'discretionary',
+    title: 'Some rent arrears',
+    description: 'Some rent is overdue at the date the notice is served and at the date of the hearing.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Any rent arrears at notice date', 'Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 11',
+    type: 'discretionary',
+    title: 'Persistent late payment',
+    description: 'The tenant has persistently delayed paying rent, even if there are no current arrears.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Pattern of late payments documented', 'Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 12',
+    type: 'discretionary',
+    title: 'Breach of tenancy obligation',
+    description: 'The tenant has broken one or more terms of the tenancy agreement (other than rent payment).',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Tenancy agreement breach documented', 'Gas Safety certificate valid', 'EICR valid', 'Deposit protected'],
+  },
+  {
+    ground: 'Ground 13',
+    type: 'discretionary',
+    title: 'Waste or neglect',
+    description: 'The condition of the property has deteriorated due to waste, neglect, or default by the tenant or their household.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Evidence of waste or neglect documented', 'Gas Safety certificate valid', 'EICR valid'],
+  },
+  {
+    ground: 'Ground 14',
+    type: 'discretionary',
+    title: 'Nuisance or illegal use',
+    description: 'The tenant has been guilty of conduct that is a nuisance or annoyance to neighbours, or has been convicted of using the property for immoral or illegal purposes.',
+    noticePeriod: 'Immediate (can apply to court straight away)',
+    prerequisites: ['Evidence of nuisance or illegal use'],
+  },
+  {
+    ground: 'Ground 14A',
+    type: 'discretionary',
+    title: 'Domestic violence (social housing only)',
+    description: 'Domestic violence by one partner caused the other to leave. The perpetrator is still in the property.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Social housing tenancy only'],
+    notes: 'Not applicable to private landlords.',
+  },
+  {
+    ground: 'Ground 14ZA',
+    type: 'discretionary',
+    title: 'Rioting offence',
+    description: 'The tenant has been convicted of an indictable offence committed during a riot in the UK.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Conviction for riot-related indictable offence'],
+  },
+  {
+    ground: 'Ground 15',
+    type: 'discretionary',
+    title: 'Furniture deterioration',
+    description: 'The condition of any furniture provided under the tenancy has deteriorated due to ill-treatment by the tenant.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Evidence of furniture deterioration', 'Property was let furnished'],
+  },
+  {
+    ground: 'Ground 16',
+    type: 'discretionary',
+    title: 'Former employee',
+    description: 'The property was let to the tenant in connection with their employment and that employment has ended.',
+    noticePeriod: '2 months',
+    prerequisites: ['Tenancy was tied to employment', 'Employment has ended'],
+  },
+  {
+    ground: 'Ground 17',
+    type: 'discretionary',
+    title: 'False statement',
+    description: 'The tenant induced the landlord to grant the tenancy by making a false statement.',
+    noticePeriod: '2 weeks',
+    prerequisites: ['Evidence of false statement inducing tenancy'],
+  },
+]
+
+export const PREREQUISITE_CHECKS: Record<string, string> = {
+  'Gas Safety certificate valid': 'A valid Gas Safety certificate (CP12) must exist and not be expired at the time of service.',
+  'EICR valid': 'A valid Electrical Installation Condition Report must exist and not be expired.',
+  'EPC provided': 'An Energy Performance Certificate must have been provided to the tenant at tenancy start.',
+  'Deposit protected': 'The deposit must be protected within 30 days and Prescribed Information served.',
+  'How to Rent guide provided': 'The current "How to Rent" guide must have been given to the tenant at tenancy start.',
+  'Tenants are full-time students': 'All named tenants must be enrolled as full-time students.',
+}

@@ -28,6 +28,7 @@ export const complianceRecords = pgTable('compliance_records', {
   issueDate: date('issue_date').notNull(),
   expiryDate: date('expiry_date').notNull(),
   issuer: text('issuer'),
+  servedToTenantDate: date('served_to_tenant_date'),
   notes: text('notes'),
   documents: jsonb('documents').default([]).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
