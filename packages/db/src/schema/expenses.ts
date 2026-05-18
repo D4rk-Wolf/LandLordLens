@@ -5,6 +5,19 @@ import { profiles } from './profiles'
 
 export type ExpenseType = 'income' | 'expense'
 export type PaymentMethod = 'bank_transfer' | 'card' | 'cash' | 'cheque' | 'other'
+export type HmrcCategory =
+  | 'rent_and_other_income'
+  | 'premiums_of_lease_granted'
+  | 'premises_costs'
+  | 'repairs_and_maintenance'
+  | 'financial_costs'
+  | 'professional_fees'
+  | 'cost_of_services'
+  | 'travel_costs'
+  | 'other_allowable_expenses'
+  | 'capital_allowances'
+  | 'residential_finance_costs'
+  | 'not_categorised'
 
 export const expenses = pgTable('expenses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -20,6 +33,7 @@ export const expenses = pgTable('expenses', {
   supplier: text('supplier'),
   invoiceNumber: text('invoice_number'),
   isTaxDeductible: boolean('is_tax_deductible').default(true).notNull(),
+  hmrcCategory: text('hmrc_category').$type<HmrcCategory>().default('not_categorised').notNull(),
   vatAmount: numeric('vat_amount', { precision: 10, scale: 2 }),
   paymentMethod: text('payment_method').$type<PaymentMethod>(),
   receipt: jsonb('receipt'),

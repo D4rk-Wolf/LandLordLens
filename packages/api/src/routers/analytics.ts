@@ -1,4 +1,5 @@
 import { eq, count, sum, and } from 'drizzle-orm'
+import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { properties, complianceRecords, expenses, tenancies } from '@landlordlens/db/schema'
 
@@ -76,4 +77,36 @@ export const analyticsRouter = createTRPCRouter({
       occupiedCount: activeTenancies.length,
     }
   }),
+
+  mtdQuarterlySummary: protectedProcedure
+    .input(z.object({ taxYear: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const exps = await ctx.db
+        .select()
+        .from(expenses)
+        .where(and(eq(expenses.userId, ctx.user.id), eq(expenses.taxYear, input.taxYear)))
+
+      const totalIncome = exps
+        .filter(e => e.type === 'income')
+        .reduce((s, e) => s + parseFloat(e.amount ?? '0'), 0)
+
+      const expensesByHmrcCategory = exps
+        .filter(e => e.type === 'expense')
+        .reduce((acc, e) => {
+          const cat = (e as any).hmrcCategory ?? 'not_categorised'
+          acc[cat] = (acc[cat] ?? 0) + parseFloat(e.amount ?? '0')
+          return acc
+        }, {} as Record<string, number>)
+
+      const uncategorisedCount = exps.filter(
+        e => e.type === 'expense' && (e as any).hmrcCategory === 'not_categorised'
+      ).length
+
+      return {
+        taxYear: input.taxYear,
+        totalIncome,
+        expensesByHmrcCategory,
+        uncategorisedCount,
+      }
+    }),
 })
