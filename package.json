@@ -17,6 +17,9 @@
     "db:studio": "turbo run db:studio --filter=@landlordlens/db",
     "email:dev": "turbo run dev --filter=@landlordlens/email"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "devDependencies": {
     "@sentry/nextjs": "^10",
     "turbo": "^2.9.14"

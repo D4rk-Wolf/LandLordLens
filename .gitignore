@@ -55,8 +55,8 @@ coverage/
 *.tsbuildinfo
 .turbo/
 
-# Source maps (generated at build time)
-*.map
+# Source maps in static output only (allow during build for Sentry upload)
+.next/static/**/*.map
 
 # Miscellaneous generated
 /generated/prisma
