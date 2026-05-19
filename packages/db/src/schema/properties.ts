@@ -1,3 +1,17 @@
+/**
+ * @module schema/properties
+ * Core property record — the central entity in the LandLordLens data model.
+ *
+ * `address` is stored as JSONB (shape: { line1, line2?, city, postcode }) to
+ * accommodate varied UK address formats without a normalised address table.
+ * `compliance` and `financials` are legacy JSONB blobs superseded by the
+ * dedicated `complianceRecords` and `expenses` tables; kept for backwards
+ * compatibility with older data.
+ *
+ * EPC, HMO, and mortgage fields are directly on the property row because they
+ * are property-level obligations rather than tenancy-level ones.  The 2030 EPC
+ * minimum C-rating requirement drives the EPC countdown banner on the compliance page.
+ */
 import { pgTable, uuid, text, integer, numeric, date, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { profiles } from './profiles'
 

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser, isAdmin } from '@landlordlens/auth'
+import { getCurrentUser } from '@landlordlens/auth'
 import { createServerCaller } from '@/lib/trpc/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@landlordlens/ui'
 

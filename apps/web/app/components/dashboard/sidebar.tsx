@@ -1,3 +1,20 @@
+/**
+ * Sidebar — persistent desktop navigation panel for the authenticated dashboard.
+ *
+ * Visible only on screens >= 768 px wide (hidden on mobile; see `MobileHeader`
+ * for the mobile equivalent).  Renders the brand logo, a primary nav list, and
+ * a sign-out button at the bottom.
+ *
+ * Active-route highlighting uses `usePathname()` with two matching strategies:
+ *   - `exact: true`  — the link is active only when the path matches exactly
+ *     (used for "/dashboard" and "/dashboard/analytics" to avoid them being
+ *     highlighted on every sub-route).
+ *   - prefix match   — the link is active when the path starts with `href`
+ *     (used for section roots like "/dashboard/properties").
+ *
+ * Sign-out calls `supabase.auth.signOut()` on the browser client and then
+ * navigates to `/sign-in`, invalidating the local session cookie.
+ */
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -18,6 +35,7 @@ const navItems = [
   { href: '/dashboard/properties', label: 'Properties', icon: Building2 },
   { href: '/dashboard/compliance', label: 'Compliance', icon: ShieldCheck },
   { href: '/dashboard/compliance/prs-readiness', label: 'PRS Readiness', icon: ShieldCheck },
+  // `exact: true` prevents this from matching /dashboard/analytics/portfolio
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3, exact: true },
   { href: '/dashboard/analytics/portfolio', label: 'Portfolio Analytics', icon: BarChart3 },
   { href: '/dashboard/services', label: 'Services', icon: Wrench },
@@ -29,13 +47,20 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
 
+  /** Signs the user out via the Supabase browser client and redirects to the sign-in page. */
   async function handleSignOut() {
     const supabase = createBrowserClient()
     await supabase.auth.signOut()
     router.push('/sign-in')
+    // router.refresh() forces Next.js to re-run Server Components so the
+    // dashboard layout's auth check re-evaluates and redirects properly.
     router.refresh()
   }
 
+  /**
+   * Returns true when the current pathname matches the nav item's href.
+   * @param exact - When true, requires an exact match; otherwise a prefix match is used.
+   */
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href
     return pathname.startsWith(href)

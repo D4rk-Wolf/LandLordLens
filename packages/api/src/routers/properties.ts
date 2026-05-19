@@ -1,3 +1,9 @@
+/**
+ * @module routers/properties
+ * tRPC router for managing a landlord's property portfolio, including
+ * tier-gated property creation and per-user data isolation.
+ */
+
 import { z } from 'zod'
 import { eq, and, desc } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
@@ -6,6 +12,7 @@ import { properties } from '@landlordlens/db/schema'
 import { canAddProperty, TierLimitError } from '@landlordlens/billing'
 import type { SubscriptionTier } from '@landlordlens/billing'
 
+/** Zod schema for a structured UK postal address stored as JSONB. */
 const addressSchema = z.object({
   line1: z.string().min(1),
   line2: z.string().optional(),
@@ -15,6 +22,7 @@ const addressSchema = z.object({
   country: z.string().default('United Kingdom'),
 })
 
+/** Input schema for creating a new property. */
 const createPropertySchema = z.object({
   address: addressSchema,
   propertyType: z.enum(['house', 'flat', 'apartment', 'bungalow', 'other']).default('house'),
@@ -34,12 +42,14 @@ const createPropertySchema = z.object({
   notes: z.string().optional(),
 })
 
+/** Input schema for updating an existing property; all fields are optional except `id`. */
 const updatePropertySchema = createPropertySchema.partial().extend({
   id: z.string().uuid(),
   status: z.enum(['vacant', 'occupied', 'maintenance']).optional(),
 })
 
 export const propertiesRouter = createTRPCRouter({
+  /** Returns all properties owned by the authenticated landlord, newest first. */
   list: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db
       .select()
@@ -48,6 +58,11 @@ export const propertiesRouter = createTRPCRouter({
       .orderBy(desc(properties.createdAt))
   }),
 
+  /**
+   * Fetches a single property by UUID.
+   * The `userId` check ensures a landlord cannot read another user's property
+   * even if they know the UUID.
+   */
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -59,6 +74,15 @@ export const propertiesRouter = createTRPCRouter({
       return property
     }),
 
+  /**
+   * Creates a new property after verifying the landlord's subscription tier
+   * permits additional properties.
+   *
+   * The tier limit is enforced here (server-side) in addition to any
+   * client-side gating, so the billing guard cannot be bypassed via the API.
+   * A `TierLimitError` from the billing package is converted to a tRPC
+   * FORBIDDEN error with the human-readable upgrade message.
+   */
   create: protectedProcedure
     .input(createPropertySchema)
     .mutation(async ({ ctx, input }) => {
@@ -78,6 +102,11 @@ export const propertiesRouter = createTRPCRouter({
       return property!
     }),
 
+  /**
+   * Partially updates an existing property.
+   * The `userId` guard in the WHERE clause prevents cross-user writes;
+   * a null result means the record either doesn't exist or belongs to someone else.
+   */
   update: protectedProcedure
     .input(updatePropertySchema)
     .mutation(async ({ ctx, input }) => {

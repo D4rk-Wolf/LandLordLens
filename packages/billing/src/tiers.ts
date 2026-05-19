@@ -1,3 +1,18 @@
+/**
+ * @module billing/tiers
+ * Subscription tier definitions and helper accessors.
+ *
+ * `TIERS` is the single source of truth for plan names, property limits,
+ * GBP pricing, and Stripe price IDs.  Keep this in sync with the
+ * `SubscriptionTier` type in `packages/db/src/schema/profiles.ts`.
+ *
+ * Price IDs are read from environment variables at module load time so that
+ * the same code works across test, staging, and production Stripe accounts
+ * without code changes.  Missing price IDs resolve to `null` and are caught
+ * at checkout time by `createCheckoutSession`.
+ */
+
+/** Canonical subscription tier identifiers — must match the DB enum in profiles.ts. */
 export type SubscriptionTier = 'free' | 'professional' | 'business' | 'enterprise'
 
 export interface TierConfig {

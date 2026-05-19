@@ -1,8 +1,22 @@
+/**
+ * PropertyCard — summary card for a single property shown in the properties grid.
+ *
+ * Clicking the card navigates to the property detail page at
+ * `/dashboard/properties/[id]`.  The status badge uses a traffic-light colour
+ * scheme to communicate occupancy at a glance:
+ *   - Amber  — vacant (property is unlet, potential rental income loss)
+ *   - Green  — occupied (active tenancy)
+ *   - Red    — maintenance (property temporarily taken off-market for works)
+ */
 import Link from 'next/link'
 import { Card, CardContent } from '@landlordlens/ui'
 import { formatAddress } from './address-display'
 import type { Property } from '@landlordlens/db/schema'
 
+/**
+ * Maps a property status value to Tailwind background + text colour classes.
+ * Falls back to a neutral grey for any unrecognised status values.
+ */
 const statusColour: Record<string, string> = {
   vacant: 'bg-amber-100 text-amber-800',
   occupied: 'bg-green-100 text-green-800',
@@ -10,9 +24,14 @@ const statusColour: Record<string, string> = {
 }
 
 interface Props {
+  /** The property record to display. */
   property: Property
 }
 
+/**
+ * Renders a clickable card summarising a property's address, type, bedroom
+ * count, occupancy status, and optional monthly rent.
+ */
 export function PropertyCard({ property }: Props) {
   return (
     <Link href={`/dashboard/properties/${property.id}`}>
@@ -33,6 +52,7 @@ export function PropertyCard({ property }: Props) {
               {property.status}
             </span>
           </div>
+          {/* Only render rent if stored — not all properties have a rent amount set yet. */}
           {property.rentAmount && (
             <p className="text-sm text-gray-600">
               £{Number(property.rentAmount).toLocaleString()}/mo

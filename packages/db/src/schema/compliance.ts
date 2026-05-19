@@ -1,3 +1,16 @@
+/**
+ * @module schema/compliance
+ * Compliance certificate records for a property.
+ *
+ * Each row represents a single regulatory certificate (Gas Safety CP12, EPC,
+ * EICR, HMO licence, etc.) with its issue/expiry dates and whether a copy was
+ * served to the tenant.  The app uses expiry dates to compute compliance status
+ * colours (green / amber / red) shown on the compliance dashboard.
+ *
+ * `servedToTenantDate` is particularly important for Section 8 notice validity —
+ * several grounds require the landlord to prove prescribed information was
+ * served before or at the start of the tenancy.
+ */
 import { pgTable, uuid, text, date, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { properties } from './properties'
 import { profiles } from './profiles'

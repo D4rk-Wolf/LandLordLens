@@ -1,3 +1,12 @@
+/**
+ * @module schema/maintenance
+ * Maintenance tickets for property repairs and inspections.
+ *
+ * Each ticket tracks a single repair or maintenance request from open through to
+ * completion.  Tickets are linked to `maintenanceEvents` (see maintenanceEvents.ts)
+ * which form an immutable audit log of every status change — this log is included
+ * in the Ombudsman Vault export as evidence of responsive repairs management.
+ */
 import { pgTable, uuid, text, date, numeric, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { properties } from './properties'
 import { profiles } from './profiles'

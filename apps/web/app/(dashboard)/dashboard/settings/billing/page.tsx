@@ -46,12 +46,12 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
           const isCurrent = subscription.tier === tier
 
           return (
-            <Card key={tier} className={isCurrent ? 'ring-2 ring-indigo-500' : ''}>
+            <Card key={tier} className={isCurrent ? 'ring-2 ring-amber-500' : ''}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{config.name}</CardTitle>
                   {isCurrent && (
-                    <span className="text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
                       Current
                     </span>
                   )}

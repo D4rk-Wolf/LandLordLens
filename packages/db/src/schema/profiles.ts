@@ -1,7 +1,22 @@
+/**
+ * @module schema/profiles
+ * User profile row that mirrors Supabase's `auth.users` table.
+ *
+ * Created automatically via a Supabase database trigger when a new user signs up.
+ * The `id` column is the same UUID as `auth.users.id`, making joins straightforward.
+ *
+ * Subscription state (`subscription`, `subscriptionStatus`, `subscriptionPeriod`,
+ * `subscriptionEndDate`) is written exclusively by the Stripe webhook handler
+ * (`packages/billing/src/webhooks.ts`) on subscription lifecycle events.
+ * Never update these columns directly — let the webhook maintain them.
+ *
+ * `role` is the canonical admin gate.  Promote a user to admin with:
+ *   UPDATE profiles SET role = 'admin' WHERE id = '<supabase-user-uuid>';
+ */
 import { pgTable, uuid, text, boolean, timestamp } from 'drizzle-orm/pg-core'
 
 export type UserRole = 'landlord' | 'admin' | 'tenant'
-export type SubscriptionTier = 'free' | 'starter' | 'professional' | 'business' | 'enterprise'
+export type SubscriptionTier = 'free' | 'professional' | 'business' | 'enterprise'
 export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete'
 export type SubscriptionPeriod = 'monthly' | 'yearly'
 

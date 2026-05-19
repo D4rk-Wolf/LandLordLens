@@ -1,9 +1,23 @@
+/**
+ * @module routers/expenses
+ * tRPC router for income and expense records used in HMRC self-assessment
+ * reporting, with HMRC SA105 category support.
+ */
+
 import { z } from 'zod'
 import { eq, and, desc, sum } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import { createTRPCRouter, protectedProcedure } from '../trpc'
 import { expenses } from '@landlordlens/db/schema'
 
+/**
+ * Input schema for creating an income or expense record.
+ *
+ * The `hmrcCategory` field maps to the SA105 property income supplementary
+ * page categories used in UK self-assessment tax returns.
+ * Defaults to `not_categorised` so records can be bulk-imported and
+ * categorised later.
+ */
 const createExpenseSchema = z.object({
   propertyId: z.string().uuid().optional(),
   type: z.enum(['income', 'expense']),
@@ -22,11 +36,13 @@ const createExpenseSchema = z.object({
   taxYear: z.string().optional(),
 })
 
+/** Input schema for updating an existing expense record; all fields optional except `id`. */
 const updateExpenseSchema = createExpenseSchema.partial().extend({
   id: z.string().uuid(),
 })
 
 export const expensesRouter = createTRPCRouter({
+  /** Returns all expense/income records for the landlord, sorted by transaction date descending. */
   list: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db
       .select()
@@ -35,6 +51,7 @@ export const expensesRouter = createTRPCRouter({
       .orderBy(desc(expenses.date))
   }),
 
+  /** Returns all expense/income records for a specific property, sorted by date descending. */
   getByProperty: protectedProcedure
     .input(z.object({ propertyId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -45,6 +62,7 @@ export const expensesRouter = createTRPCRouter({
         .orderBy(desc(expenses.date))
     }),
 
+  /** Fetches a single expense record by UUID, returning 404 if not found or not owned. */
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -56,6 +74,7 @@ export const expensesRouter = createTRPCRouter({
       return expense
     }),
 
+  /** Creates a new income or expense record linked to the landlord's account. */
   create: protectedProcedure
     .input(createExpenseSchema)
     .mutation(async ({ ctx, input }) => {
@@ -66,6 +85,7 @@ export const expensesRouter = createTRPCRouter({
       return expense!
     }),
 
+  /** Partially updates an expense record (e.g. to assign an HMRC category after import). */
   update: protectedProcedure
     .input(updateExpenseSchema)
     .mutation(async ({ ctx, input }) => {
@@ -79,6 +99,7 @@ export const expensesRouter = createTRPCRouter({
       return updated
     }),
 
+  /** Permanently deletes an expense/income record. */
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
