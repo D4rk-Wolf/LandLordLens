@@ -200,7 +200,7 @@ export default function PricingPage() {
                     )}
                   </div>
                   {isPaid && (
-                    <p style={{ fontSize: 11.5, color: 'var(--shell-text-faint)', marginTop: 3 }}>
+                    <p style={{ fontSize: 11.5, color: 'var(--shell-text-muted)', marginTop: 3 }}>
                       £{config.yearlyPriceGbp}/yr · save 2 months
                     </p>
                   )}
@@ -268,7 +268,7 @@ export default function PricingPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 40 }}>
-          <p style={{ fontSize: 12, color: 'var(--shell-text-faint)', marginBottom: 12 }}>
+          <p style={{ fontSize: 12, color: 'var(--shell-text-muted)', marginBottom: 12 }}>
             All prices in GBP. VAT may apply. Cancel anytime.
           </p>
           <Link
