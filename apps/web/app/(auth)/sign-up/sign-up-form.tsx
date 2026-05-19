@@ -92,7 +92,7 @@ export function SignUpForm() {
           <span style={{ color: 'var(--shell-text)', fontWeight: 500 }}>{email}</span>.
           Click it to activate your account.
         </p>
-        <p style={{ fontSize: 11.5, color: 'var(--shell-text-faint)', marginTop: 12 }}>
+        <p style={{ fontSize: 11.5, color: 'var(--shell-text-muted)', marginTop: 12 }}>
           Didn&apos;t receive it? Check your spam folder.
         </p>
       </div>
@@ -168,12 +168,12 @@ export function SignUpForm() {
             borderColor: focused === 'password' ? 'var(--shell-accent)' : 'var(--shell-border)',
           }}
         />
-        <p style={{ fontSize: 11, color: 'var(--shell-text-faint)', marginTop: 5 }}>
+        <p style={{ fontSize: 11, color: 'var(--shell-text-muted)', marginTop: 5 }}>
           Minimum 8 characters
         </p>
       </div>
 
-      <p style={{ fontSize: 11.5, color: 'var(--shell-text-faint)', marginBottom: 16, lineHeight: 1.5 }}>
+      <p style={{ fontSize: 11.5, color: 'var(--shell-text-muted)', marginBottom: 16, lineHeight: 1.5 }}>
         By creating an account you agree to our{' '}
         <Link href="/terms" style={{ color: 'var(--shell-accent)', textDecoration: 'none' }}>
           Terms of Service

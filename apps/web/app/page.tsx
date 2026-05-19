@@ -137,7 +137,7 @@ export default async function LandingPage() {
                 fontWeight: 500,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
-                color: 'var(--shell-text-faint)',
+                color: 'var(--shell-text-muted)',
                 paddingTop: 2,
               }}
             >
@@ -181,6 +181,7 @@ export default async function LandingPage() {
         </div>
       </nav>
 
+      <main>
       {/* ─── HERO ─── */}
       <section
         style={{
@@ -528,6 +529,8 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      </main>
+
       {/* ─── FOOTER ─── */}
       <footer
         style={{
@@ -559,11 +562,11 @@ export default async function LandingPage() {
             >
               LandLord<span style={{ color: 'var(--shell-accent)' }}>Lens</span>
             </span>
-            <span style={{ color: 'var(--shell-text-faint)', fontSize: 13 }}>—</span>
+            <span style={{ color: 'var(--shell-text-muted)', fontSize: 13 }}>—</span>
             <span
               style={{
                 fontSize: 12,
-                color: 'var(--shell-text-faint)',
+                color: 'var(--shell-text-muted)',
               }}
             >
               © <span suppressHydrationWarning>{new Date().getFullYear()}</span> D4rkWolf Studios. All rights reserved.
@@ -572,31 +575,31 @@ export default async function LandingPage() {
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <Link
               href="/pricing"
-              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+              style={{ fontSize: 12, color: 'var(--shell-text-muted)', textDecoration: 'none' }}
             >
               Pricing
             </Link>
             <Link
               href="/privacy"
-              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+              style={{ fontSize: 12, color: 'var(--shell-text-muted)', textDecoration: 'none' }}
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+              style={{ fontSize: 12, color: 'var(--shell-text-muted)', textDecoration: 'none' }}
             >
               Terms
             </Link>
             <Link
               href="/cookies"
-              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+              style={{ fontSize: 12, color: 'var(--shell-text-muted)', textDecoration: 'none' }}
             >
               Cookies
             </Link>
             <Link
               href="/sign-in"
-              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+              style={{ fontSize: 12, color: 'var(--shell-text-muted)', textDecoration: 'none' }}
             >
               Sign in
             </Link>
