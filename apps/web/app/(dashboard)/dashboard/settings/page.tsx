@@ -1,6 +1,11 @@
 import { getCurrentUser } from '@landlordlens/auth'
 import { Card, CardContent, CardHeader, CardTitle, Separator } from '@landlordlens/ui'
 import Link from 'next/link'
+import { db } from '@landlordlens/db'
+import { profiles } from '@landlordlens/db/schema'
+import { eq } from 'drizzle-orm'
+import { DataExportButton } from './data-export-button'
+import { DeleteAccountButton } from './delete-account-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +13,10 @@ export default async function SettingsPage() {
   const user = await getCurrentUser()
 
   if (!user) return null
+
+  const [profile] = await db.select({
+    lastExportRequestedAt: profiles.lastExportRequestedAt,
+  }).from(profiles).where(eq(profiles.id, user.id))
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -44,6 +53,29 @@ export default async function SettingsPage() {
           <p className="text-sm text-gray-500">
             Manage your plan, upgrade, or view invoices on the billing page.
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Data & Privacy</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Download your data</p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Export all your account data as a JSON file. One request per 24 hours.
+            </p>
+            <DataExportButton lastRequestedAt={profile?.lastExportRequestedAt ?? null} />
+          </div>
+          <Separator />
+          <div>
+            <p className="text-sm font-medium text-red-600">Delete account</p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Permanently delete your account and all data after a 30-day grace period.
+            </p>
+            <DeleteAccountButton email={user.email ?? ''} />
+          </div>
         </CardContent>
       </Card>
     </div>
