@@ -35,6 +35,8 @@ export const profiles = pgTable('profiles', {
   stripeSubscriptionId: text('stripe_subscription_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  lastExportRequestedAt: timestamp('last_export_requested_at', { withTimezone: true }),
+  deletionRequestedAt: timestamp('deletion_requested_at', { withTimezone: true }),
 })
 
 export type Profile = typeof profiles.$inferSelect
