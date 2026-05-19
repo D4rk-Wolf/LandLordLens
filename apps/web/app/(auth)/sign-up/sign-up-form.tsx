@@ -173,6 +173,17 @@ export function SignUpForm() {
         </p>
       </div>
 
+      <p style={{ fontSize: 11.5, color: 'var(--shell-text-faint)', marginBottom: 16, lineHeight: 1.5 }}>
+        By creating an account you agree to our{' '}
+        <Link href="/terms" style={{ color: 'var(--shell-accent)', textDecoration: 'none' }}>
+          Terms of Service
+        </Link>
+        {' '}and{' '}
+        <Link href="/privacy" style={{ color: 'var(--shell-accent)', textDecoration: 'none' }}>
+          Privacy Policy
+        </Link>.
+      </p>
+
       <button
         type="submit"
         disabled={loading}

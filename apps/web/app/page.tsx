@@ -569,12 +569,30 @@ export default async function LandingPage() {
               © <span suppressHydrationWarning>{new Date().getFullYear()}</span> D4rkWolf Studios. All rights reserved.
             </span>
           </div>
-          <div style={{ display: 'flex', gap: 20 }}>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <Link
               href="/pricing"
               style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
             >
               Pricing
+            </Link>
+            <Link
+              href="/privacy"
+              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/terms"
+              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+            >
+              Terms
+            </Link>
+            <Link
+              href="/cookies"
+              style={{ fontSize: 12, color: 'var(--shell-text-faint)', textDecoration: 'none' }}
+            >
+              Cookies
             </Link>
             <Link
               href="/sign-in"
