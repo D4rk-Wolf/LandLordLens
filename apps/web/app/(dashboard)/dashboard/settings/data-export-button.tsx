@@ -43,7 +43,7 @@ export function DataExportButton({ lastRequestedAt }: Props) {
   }
 
   const nextAvailable = lastRequestedAt
-    ? new Date(new Date(lastRequestedAt).getTime() + 24 * 60 * 60 * 1000)
+    ? new Date(lastRequestedAt.getTime() + 24 * 60 * 60 * 1000)
     : null
 
   const isDisabled = loading || rateLimited || (nextAvailable !== null && nextAvailable > new Date())
