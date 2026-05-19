@@ -36,7 +36,7 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Subscription</CardTitle>
-          <Link href="/dashboard/settings/billing" className="text-sm text-indigo-600 hover:underline">
+          <Link href="/dashboard/settings/billing" className="text-sm text-amber-600 hover:underline">
             Manage billing →
           </Link>
         </CardHeader>
