@@ -14,6 +14,7 @@
   "devDependencies": {
     "@landlordlens/api": "workspace:*",
     "@landlordlens/auth": "workspace:*",
+    "@supabase/supabase-js": "^2.105.4",
     "@landlordlens/billing": "workspace:*",
     "@landlordlens/config": "workspace:*",
     "@landlordlens/db": "workspace:*",

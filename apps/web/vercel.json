@@ -8,6 +8,15 @@
     },
     "app/api/export/audit-pack/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/cron/purge-deleted-accounts/route.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/purge-deleted-accounts",
+      "schedule": "0 2 * * *"
+    }
+  ]
 }
