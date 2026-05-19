@@ -8,6 +8,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getCurrentUser()
   if (!user) redirect('/sign-in')
 
+  const role = user.app_metadata?.['role'] as string | undefined
+  if (!isAdmin(role as Parameters<typeof isAdmin>[0])) redirect('/dashboard')
   const [profile] = await db.select({ role: profiles.role }).from(profiles).where(eq(profiles.id, user.id))
   if (!profile || profile.role !== 'admin') redirect('/dashboard')
 

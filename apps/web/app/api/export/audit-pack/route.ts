@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
   const twelveMonthsAgo = new Date()
   twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1)
 
+  const [deposits, compliance, maintenance, events] = await Promise.all([
   // Fetch compliance, deposits, and maintenance in parallel for performance.
   const [deposits, compliance, maintenance] = await Promise.all([
     db.select().from(depositProtections).where(and(eq(depositProtections.tenancyId, tenancyId), eq(depositProtections.userId, user.id))),
