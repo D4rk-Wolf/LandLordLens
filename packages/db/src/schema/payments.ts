@@ -7,7 +7,7 @@ export type PaymentType = 'subscription' | 'one_time'
 
 export const payments = pgTable('payments', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => profiles.id),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'set null' }),
   stripePaymentIntentId: text('stripe_payment_intent_id'),
   stripeChargeId: text('stripe_charge_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
