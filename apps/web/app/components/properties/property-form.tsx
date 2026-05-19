@@ -90,7 +90,7 @@ export function PropertyForm({ mode }: PropertyFormProps) {
               id="propertyType"
               name="propertyType"
               defaultValue="house"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               <option value="house">House</option>
               <option value="flat">Flat</option>
@@ -105,7 +105,7 @@ export function PropertyForm({ mode }: PropertyFormProps) {
               id="region"
               name="region"
               defaultValue="england"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               <option value="england">England</option>
               <option value="wales">Wales</option>
@@ -136,7 +136,7 @@ export function PropertyForm({ mode }: PropertyFormProps) {
           id="notes"
           name="notes"
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
       </div>
 
