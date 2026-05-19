@@ -78,3 +78,25 @@ export async function sendTenantInviteEmail(
     react: TenantInviteEmail({ landlordName, propertyAddress, inviteUrl }),
   })
 }
+
+export async function sendDataExportEmail(to: string) {
+  const { DataExportEmail } = await import('./templates/data-export')
+  const resend = getResendClient()
+  return resend.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject: 'Your LandLordLens data export',
+    react: DataExportEmail(),
+  })
+}
+
+export async function sendAccountDeletionEmail(to: string, purgeDate: string) {
+  const { AccountDeletionEmail } = await import('./templates/account-deletion')
+  const resend = getResendClient()
+  return resend.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject: 'Your LandLordLens account has been scheduled for deletion',
+    react: AccountDeletionEmail({ purgeDate }),
+  })
+}

@@ -4,4 +4,6 @@ export {
   sendPasswordResetEmail,
   sendComplianceAlertEmail,
   sendTenantInviteEmail,
+  sendDataExportEmail,
+  sendAccountDeletionEmail,
 } from './resend'
