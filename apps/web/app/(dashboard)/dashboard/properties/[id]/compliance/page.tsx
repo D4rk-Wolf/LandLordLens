@@ -53,7 +53,7 @@ export default async function PropertyCompliancePage({
                       {record.complianceType.replace(/_/g, ' ')}
                     </p>
                     {record.issuer && <p className="text-sm text-gray-500">Issued by {record.issuer}</p>}
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-500 mt-1">
                       Issued: {record.issueDate} · Expires: {record.expiryDate}
                     </p>
                   </div>

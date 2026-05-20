@@ -44,7 +44,7 @@ export default async function PropertyMaintenancePage({
                   {ticket.description && (
                     <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{ticket.description}</p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     {new Date(ticket.createdAt).toLocaleDateString('en-GB')}
                     {ticket.assignedTo && ` · Assigned to ${ticket.assignedTo}`}
                   </p>
@@ -53,7 +53,7 @@ export default async function PropertyMaintenancePage({
                   <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${priorityColour[ticket.priority] ?? 'bg-gray-100 text-gray-600'}`}>
                     {ticket.priority}
                   </span>
-                  <span className="text-xs text-gray-400 capitalize">
+                  <span className="text-xs text-gray-500 capitalize">
                     {ticket.status.replace(/_/g, ' ')}
                   </span>
                 </div>

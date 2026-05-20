@@ -42,7 +42,7 @@ export function StatCard({ label, value, sublabel, accent = 'default' }: StatCar
       <CardContent className="p-6">
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <p className={`text-3xl font-bold mt-1 ${accentMap[accent]}`}>{value}</p>
-        {sublabel && <p className="text-xs text-gray-400 mt-1">{sublabel}</p>}
+        {sublabel && <p className="text-xs text-gray-500 mt-1">{sublabel}</p>}
       </CardContent>
     </Card>
   )

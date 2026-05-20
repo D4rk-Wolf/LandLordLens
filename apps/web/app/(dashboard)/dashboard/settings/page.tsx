@@ -37,7 +37,7 @@ export default async function SettingsPage() {
           <Separator />
           <div>
             <p className="text-sm font-medium text-gray-500">Account ID</p>
-            <p className="text-xs text-gray-400 font-mono mt-0.5">{user.id}</p>
+            <p className="text-xs text-gray-500 font-mono mt-0.5">{user.id}</p>
           </div>
         </CardContent>
       </Card>

@@ -63,7 +63,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
                     {config.monthlyPriceGbp === 0 ? 'Free' : `£${config.monthlyPriceGbp}/mo`}
                   </p>
                   {config.yearlyPriceGbp > 0 && (
-                    <p className="text-xs text-gray-400">or £{config.yearlyPriceGbp}/yr</p>
+                    <p className="text-xs text-gray-500">or £{config.yearlyPriceGbp}/yr</p>
                   )}
                 </div>
                 <ul className="space-y-1">

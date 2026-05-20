@@ -37,7 +37,7 @@ export default async function PropertyTenanciesPage({
                 <div>
                   <p className="font-medium text-gray-900">{tenancy.tenantName}</p>
                   <p className="text-sm text-gray-500">{tenancy.tenantEmail}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     {tenancy.startDate} → {tenancy.endDate ?? 'ongoing'}
                   </p>
                 </div>

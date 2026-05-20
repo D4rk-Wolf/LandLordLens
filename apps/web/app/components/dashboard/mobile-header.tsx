@@ -149,7 +149,7 @@ export function MobileHeader() {
                 borderRadius: 6,
                 border: 'none',
                 background: 'transparent',
-                color: 'var(--shell-text-faint)',
+                color: 'var(--shell-text-muted)',
                 fontSize: 13.5,
                 cursor: 'pointer',
                 width: '100%',

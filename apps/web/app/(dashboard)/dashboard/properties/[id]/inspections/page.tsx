@@ -37,7 +37,7 @@ export default async function PropertyInspectionsPage({
                     {inspection.inspectionType.replace(/_/g, ' ')} inspection
                   </p>
                   <p className="text-sm text-gray-500">By {inspection.conductedBy}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     Scheduled: {inspection.scheduledDate}
                     {inspection.actualDate && ` · Completed: ${inspection.actualDate}`}
                   </p>

@@ -107,7 +107,7 @@ export function Sidebar() {
               fontWeight: 500,
               letterSpacing: '0.07em',
               textTransform: 'uppercase' as const,
-              color: 'var(--shell-text-faint)',
+              color: 'var(--shell-text-muted)',
               marginTop: 2,
             }}
           >
@@ -133,7 +133,7 @@ export function Sidebar() {
             fontWeight: 600,
             letterSpacing: '0.1em',
             textTransform: 'uppercase' as const,
-            color: 'var(--shell-text-faint)',
+            color: 'var(--shell-text-muted)',
             padding: '4px 10px 8px',
           }}
         >
@@ -165,7 +165,7 @@ export function Sidebar() {
                 size={14}
                 style={{
                   flexShrink: 0,
-                  color: active ? 'var(--shell-accent)' : 'var(--shell-text-faint)',
+                  color: active ? 'var(--shell-accent)' : 'var(--shell-text-muted)',
                 }}
               />
               {label}
@@ -191,7 +191,7 @@ export function Sidebar() {
             borderRadius: 6,
             border: 'none',
             background: 'transparent',
-            color: 'var(--shell-text-faint)',
+            color: 'var(--shell-text-muted)',
             fontSize: 13,
             fontWeight: 400,
             cursor: 'pointer',
@@ -206,7 +206,7 @@ export function Sidebar() {
           }}
           onMouseLeave={(e) => {
             const el = e.currentTarget
-            el.style.color = 'var(--shell-text-faint)'
+            el.style.color = 'var(--shell-text-muted)'
             el.style.background = 'transparent'
           }}
         >

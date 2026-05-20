@@ -40,13 +40,13 @@ export default async function PropertyDetailPage({
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Link href="/dashboard/properties" className="text-sm text-gray-400 hover:text-gray-600">
+            <Link href="/dashboard/properties" className="text-sm text-gray-500 hover:text-gray-600">
               Properties
             </Link>
-            <span className="text-gray-300">/</span>
+            <span className="text-gray-500">/</span>
           </div>
           <AddressDisplay address={property.address} />
-          <p className="text-xs text-gray-400 mt-1 capitalize">
+          <p className="text-xs text-gray-500 mt-1 capitalize">
             {property.propertyType} · {property.bedrooms} bed · {property.bathrooms} bath
           </p>
         </div>

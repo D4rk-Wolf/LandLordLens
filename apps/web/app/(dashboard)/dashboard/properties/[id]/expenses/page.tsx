@@ -43,7 +43,7 @@ export default async function PropertyExpensesPage({
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900">{expense.description}</p>
-                  <p className="text-xs text-gray-400 capitalize">
+                  <p className="text-xs text-gray-500 capitalize">
                     {expense.category} · {expense.date}
                     {expense.isTaxDeductible && (
                       <span className="ml-2 text-green-600">Tax deductible</span>

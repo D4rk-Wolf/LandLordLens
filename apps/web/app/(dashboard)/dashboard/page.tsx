@@ -55,21 +55,21 @@ export default async function DashboardPage() {
               className="flex items-center justify-between p-3 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700"
             >
               Add property
-              <span className="text-gray-400">→</span>
+              <span className="text-gray-500">→</span>
             </Link>
             <Link
               href="/dashboard/compliance"
               className="flex items-center justify-between p-3 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700"
             >
               View all compliance
-              <span className="text-gray-400">→</span>
+              <span className="text-gray-500">→</span>
             </Link>
             <Link
               href="/dashboard/analytics"
               className="flex items-center justify-between p-3 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700"
             >
               View analytics
-              <span className="text-gray-400">→</span>
+              <span className="text-gray-500">→</span>
             </Link>
           </CardContent>
         </Card>

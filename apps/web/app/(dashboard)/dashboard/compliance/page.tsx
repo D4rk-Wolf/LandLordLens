@@ -77,7 +77,7 @@ export default async function CompliancePage() {
       {records.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg">
           <p className="text-gray-500">No compliance records yet</p>
-          <p className="text-sm text-gray-400 mt-1">Add compliance records from individual property pages</p>
+          <p className="text-sm text-gray-500 mt-1">Add compliance records from individual property pages</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -95,7 +95,7 @@ export default async function CompliancePage() {
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       Expires: {record.expiryDate}
                       {record.issuer && ` · ${record.issuer}`}
                     </p>

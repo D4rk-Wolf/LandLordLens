@@ -33,10 +33,10 @@ export default async function PropertyDocumentsPage({
           {docs.map((doc) => (
             <Card key={doc.id}>
               <CardContent className="p-4 flex items-center gap-3">
-                <FileText className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                <FileText className="h-5 w-5 text-gray-500 flex-shrink-0" />
                 <div className="min-w-0">
                   <p className="font-medium text-gray-900 truncate">{doc.name}</p>
-                  <p className="text-xs text-gray-400 capitalize">
+                  <p className="text-xs text-gray-500 capitalize">
                     {doc.category} · {new Date(doc.createdAt).toLocaleDateString('en-GB')}
                   </p>
                 </div>

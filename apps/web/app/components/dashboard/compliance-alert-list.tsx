@@ -48,7 +48,7 @@ function daysUntil(dateStr: string): number {
 function urgencyBadge(days: number) {
   if (days < 0) return <Badge variant="destructive">Overdue</Badge>
   if (days <= 14) return <Badge className="bg-amber-500 hover:bg-amber-600">Expires soon</Badge>
-  if (days <= 30) return <Badge variant="secondary">Due in {days}d</Badge>
+  if (days <= 30) return <Badge className="border-gray-500 bg-gray-100 text-gray-700">Due in {days}d</Badge>
   return null
 }
 
@@ -77,7 +77,7 @@ export function ComplianceAlertList({ records }: Props) {
           <span className="text-gray-700 capitalize">
             {record.complianceType.replace(/_/g, ' ')}
           </span>
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-gray-500">
             <span>{record.expiryDate}</span>
             {urgencyBadge(record.days)}
           </div>

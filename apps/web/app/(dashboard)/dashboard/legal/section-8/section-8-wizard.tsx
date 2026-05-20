@@ -61,7 +61,7 @@ export function Section8Wizard({ tenancies }: Props) {
     return (
       <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg">
         <p className="text-gray-500 font-medium">No active tenancies found</p>
-        <p className="text-sm text-gray-400 mt-1">Add a tenancy before using the Section 8 wizard.</p>
+        <p className="text-sm text-gray-500 mt-1">Add a tenancy before using the Section 8 wizard.</p>
       </div>
     )
   }
@@ -73,7 +73,7 @@ export function Section8Wizard({ tenancies }: Props) {
         {([1, 2, 3] as const).map(s => (
           <div key={s} className="flex items-center gap-2">
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-              s === step ? 'bg-amber-500 text-white' : s < step ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'
+              s === step ? 'bg-amber-500 text-white' : s < step ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
             }`}>{s}</div>
             {s < 3 && <div className={`h-px w-8 ${s < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
           </div>
@@ -111,7 +111,7 @@ export function Section8Wizard({ tenancies }: Props) {
 
           {(['mandatory', 'discretionary'] as const).map(type => (
             <div key={type}>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
                 {type === 'mandatory' ? 'Mandatory grounds — court must grant possession' : 'Discretionary grounds — court decides'}
               </h3>
               <div className="space-y-2">
@@ -135,7 +135,7 @@ export function Section8Wizard({ tenancies }: Props) {
                           <span className="text-sm font-medium text-gray-900">{g.title}</span>
                           <p className="text-xs text-gray-500 mt-0.5">{g.description}</p>
                         </div>
-                        <span className="text-xs text-gray-400 shrink-0 whitespace-nowrap">{g.noticePeriod}</span>
+                        <span className="text-xs text-gray-500 shrink-0 whitespace-nowrap">{g.noticePeriod}</span>
                       </div>
                       {!canUse && (
                         <p className="mt-2 text-xs text-red-600">
@@ -186,7 +186,7 @@ export function Section8Wizard({ tenancies }: Props) {
               <li>If tenant does not vacate, apply to court for a possession order.</li>
             </ol>
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-500">
             This wizard generates a draft summary for reference only. Always seek qualified legal advice before serving a Section 8 notice.
           </p>
         </div>

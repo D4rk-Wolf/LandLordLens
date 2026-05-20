@@ -28,7 +28,7 @@ export default async function PropertiesPage() {
       {properties.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg">
           <p className="text-gray-500 font-medium">No properties yet</p>
-          <p className="text-sm text-gray-400 mt-1">Add your first property to get started</p>
+          <p className="text-sm text-gray-500 mt-1">Add your first property to get started</p>
           <Button asChild className="mt-4">
             <Link href="/dashboard/properties/new">Add property</Link>
           </Button>

@@ -59,7 +59,7 @@ export function DataExportButton({ lastRequestedAt }: Props) {
         {loading ? 'Preparing export…' : 'Download my data'}
       </Button>
       {lastRequestedAt && (
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           Last requested:{' '}
           {new Date(lastRequestedAt).toLocaleDateString('en-GB', {
             day: 'numeric', month: 'short', year: 'numeric',
@@ -67,7 +67,7 @@ export function DataExportButton({ lastRequestedAt }: Props) {
         </p>
       )}
       {isDisabled && !loading && nextAvailable && (
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           Next export available:{' '}
           {nextAvailable.toLocaleDateString('en-GB', {
             day: 'numeric', month: 'short', year: 'numeric',
